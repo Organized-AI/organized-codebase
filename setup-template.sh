@@ -22,9 +22,15 @@ fi
 
 echo "📁 Creating project directory: $PROJECT_NAME"
 
-# Create project directory
-mkdir -p "$PROJECT_NAME"
-cd "$PROJECT_NAME"
+# Get the script's directory (Organized Codebase location)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Set target directory to parent Windsurf directory
+TARGET_DIR="$(dirname "$SCRIPT_DIR")/$PROJECT_NAME"
+
+# Create project directory in the Windsurf parent directory
+mkdir -p "$TARGET_DIR"
+cd "$TARGET_DIR"
 
 echo "📋 Creating directory structure..."
 
@@ -44,14 +50,8 @@ echo "📝 Copying template files..."
 # Copy template files from the organized-codebase repository
 # Note: This assumes you have the organized-codebase template available
 
-# Check if we're in the template directory or need to download it
-if [ ! -f "../organized-codebase/README.md" ]; then
-    echo "📥 Downloading template from GitHub..."
-    git clone https://github.com/Organized-AI/organized-codebase.git temp-template
-    TEMPLATE_DIR="temp-template"
-else
-    TEMPLATE_DIR="../organized-codebase"
-fi
+# Use the Organized Codebase directory as the template source
+TEMPLATE_DIR="$SCRIPT_DIR"
 
 # Copy all template files
 cp -r "$TEMPLATE_DIR"/PLANNING/* PLANNING/ 2>/dev/null || echo "⚠️  Planning templates not found"
@@ -61,13 +61,18 @@ cp -r "$TEMPLATE_DIR"/SPECIFICATIONS/* SPECIFICATIONS/ 2>/dev/null || echo "⚠�
 cp -r "$TEMPLATE_DIR"/AGENT-HANDOFF/* AGENT-HANDOFF/ 2>/dev/null || echo "⚠️  Agent handoff templates not found"
 cp -r "$TEMPLATE_DIR"/PROJECT-FILES/* PROJECT-FILES/ 2>/dev/null || echo "⚠️  Project files not found"
 
+# Copy DevContainer configuration
+cp -r "$TEMPLATE_DIR"/.devcontainer . 2>/dev/null && echo "✅ Copied DevContainer configuration" || echo "⚠️  DevContainer not found"
+
+# Copy automation scripts
+mkdir -p scripts
+cp -r "$TEMPLATE_DIR"/scripts/* scripts/ 2>/dev/null && echo "✅ Copied automation scripts" || echo "⚠️  Scripts not found"
+
+# Copy CONFIG documentation (optional - for reference)
+cp -r "$TEMPLATE_DIR"/CONFIG . 2>/dev/null && echo "✅ Copied CONFIG documentation" || echo "⚠️  CONFIG not found"
+
 # Copy README and other root files
 cp "$TEMPLATE_DIR"/README.md . 2>/dev/null || echo "⚠️  README template not found"
-
-# Clean up temporary template if we downloaded it
-if [ "$TEMPLATE_DIR" = "temp-template" ]; then
-    rm -rf temp-template
-fi
 
 echo "🔧 Customizing templates with project name..."
 
@@ -103,14 +108,19 @@ if [ ! -f "package.json" ]; then
     "dev": "echo 'Add your development server command here'",
     "build": "echo 'Add your build command here'",
     "test": "echo 'Add your test command here'",
-    "start": "echo 'Add your start command here'"
+    "start": "echo 'Add your start command here'",
+    "agent:setup": "node scripts/setup-agent.js"
   },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1"
+  },
+  "devDependencies": {},
   "keywords": [],
   "author": "",
   "license": "MIT"
 }
 EOL
-    echo "✅ Created package.json template"
+    echo "✅ Created package.json template with Claude Agent SDK"
 fi
 
 # Create .gitignore if it doesn't exist
@@ -196,20 +206,34 @@ else
     echo "ℹ️  Git repository already exists"
 fi
 
-echo "📋 Next Steps Checklist:"
-echo ""
-echo "1. 📝 Fill out PLANNING/01-project-brief.md with your project vision"
-echo "2. 📋 Complete PLANNING/02-requirements.md with your feature requirements"
-echo "3. 🏗️  Define your system architecture in PLANNING/03-architecture.md"
-echo "4. 👥 Write user stories in PLANNING/04-user-stories.md"
-echo "5. 🗓️  Create implementation timeline in PLANNING/05-implementation-roadmap.md"
-echo "6. 🤖 Customize AGENT-HANDOFF/coding-instructions.md for your tech stack"
-echo "7. 🔧 Update .env file with your actual configuration values"
-echo "8. 📦 Update package.json with your dependencies and scripts"
-echo "9. 🚀 Start development or hand off to your AI coding agent!"
-echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🎉 Template setup complete for: $PROJECT_NAME"
 echo "📁 Project location: $(pwd)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "💡 Pro tip: Start with PLANNING/01-project-brief.md to define your vision clearly"
-echo "📚 For help: Check out https://github.com/Organized-AI/organized-codebase"
+echo "🚀 QUICK START OPTIONS:"
+echo ""
+echo "Option 1: Manual Setup (Traditional)"
+echo "  1. 📝 Fill out PLANNING/01-project-brief.md"
+echo "  2. 📋 Complete PLANNING/02-requirements.md"
+echo "  3. 🏗️  Define PLANNING/03-architecture.md"
+echo "  4. 🔧 Update .env with your API keys"
+echo "  5. 📦 Run: npm install"
+echo ""
+echo "Option 2: 🤖 AI-POWERED SETUP (Recommended!)"
+echo "  1. 📝 Fill out PLANNING/01-project-brief.md (basic info)"
+echo "  2. Set your API key: export ANTHROPIC_API_KEY='your-key'"
+echo "  3. Run: npm install"
+echo "  4. Run: npm run agent:setup"
+echo "  5. ✨ Let Claude Agent SDK configure everything!"
+echo ""
+echo "Option 3: DevContainer (Isolated Environment)"
+echo "  1. Open folder in VS Code"
+echo "  2. Click 'Reopen in Container'"
+echo "  3. Container auto-configures with Node 20, Python 3.11"
+echo "  4. Run: npm run agent:setup"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "💡 Pro tip: Option 2 (AI-powered) can save 30-60 minutes!"
+echo "📚 For help: https://github.com/Organized-AI/organized-codebase"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
