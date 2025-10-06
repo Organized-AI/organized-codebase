@@ -85,11 +85,12 @@ find . -name "*.bak" -delete
 
 echo "📦 Setting up environment file..."
 
-# Create .env file from example
-if [ -f "PROJECT-FILES/.env.example" ]; then
-    cp PROJECT-FILES/.env.example .env
-    echo "✅ Created .env file from template"
-    echo "⚠️  Remember to update .env with your actual configuration values"
+# Copy .env.example from template root
+if [ -f "$TEMPLATE_DIR/.env.example" ]; then
+    cp "$TEMPLATE_DIR/.env.example" .env.example
+    cp "$TEMPLATE_DIR/.env.example" .env
+    echo "✅ Created .env.example and .env files"
+    echo "⚠️  Remember to update .env with your ANTHROPIC_API_KEY and other values"
 else
     echo "⚠️  No .env.example found in template"
 fi
