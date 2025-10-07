@@ -18,22 +18,36 @@ This template bridges the gap between human planning and AI execution. It provid
 
 ## 🏁 Quick Start
 
-### Option 1: Use GitHub Template (Recommended)
+### Option 1: Use Setup Script (Recommended)
+```bash
+# Clone the template
+git clone https://github.com/Organized-AI/organized-codebase.git
+cd organized-codebase
+
+# Create a new project
+bash setup-template.sh "My New Project"
+```
+
+This creates a complete project with:
+- ✅ DevContainer configuration
+- ✅ Claude Agent SDK integration
+- ✅ Token tracking scripts
+- ✅ All planning templates
+- ✅ Git repository initialized
+
+### Option 2: Use GitHub Template
 1. Click **"Use this template"** button above
 2. Name your new project repository
 3. Clone your new repository locally
 4. Start filling out the planning documents
 
-### Option 2: Clone Directly
+### Option 3: Manual Setup
 ```bash
 git clone https://github.com/Organized-AI/organized-codebase.git your-project-name
 cd your-project-name
 rm -rf .git  # Remove git history
 git init     # Start fresh
 ```
-
-### Option 3: Download Files
-Download the template files and copy them to your project directory.
 
 ## 📁 Template Structure
 
@@ -142,6 +156,66 @@ We welcome contributions! Here's how you can help:
 4. **Improve docs**: Help make the documentation clearer
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## 📊 Automated Token Tracking (Optional)
+
+Track your Claude Code token usage across all projects with automated hourly updates.
+
+### One-Time Setup (Recommended)
+
+```bash
+# From any project created with setup-template.sh
+bash scripts/setup-cron.sh
+```
+
+This installs a **system-wide** cron job that:
+- ✅ Runs hourly (minimal overhead: ~225ms)
+- ✅ Tracks Opus 4, Sonnet 4, Haiku 4 usage
+- ✅ Updates `~/.claude/token-tracker.json`
+- ✅ Works across **ALL** your Claude Code projects
+- ✅ Only needs to be run **ONCE** per system
+
+### View Your Usage
+
+```bash
+# Check current token usage
+cat ~/.claude/token-tracker.json | jq .
+
+# Manual update (optional)
+node scripts/update-token-tracker.js
+```
+
+### Output Format
+
+```json
+{
+  "weekly": {
+    "total": 79853,
+    "byModel": {
+      "claude-opus-4-20250514": 12500,
+      "claude-sonnet-4-5-20250929": 67353
+    },
+    "limits": {}
+  },
+  "daily": {
+    "total": 33510,
+    "byModel": {
+      "claude-sonnet-4-5-20250929": 33510
+    }
+  },
+  "fiveHourWindow": {
+    "limit": 200000,
+    "remaining": 185000,
+    "resetTime": "2025-10-07T18:00:00.000Z"
+  }
+}
+```
+
+**Note:** Models are tracked dynamically by their full ID (e.g., `claude-opus-4-20250514`) and sorted by usage (most used first).
+
+**For iCal integration:** The token tracker provides real-time budget data for scheduling Opus 4 sessions strategically.
+
+See [scripts/README.md](scripts/README.md) for detailed documentation.
 
 ## 📖 Resources
 
