@@ -16,38 +16,68 @@ This template bridges the gap between human planning and AI execution. It provid
 - Teams wanting better project documentation and handoff processes
 - Anyone building software with AI assistance
 
-## 🏁 Quick Start
+## 🏁 Quick Start for First-Time Users
 
-### Option 1: Use Setup Script (Recommended)
+### Step 1: Clone & Create Your Project
 ```bash
-# Clone the template
+# Clone the template repository
 git clone https://github.com/Organized-AI/organized-codebase.git
 cd organized-codebase
 
-# Create a new project
-bash setup-template.sh "My New Project"
+# Create your new project (interactive setup)
+bash setup-template.sh "My Awesome Project"
 ```
 
-This creates a complete project with:
-- ✅ DevContainer configuration
-- ✅ Claude Agent SDK integration
-- ✅ Token tracking scripts
-- ✅ All planning templates
-- ✅ Git repository initialized
+This automatically:
+- ✅ Creates project in parent directory
+- ✅ Copies all templates & configurations
+- ✅ Sets up DevContainer & Claude Agent SDK
+- ✅ Includes Hybrid Agent System (GLM/OpenRouter/Agent Booster)
+- ✅ Initializes git repository
+- ✅ Provides 3 setup options (Manual, AI-powered, or DevContainer)
 
-### Option 2: Use GitHub Template
-1. Click **"Use this template"** button above
-2. Name your new project repository
-3. Clone your new repository locally
-4. Start filling out the planning documents
-
-### Option 3: Manual Setup
+### Step 2: Set Up Token Tracking (Optional but Recommended)
 ```bash
-git clone https://github.com/Organized-AI/organized-codebase.git your-project-name
-cd your-project-name
-rm -rf .git  # Remove git history
-git init     # Start fresh
+# One-time setup for ALL your Claude projects
+bash scripts/setup-cron.sh
 ```
+
+This installs a system-wide tracker that:
+- 📊 Monitors token usage hourly
+- 💰 Helps manage Opus 4 budget
+- 🔄 Works across all projects
+- ⚡ Minimal overhead (~225ms/hour)
+
+Check usage anytime:
+```bash
+cat ~/.claude/token-tracker.json | jq .
+```
+
+### Step 3: Follow the Interactive Setup
+
+After running `setup-template.sh`, you'll see:
+
+**Option A: AI-Powered Setup** (Fastest! 🚀)
+1. Fill out `PLANNING/01-project-brief.md` with basic info
+2. Set your API key: `export ANTHROPIC_API_KEY='your-key'`
+3. Run: `npm install && npm run agent:setup`
+4. Let Claude configure everything based on your brief!
+
+**Option B: Manual Setup** (Traditional)
+1. Fill out planning documents in order
+2. Complete requirements and architecture
+3. Define specifications and handoff instructions
+
+**Option C: DevContainer Setup** (Isolated Environment)
+1. Open in VS Code → "Reopen in Container"
+2. Auto-configures Node 20, Python 3.11, Docker
+3. Run the AI agent for automated setup
+
+### Alternative: GitHub Template Method
+If you prefer using GitHub's template feature:
+1. Click **"Use this template"** button on GitHub
+2. Name your repository
+3. Clone locally and run `bash setup-template.sh`
 
 ## ⚡ Hybrid Agent System (New!)
 
@@ -165,31 +195,91 @@ organized-codebase/
 └── 🚫 .gitignore                           # Git ignore rules (protects API keys)
 ```
 
-## 🚀 How to Use This Template
+## ✅ Getting Started Checklist
 
-### Step 1: Project Planning (Human)
-1. **Start with the vision**: Fill out `PLANNING/01-project-brief.md`
-2. **Define requirements**: Complete `PLANNING/02-requirements.md`
-3. **Design architecture**: Document in `PLANNING/03-architecture.md`
-4. **Write user stories**: Create stories in `PLANNING/04-user-stories.md`
-5. **Plan implementation**: Outline phases in `PLANNING/05-implementation-roadmap.md`
+Follow this order for best results:
 
-### Step 2: Detailed Specifications (Human)
-1. **System design**: Detail your architecture in `ARCHITECTURE/`
-2. **Technical specs**: Define implementation details in `SPECIFICATIONS/`
-3. **Documentation**: Set up project docs in `DOCUMENTATION/`
+- [ ] **1. Run setup script**: `bash setup-template.sh "Project Name"`
+- [ ] **2. Install token tracker**: `bash scripts/setup-cron.sh` (one-time)
+- [ ] **3. Configure API keys**: Add to `.env` file
+  - [ ] `ANTHROPIC_API_KEY` for Claude
+  - [ ] `GLM_API_KEY` for GLM/Z.ai (optional)
+  - [ ] `OPENROUTER_API_KEY` for 100+ models (optional)
+- [ ] **4. Choose setup method**:
+  - [ ] AI-powered (fastest) OR
+  - [ ] Manual (traditional) OR
+  - [ ] DevContainer (isolated)
+- [ ] **5. Fill core planning doc**: `PLANNING/01-project-brief.md`
+- [ ] **6. Run AI agent** (if using AI setup): `npm run agent:setup`
+- [ ] **7. Review generated files**: Check all populated templates
+- [ ] **8. Begin development**: Hand off to Claude Code
 
-### Step 3: Agent Preparation (Human)
-1. **Coding instructions**: Create clear instructions in `AGENT-HANDOFF/coding-instructions.md`
-2. **File structure**: Define expected structure in `AGENT-HANDOFF/file-structure.md`
-3. **Dependencies**: List all requirements in `AGENT-HANDOFF/dependencies.md`
-4. **Completion criteria**: Set quality standards in `AGENT-HANDOFF/completion-checklist.md`
+## 🚀 Detailed Workflow
 
-### Step 4: Handoff to AI Agent (AI)
-1. Provide the completed documentation to Claude Code or similar AI agent
-2. The agent uses the specifications to build your project
-3. Review against the completion checklist
-4. Iterate and refine as needed
+### Phase 1: Initial Setup (5 minutes)
+1. **Run setup script** to create project structure
+2. **Set up token tracking** for budget management
+3. **Configure API keys** in `.env` file
+
+### Phase 2: Planning (10-30 minutes)
+Using **AI-Powered Setup**:
+- Fill basic project brief → AI generates rest
+- Review and refine AI suggestions
+- Total time: ~10 minutes
+
+Using **Manual Setup**:
+- Complete all planning documents
+- Define requirements and architecture
+- Total time: ~30+ minutes
+
+### Phase 3: Development Handoff
+1. **Open in Claude Code** or your AI coding assistant
+2. **Point to documentation** folders
+3. **AI reads specifications** and begins coding
+4. **Iterate based on feedback**
+
+## 📊 Token Usage Tracking
+
+After setting up with `bash scripts/setup-cron.sh`, you get:
+
+### Real-Time Usage Monitoring
+```bash
+# View current usage
+cat ~/.claude/token-tracker.json | jq .
+
+# Manual update
+node scripts/update-token-tracker.js
+```
+
+### Output Format
+```json
+{
+  "weekly": {
+    "total": 79853,
+    "byModel": {
+      "claude-opus-4-20250514": 12500,
+      "claude-sonnet-4-5-20250929": 67353
+    }
+  },
+  "daily": {
+    "total": 33510,
+    "byModel": {
+      "claude-sonnet-4-5-20250929": 33510
+    }
+  },
+  "fiveHourWindow": {
+    "limit": 200000,
+    "remaining": 185000,
+    "resetTime": "2025-10-07T18:00:00.000Z"
+  }
+}
+```
+
+### Budget Optimization Strategy
+**Save 80% on planning costs:**
+- Use **Sonnet 4.5** for drafting (30-50k tokens @ $0.15-0.20)
+- Use **Opus 4** for critical reviews (10-20k tokens @ $0.15-0.25)
+- Total: $0.30-0.45 vs $1-2 with all-Opus
 
 ## 💡 Best Practices
 
@@ -231,66 +321,6 @@ We welcome contributions! Here's how you can help:
 4. **Improve docs**: Help make the documentation clearer
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-## 📊 Automated Token Tracking (Optional)
-
-Track your Claude Code token usage across all projects with automated hourly updates.
-
-### One-Time Setup (Recommended)
-
-```bash
-# From any project created with setup-template.sh
-bash scripts/setup-cron.sh
-```
-
-This installs a **system-wide** cron job that:
-- ✅ Runs hourly (minimal overhead: ~225ms)
-- ✅ Tracks Opus 4, Sonnet 4, Haiku 4 usage
-- ✅ Updates `~/.claude/token-tracker.json`
-- ✅ Works across **ALL** your Claude Code projects
-- ✅ Only needs to be run **ONCE** per system
-
-### View Your Usage
-
-```bash
-# Check current token usage
-cat ~/.claude/token-tracker.json | jq .
-
-# Manual update (optional)
-node scripts/update-token-tracker.js
-```
-
-### Output Format
-
-```json
-{
-  "weekly": {
-    "total": 79853,
-    "byModel": {
-      "claude-opus-4-20250514": 12500,
-      "claude-sonnet-4-5-20250929": 67353
-    },
-    "limits": {}
-  },
-  "daily": {
-    "total": 33510,
-    "byModel": {
-      "claude-sonnet-4-5-20250929": 33510
-    }
-  },
-  "fiveHourWindow": {
-    "limit": 200000,
-    "remaining": 185000,
-    "resetTime": "2025-10-07T18:00:00.000Z"
-  }
-}
-```
-
-**Note:** Models are tracked dynamically by their full ID (e.g., `claude-opus-4-20250514`) and sorted by usage (most used first).
-
-**For iCal integration:** The token tracker provides real-time budget data for scheduling Opus 4 sessions strategically.
-
-See [scripts/README.md](scripts/README.md) for detailed documentation.
 
 ## 📖 Resources
 
