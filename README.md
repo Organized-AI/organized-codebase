@@ -49,45 +49,120 @@ rm -rf .git  # Remove git history
 git init     # Start fresh
 ```
 
+## ⚡ Hybrid Agent System (New!)
+
+This template now includes a powerful **Hybrid Agent System** that combines:
+- **GLM/Z.ai** (primary) - 200K context, competitive pricing, specialized code models
+- **OpenRouter** (fallback) - Access to Claude Opus 4.1, GPT-4, Gemini, and 100+ models
+- **Agent Booster** - Ultra-fast local code editing (352x faster, $0 cost)
+
+### Quick Start with Hybrid Agent
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure your API key (choose one)
+echo "GLM_API_KEY=your_key_here" >> .env
+
+# 3. Try it out!
+npx hybrid-agent edit yourfile.js "Add TypeScript types"
+```
+
+### Key Features
+
+✅ **352x faster** code editing (Agent Booster vs pure LLM)
+✅ **80% cost reduction** (hybrid vs pure LLM approach)
+✅ **Multi-provider support** (automatic failover)
+✅ **Intelligent model selection** (task-based routing)
+✅ **Standalone utilities** (ultra-fast transformations)
+
+**See [HYBRID-AGENT-README.md](HYBRID-AGENT-README.md) for complete documentation.**
+
 ## 📁 Template Structure
 
 ```
-your-project-name/
+organized-codebase/
 ├── 📋 PLANNING/
-│   ├── 01-project-brief.md           # Project vision and goals
-│   ├── 02-requirements.md            # Functional & non-functional requirements
-│   ├── 03-architecture.md            # System design and tech stack
-│   ├── 04-user-stories.md           # User stories and acceptance criteria
-│   └── 05-implementation-roadmap.md  # Development phases and timeline
+│   ├── 01-project-brief.md                    # Project vision and goals
+│   ├── 02-requirements.md                     # Functional & non-functional requirements
+│   ├── 03-architecture.md                     # System design and tech stack
+│   ├── 04-user-stories.md                    # User stories and acceptance criteria
+│   ├── 05-implementation-roadmap.md           # Development phases and timeline
+│   ├── 07-token-tracking-implementation.md    # Token tracking system design
+│   ├── 08-hybrid-agent-implementation.md      # Hybrid agent architecture
+│   └── agent-booster-overview.md             # Agent Booster documentation
 ├── 🏗️ ARCHITECTURE/
-│   ├── system-design.md              # High-level system architecture
-│   ├── data-models.md               # Database schema and data structures
-│   ├── api-specifications.md        # API endpoints and contracts
-│   └── tech-stack.md               # Technology choices and rationale
+│   ├── system-design.md                       # High-level system architecture
+│   ├── data-models.md                        # Database schema and data structures
+│   ├── api-specifications.md                 # API endpoints and contracts
+│   └── tech-stack.md                        # Technology choices and rationale
 ├── 📖 DOCUMENTATION/
-│   ├── README.md                    # Project overview and setup
-│   ├── CONTRIBUTING.md              # Contribution guidelines
-│   ├── DEPLOYMENT.md               # Deployment instructions
-│   └── API_DOCS.md                 # API documentation
+│   ├── README.md                             # Project overview and setup
+│   ├── CONTRIBUTING.md                       # Contribution guidelines
+│   ├── DEPLOYMENT.md                        # Deployment instructions
+│   └── API_DOCS.md                          # API documentation
 ├── 🧪 SPECIFICATIONS/
-│   ├── functional-specs.md          # Detailed feature specifications
-│   ├── technical-specs.md           # Technical implementation details
-│   ├── testing-strategy.md          # Testing approach and requirements
-│   └── acceptance-criteria.md       # Definition of done criteria
+│   ├── functional-specs.md                   # Detailed feature specifications
+│   ├── technical-specs.md                    # Technical implementation details
+│   ├── testing-strategy.md                   # Testing approach and requirements
+│   └── acceptance-criteria.md                # Definition of done criteria
 ├── 🤖 AGENT-HANDOFF/
-│   ├── coding-instructions.md       # Detailed instructions for AI agents
-│   ├── file-structure.md           # Expected project file organization
-│   ├── dependencies.md             # Required packages and services
-│   └── completion-checklist.md     # Quality assurance checklist
+│   ├── coding-instructions.md                # Detailed instructions for AI agents
+│   ├── file-structure.md                    # Expected project file organization
+│   ├── dependencies.md                      # Required packages and services
+│   └── completion-checklist.md              # Quality assurance checklist
+├── 🎯 SUBAGENT-FRAMEWORK/
+│   ├── agents/                              # Specialized agent implementations
+│   │   ├── research/                        # Research agent
+│   │   ├── implementation/                  # Implementation agent
+│   │   └── orchestrator/                    # Orchestration agent
+│   ├── commands/                            # Framework CLI commands
+│   ├── templates/                           # Agent templates
+│   ├── examples/                            # Example implementations
+│   └── design-outputs/                      # Generated design artifacts
+├── ⚙️ CONFIG/
+│   ├── architecture-patterns.md             # Architecture best practices
+│   ├── devcontainer-integration.md          # DevContainer setup guide
+│   └── integration-guide.md                # Integration documentation
+├── 🚀 src/
+│   ├── providers/                           # LLM provider adapters
+│   │   ├── LLMProvider.js                   # Base provider interface
+│   │   ├── GLMAdapter.js                    # GLM/Z.ai integration (PRIMARY)
+│   │   ├── OpenRouterAdapter.js             # OpenRouter integration (FALLBACK)
+│   │   └── AnthropicAdapter.js              # Direct Anthropic API
+│   ├── agents/                              # Hybrid agent system
+│   │   └── HybridAgent.js                   # LLM + Agent Booster
+│   ├── strategies/                          # Intelligent routing
+│   │   └── ModelSelector.js                 # Task-based model selection
+│   ├── cache/                               # Performance optimization
+│   │   └── CodeCache.js                     # LLM response caching
+│   ├── utils/                               # Standalone utilities
+│   │   └── booster-utils.js                 # Agent Booster tools
+│   └── cli/                                 # Command-line interface
+│       └── hybrid-agent-cli.js              # Hybrid agent CLI
+├── 🧪 tests/
+│   └── benchmark.test.js                    # Performance benchmarks
 ├── 📦 PROJECT-FILES/
-│   ├── package.json                # Dependencies (if applicable)
-│   ├── requirements.txt            # Python dependencies (if applicable)
-│   ├── docker-compose.yml          # Container setup (if applicable)
-│   └── .env.example               # Environment variables template
-└── 🔄 ITERATIONS/
-    ├── v1-mvp/                     # MVP version planning
-    ├── v2-enhancements/            # Enhancement planning
-    └── v3-scaling/                 # Scaling considerations
+│   ├── package.json                         # Dependencies
+│   ├── requirements.txt                     # Python dependencies (if applicable)
+│   ├── docker-compose.yml                   # Container setup (if applicable)
+│   └── .env.example                        # Environment variables template
+├── 🔄 ITERATIONS/
+│   ├── v1-mvp/                             # MVP version planning
+│   ├── v2-enhancements/                    # Enhancement planning
+│   └── v3-scaling/                         # Scaling considerations
+├── 📜 scripts/
+│   ├── setup-agent.js                      # AI-powered setup agent
+│   ├── update-token-tracker.js             # Automated token tracking
+│   └── setup-cron.sh                       # System-wide cron setup
+├── 🐳 .devcontainer/
+│   ├── devcontainer.json                   # DevContainer configuration
+│   └── post-create.sh                      # Automated setup script
+├── 📖 HYBRID-AGENT-README.md               # Hybrid agent usage guide
+├── 🔧 setup-template.sh                    # Project template setup script
+├── 📄 package.json                         # Main dependencies
+└── 🚫 .gitignore                           # Git ignore rules (protects API keys)
 ```
 
 ## 🚀 How to Use This Template
