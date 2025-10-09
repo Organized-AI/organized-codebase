@@ -220,7 +220,7 @@ See [scripts/README.md](scripts/README.md) for detailed documentation.
 ## 📖 Resources
 
 ### Organized AI
-- **Live Events**: [https://lu.ma/organizedai-starterstacks](https://lu.ma/organizedai-starterstacks)
+- **Live Events Calendar**: [https://lu.ma/organizedai-starterstacks](https://luma.com/organizedai-vip)
 - **Community**: [https://lu.ma/Organizedai](https://lu.ma/Organizedai)
 - **Website**: [https://organized.ai](https://organized.ai)
 
