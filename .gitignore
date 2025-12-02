@@ -1,0 +1,228 @@
+# Environment Variables & Secrets
+# ================================
+# NEVER commit actual API keys or secrets!
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+*.env
+!.env.example
+
+# Specific environment files with API keys
+PROJECT-FILES/.env
+PROJECT-FILES/.env.local
+PROJECT-FILES/.env.*.local
+
+# API Keys & Secrets
+# ================================
+# Common API key patterns
+**/config/keys.js
+**/config/secrets.js
+**/config/credentials.json
+credentials.json
+secrets.json
+api-keys.json
+
+# Cloud Provider Credentials
+.aws/
+.gcp/
+.azure/
+service-account*.json
+
+# SSL/TLS Certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# Node.js
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+
+# Dependency directories
+bower_components/
+jspm_packages/
+
+# TypeScript
+*.tsbuildinfo
+.tsc/
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+
+# Logs
+# ================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Editor Files
+# ================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# AI/Claude specific
+.claude/
+.cursor/
+.ai/
+.clinerules/
+.kilocode/
+
+# Database
+# ================================
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+
+# Docker
+# ================================
+.dockerignore
+
+# Temporary Files
+# ================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Upload Directories
+# ================================
+uploads/
+public/uploads/
+storage/
+
+# Session Files
+# ================================
+sessions/
+*.session
+
+# Cache
+# ================================
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Python (if using)
+# ================================
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+ENV/
+
+# Ruby (if using)
+# ================================
+*.gem
+.bundle/
+vendor/bundle/
+
+# Go (if using)
+# ================================
+*.exe
+*.test
+*.out
+go.work
+
+# Rust (if using)
+# ================================
+target/
+Cargo.lock
+
+# Backup Files
+# ================================
+*.backup
+*.old
+*.orig
+
+# Package Manager Lock Files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Local configuration
+# ================================
+.local/
+local/
+config/local.js
+config/local.json
+
+# Security & Auth
+# ================================
+.ssh/
+*.pem
+private-key*
+public-key*
+*.gpg
+.gnupg/
+
+# Monitoring & Analytics
+# ================================
+.sentry/
+.newrelic/
+
+# Documentation builds
+# ================================
+docs/_build/
+site/
+
+# Project specific
+# ================================
+# Add any project-specific files or directories here
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md
