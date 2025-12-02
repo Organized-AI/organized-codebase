@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "{{SETTING_NAME}} - {{DESCRIPTION}}",
+  
+  "permissions": {
+    "allow": [
+      "{{ALLOWED_COMMAND_1}}",
+      "{{ALLOWED_COMMAND_2}}"
+    ],
+    "deny": [
+      "{{DENIED_COMMAND_1}}"
+    ]
+  },
+  
+  "preferences": {
+    "{{PREFERENCE_1}}": {{PREFERENCE_1_VALUE}},
+    "{{PREFERENCE_2}}": "{{PREFERENCE_2_VALUE}}"
+  },
+  
+  "environment": {
+    "{{ENV_KEY_1}}": "{{ENV_VALUE_1}}",
+    "{{ENV_KEY_2}}": "{{ENV_VALUE_2}}"
+  },
+  
+  "mcp": {
+    "{{MCP_SERVER_NAME}}": {
+      "enabled": true,
+      "timeout": {{TIMEOUT_MS}}
+    }
+  },
+  
+  "statusline": {
+    "enabled": true,
+    "components": [
+      "{{STATUSLINE_COMPONENT_1}}",
+      "{{STATUSLINE_COMPONENT_2}}"
+    ]
+  }
+}
+
+/*
+Settings Template Reference
+===========================
+
+## Permissions Section
+
+Control which bash commands are allowed:
+
+```json
+"permissions": {
+  "allow": [
+    "npm *",           // Allow all npm commands
+    "git *",           // Allow all git commands
+    "python *",        // Allow python scripts
+    "pytest",          // Specific command
+    "docker compose *" // Docker compose commands
+  ],
+  "deny": [
+    "rm -rf /",        // Dangerous commands
+    "sudo *"           // Privileged commands
+  ]
+}
+```
+
+## Preferences Section
+
+Common preferences:
+
+```json
+"preferences": {
+  "autoCommit": false,           // Auto-commit changes
+  "lintOnSave": true,            // Run linter on save
+  "formatOnSave": true,          // Auto-format on save
+  "testOnChange": false,         // Run tests on file change
+  "verboseMode": false,          // Verbose output
+  "maxContextTokens": 100000     // Context window limit
+}
+```
+
+## Environment Section
+
+Set environment variables:
+
+```json
+"environment": {
+  "NODE_ENV": "development",
+  "DEBUG": "true",
+  "API_URL": "http://localhost:3000"
+}
+```
+
+## MCP Section
+
+Configure MCP servers:
+
+```json
+"mcp": {
+  "server-name": {
+    "enabled": true,
+    "timeout": 30000,
+    "autoApprove": true
+  }
+}
+```
+
+## Statusline Section
+
+Customize the status line:
+
+```json
+"statusline": {
+  "enabled": true,
+  "position": "bottom",
+  "components": [
+    "context-usage",
+    "git-branch",
+    "time",
+    "model"
+  ],
+  "colors": {
+    "background": "#1a1f2e",
+    "text": "#e6e6e6",
+    "accent": "#2dd4bf"
+  }
+}
+```
+
+## Common Setting Patterns
+
+### Development Mode
+```json
+{
+  "permissions": {
+    "allow": ["npm *", "npx *", "node *", "git *"]
+  },
+  "preferences": {
+    "verboseMode": true
+  }
+}
+```
+
+### CI/CD Mode
+```json
+{
+  "permissions": {
+    "allow": ["npm test", "npm run build", "npm run lint"]
+  },
+  "preferences": {
+    "autoCommit": false,
+    "testOnChange": true
+  }
+}
+```
+
+### Minimal Mode
+```json
+{
+  "permissions": {
+    "deny": ["*"]
+  },
+  "preferences": {
+    "verboseMode": false
+  }
+}
+```
+*/
