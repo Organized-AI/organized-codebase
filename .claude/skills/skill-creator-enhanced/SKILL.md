@@ -394,3 +394,90 @@ After testing the skill, users may request improvements. Often this happens righ
 2. Notice struggles or inefficiencies
 3. Identify how SKILL.md or bundled resources should be updated
 4. Implement changes and test again
+
+### Step 7: Save Skill to Multiple Destinations
+
+⚠️ **CRITICAL: Always offer these save options after creating or updating a skill.**
+
+After packaging a skill, ALWAYS present this save options table to the user:
+
+---
+
+## Save Skill to:
+
+| Destination | Path/Method | Action |
+|-------------|-------------|--------|
+| ☐ **Claude Desktop** | Native "Save Skill" button | User clicks button in UI |
+| ☐ **Claude Code** | `~/.claude/skills/<skill-name>/` | Copy files to directory |
+| ☐ **Organized Codebase** | `Windsurf/Organized Codebase/.claude/skills/<skill-name>/` | Copy to iCloud project |
+| ☐ **GitHub** | `organized-ai` or `jhillbht` repo | Git add, commit, push |
+
+**Which destinations would you like?** (e.g., "all", "Claude Code + GitHub", or specific ones)
+
+---
+
+#### Save Actions by Destination
+
+##### Claude Desktop
+- Inform user to use the "Save Skill" button in the Claude Desktop UI
+- The skill content should be displayed in a format the button can capture
+- Alternative: Upload `.skill` file to claude.ai/settings/capabilities
+
+##### Claude Code
+```bash
+# Create skill directory
+mkdir -p ~/.claude/skills/<skill-name>
+
+# Copy all skill files
+cp -r <skill-folder>/* ~/.claude/skills/<skill-name>/
+
+# Verify installation
+ls -la ~/.claude/skills/<skill-name>/
+```
+
+##### Organized Codebase
+```bash
+# Full path to Organized Codebase skills
+OCB_SKILLS="/Users/supabowl/Library/Mobile Documents/com~apple~CloudDocs/BHT Promo iCloud/Organized AI/Windsurf/Organized Codebase/.claude/skills"
+
+# Create and copy
+mkdir -p "$OCB_SKILLS/<skill-name>"
+cp -r <skill-folder>/* "$OCB_SKILLS/<skill-name>/"
+
+# Verify
+ls -la "$OCB_SKILLS/<skill-name>/"
+```
+
+##### GitHub
+```bash
+# Navigate to Organized Codebase
+cd "/Users/supabowl/Library/Mobile Documents/com~apple~CloudDocs/BHT Promo iCloud/Organized AI/Windsurf/Organized Codebase"
+
+# Add skill files
+git add .claude/skills/<skill-name>/
+
+# Commit with descriptive message
+git commit -m "feat: Add <skill-name> skill
+
+<brief description of what the skill does>"
+
+# Push - ASK USER which repo:
+# - Personal: https://github.com/jhillbht
+# - Organization: https://github.com/organized-ai
+git push origin main
+```
+
+#### Post-Save Summary
+
+After saving to selected destinations, provide a summary:
+
+```markdown
+## Skill Saved To:
+
+| Destination | Status |
+|-------------|--------|
+| Claude Desktop | ✅ / ⏳ Pending user action |
+| Claude Code | ✅ Installed |
+| Organized Codebase | ✅ Synced |
+| GitHub | ✅ Pushed to [repo-name] |
+```
