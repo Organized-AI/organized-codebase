@@ -1,11 +1,11 @@
 ---
 name: organized-codebase-applicator
-description: Applies Organized Codebase template structure to existing projects, creates Claude Code Plugins, and cleans up unused/redundant directories. Use when user wants to organize an existing project, apply the Organized Codebase template, create a plugin, clean up a messy codebase, remove iteration folders, standardize project structure, or mentions "organized codebase", "clean up codebase", "apply template", "create plugin", "remove unused folders", "standardize project", or "clean up directories".
+description: Applies Organized Codebase template structure to existing projects, creates Claude Code Plugins, sets up verification infrastructure (Boris methodology), and cleans up unused/redundant directories. Use when user wants to organize an existing project, apply the Organized Codebase template, create a plugin, clean up a messy codebase, remove iteration folders, standardize project structure, set up verification, or mentions "organized codebase", "clean up codebase", "apply template", "create plugin", "remove unused folders", "standardize project", "clean up directories", or "verification infrastructure".
 ---
 
 # Organized Codebase Applicator
 
-Applies the Organized Codebase template to existing projects, creates Claude Code Plugins for distribution, and performs intelligent cleanup of unused or redundant directories.
+Applies the Organized Codebase template to existing projects, creates Claude Code Plugins for distribution, sets up verification infrastructure based on Boris methodology (Claude Code creator), and performs intelligent cleanup of unused or redundant directories.
 
 ## Workflow Overview
 
@@ -17,6 +17,7 @@ Applies the Organized Codebase template to existing projects, creates Claude Cod
 | 4. Plugin | Create distributable plugin (optional) |
 | 5. Migration | Move content to new locations |
 | 6. Finalize | Update references, git commit |
+| 7. Verification | Set up Boris methodology verification infrastructure |
 
 ---
 
@@ -500,3 +501,306 @@ EOF
 /plugin marketplace add org/marketplace-repo
 /plugin install plugin-name@marketplace-name
 ```
+
+---
+
+## Phase 7: Verification Infrastructure (Boris Methodology)
+
+Based on insights from Boris, the creator of Claude Code. Core principle:
+
+> "Always give Claude a way to verify its work."
+
+### 7.1 Enhanced CLAUDE.md
+
+Update `CLAUDE.md` to include verification requirements (keep under 2.5k tokens):
+
+```markdown
+# [Project Name]
+
+## Tech Stack
+- Runtime: [e.g., Node.js 20, Python 3.11]
+- Framework: [e.g., Express, React, FastAPI]
+- Database: [e.g., PostgreSQL, MongoDB]
+- Key Dependencies: [list major packages]
+
+## Project Structure
+[Brief folder map - 5-10 lines max]
+
+## Code Conventions
+- [Naming convention]
+- [Import order]
+- [Error handling pattern]
+
+## DO NOT
+- [Anti-pattern from past error 1]
+- [Anti-pattern from past error 2]
+- [Anti-pattern from past error 3]
+
+## Verification Requirements
+Before completing ANY task:
+1. Describe verification approach first
+2. Run `npm test` (all tests must pass)
+3. Run `npm run lint` (no errors)
+4. For UI changes: take screenshot
+```
+
+**Key insight:** Update CLAUDE.md whenever Claude makes a mistake. Add it to "DO NOT" section.
+
+### 7.2 Structured Permissions
+
+Create/update `.claude/settings.json` with allow/ask/deny structure:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npx:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(rm:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(rm -rf /)",
+      "Bash(sudo:*)"
+    ]
+  }
+}
+```
+
+**Key insight:** Never use `--dangerously-skip-permissions`. Use structured permissions instead.
+
+### 7.3 Inner Loop Slash Commands
+
+Create essential daily workflow commands in `.claude/commands/`:
+
+**`.claude/commands/verify.md`**
+```markdown
+---
+description: Run all verification checks
+---
+
+# Verify Current Work
+
+Run complete verification suite:
+
+1. **Linting**: `npm run lint`
+2. **Tests**: `npm test`
+3. **Type Check**: `npm run typecheck` (if TypeScript)
+4. **Build**: `npm run build`
+
+Report Pass/Fail for each with specific errors.
+```
+
+**`.claude/commands/commit.md`**
+```markdown
+---
+description: Smart commit with verification
+---
+
+# Smart Commit
+
+1. Run verification first (`/verify`)
+2. Show `git status` and `git diff --stat`
+3. Generate conventional commit message (feat/fix/docs/refactor/test/chore)
+4. Ask for confirmation before committing
+5. Do NOT push unless explicitly requested
+```
+
+**`.claude/commands/review.md`**
+```markdown
+---
+description: Self-review before PR
+---
+
+# Self-Review
+
+1. Run `git diff main...HEAD`
+2. Check for: console.logs, commented code, TODOs, missing error handling
+3. Run full verification
+4. Provide recommendation: Ready / Needs Work
+```
+
+**`.claude/commands/status.md`**
+```markdown
+---
+description: Project health check
+---
+
+# Project Status
+
+1. Git status and last 5 commits
+2. `npm outdated` for dependency health
+3. `npm test -- --coverage` for test coverage
+4. Build status
+5. Summary: Healthy / Needs Attention / Critical
+```
+
+### 7.4 Verification Subagents
+
+Create verification-focused agents in `.claude/agents/`:
+
+**`.claude/agents/verify-architecture.md`**
+```markdown
+---
+name: verify-architecture
+description: Verify code follows architectural patterns
+---
+
+# Architecture Verification Agent
+
+## Checks
+1. Files in correct directories
+2. No circular imports
+3. Layer boundaries respected
+4. Naming conventions followed
+
+## Output
+- ✅ Passed checks
+- ⚠️ Warnings
+- ❌ Violations
+```
+
+**`.claude/agents/verify-build.md`**
+```markdown
+---
+name: verify-build
+description: Validate builds work correctly
+---
+
+# Build Validation Agent
+
+## Checks
+1. Clean install: `rm -rf node_modules && npm ci`
+2. Build: `npm run build`
+3. Verify artifacts exist
+4. Smoke test: start app, check for crashes
+
+## Output
+Build status, time, artifact sizes, warnings
+```
+
+### 7.5 Stop Hook for Auto-Verification
+
+Create `.claude/hooks/stop.sh`:
+
+```bash
+#!/bin/bash
+echo "=== Auto-Verification ==="
+
+# Lint check
+npm run lint --silent 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "❌ Linting errors found"
+    exit 1
+fi
+
+# Test check
+npm test --silent 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "❌ Tests failed"
+    exit 1
+fi
+
+echo "✅ All verification passed"
+```
+
+Make executable: `chmod +x .claude/hooks/stop.sh`
+
+### 7.6 Verification Checklist
+
+After Phase 7, verify:
+
+- [ ] CLAUDE.md has Tech Stack, Conventions, DO NOT, Verification sections
+- [ ] CLAUDE.md is under 2,500 tokens
+- [ ] `.claude/settings.json` has allow/ask/deny permissions
+- [ ] `/verify` command created and working
+- [ ] `/commit` command created and working
+- [ ] `/review` command created and working
+- [ ] `/status` command created and working
+- [ ] At least one verification agent created
+- [ ] Stop hook created (optional but recommended)
+
+### 7.7 Quick Setup Commands
+
+```bash
+# Create verification commands
+cat > .claude/commands/verify.md << 'EOF'
+---
+description: Run all verification checks
+---
+# Verify Current Work
+Run: npm run lint && npm test && npm run build
+Report Pass/Fail for each.
+EOF
+
+cat > .claude/commands/commit.md << 'EOF'
+---
+description: Smart commit with verification
+---
+# Smart Commit
+1. Run /verify first
+2. Show git status and diff
+3. Generate conventional commit message
+4. Confirm before committing
+EOF
+
+cat > .claude/commands/status.md << 'EOF'
+---
+description: Project health check
+---
+# Project Status
+Show: git status, npm outdated, test coverage, build status
+EOF
+
+# Create verification agent
+cat > .claude/agents/verify-build.md << 'EOF'
+---
+name: verify-build
+description: Validate builds work
+---
+# Build Validation
+1. npm ci
+2. npm run build
+3. Verify artifacts
+4. Report status
+EOF
+
+# Create stop hook
+mkdir -p .claude/hooks
+cat > .claude/hooks/stop.sh << 'EOF'
+#!/bin/bash
+npm run lint --silent && npm test --silent && echo "✅ Verified" || echo "❌ Issues found"
+EOF
+chmod +x .claude/hooks/stop.sh
+
+# Commit
+git add -A && git commit -m "Phase 7: Add Boris methodology verification infrastructure"
+```
+
+---
+
+## Boris Methodology Quick Reference
+
+| Principle | Implementation |
+|-----------|----------------|
+| Verify work | Tests, linters, hooks, screenshots |
+| Plan first | Always use plan mode before features |
+| Anti-patterns | Add mistakes to CLAUDE.md "DO NOT" |
+| Permissions | Structured allow/ask/deny (never skip) |
+| Inner loop | Slash commands for daily workflows |
+| Subagents | Verification-focused agents |
+| Model choice | Opus 4.5 with thinking (fewer corrections) |
+
+**Source:** Boris (Claude Code Creator) - [Video Interview](https://www.youtube.com/watch?v=B-UXpneKw6M)

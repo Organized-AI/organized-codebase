@@ -1,0 +1,40 @@
+{
+  "project_name": "my-project",
+  "initialized": false,
+  "initialization_date": null,
+  "files": {
+    "feature_list": "feature_list.json",
+    "progress_file": "claude-progress.txt",
+    "init_script": "init.sh",
+    "config_dir": ".claude"
+  },
+  "session_settings": {
+    "max_features_per_session": 3,
+    "require_e2e_testing": true,
+    "auto_commit_on_end": true,
+    "auto_checkpoint": true
+  },
+  "checkpoint_thresholds": {
+    "soft": 0.70,
+    "hard": 0.85,
+    "emergency": 0.95
+  },
+  "token_allocation": {
+    "session_start": 0.05,
+    "feature_work": 0.80,
+    "session_end": 0.15
+  },
+  "testing": {
+    "use_browser_automation": true,
+    "screenshot_on_test": true,
+    "mcp_server": "playwright",
+    "test_command": "npm test",
+    "e2e_command": "npm run test:e2e"
+  },
+  "integrations": {
+    "github_mcp": true,
+    "memory_mcp": true,
+    "weekly_planner": true,
+    "cc_session_manager": true
+  }
+}

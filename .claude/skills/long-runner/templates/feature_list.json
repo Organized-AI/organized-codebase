@@ -1,0 +1,41 @@
+{
+  "project": "PROJECT_NAME",
+  "description": "PROJECT_DESCRIPTION",
+  "initialized": "TIMESTAMP",
+  "total_features": 0,
+  "completed": 0,
+  "in_progress": 0,
+  "categories": {
+    "functional": "Core application functionality",
+    "ui": "User interface and experience",
+    "api": "API endpoints and integrations",
+    "auth": "Authentication and authorization",
+    "data": "Data management and persistence",
+    "testing": "Test infrastructure",
+    "devops": "Deployment and infrastructure"
+  },
+  "features": [
+    {
+      "id": "feat-001",
+      "category": "functional",
+      "priority": 1,
+      "description": "Core feature description here",
+      "steps": [
+        "Step 1: Navigate to interface",
+        "Step 2: Perform action",
+        "Step 3: Verify expected result"
+      ],
+      "passes": false,
+      "last_tested": null,
+      "tested_by_session": null,
+      "implementation_notes": "",
+      "blockers": [],
+      "dependencies": []
+    }
+  ],
+  "metadata": {
+    "last_updated": null,
+    "sessions_count": 0,
+    "average_features_per_session": 0
+  }
+}

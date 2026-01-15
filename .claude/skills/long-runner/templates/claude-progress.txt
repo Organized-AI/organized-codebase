@@ -1,0 +1,58 @@
+================================================================================
+                        CLAUDE PROGRESS LOG
+================================================================================
+Project: PROJECT_NAME
+Description: PROJECT_DESCRIPTION
+Initialized: TIMESTAMP
+Repository: REPO_URL
+
+================================================================================
+                           FEATURE SUMMARY
+================================================================================
+Total Features: 0
+Completed: 0 (0%)
+In Progress: 0
+Remaining: 0
+
+Categories Breakdown:
+- functional: 0/0
+- ui: 0/0
+- api: 0/0
+- auth: 0/0
+- data: 0/0
+- testing: 0/0
+- devops: 0/0
+
+================================================================================
+                           SESSION LOG
+================================================================================
+
+--- SESSION 1 ---
+Date: TIMESTAMP
+Duration: ~X minutes
+Context Usage: ~X%
+
+Started With:
+- Orientation and health check
+- Environment setup verification
+
+Features Worked On:
+- [feat-XXX]: Description - Status
+
+Commits Made:
+- commit_hash: message
+
+Blockers Encountered:
+- None
+
+Next Session Should:
+1. Continue/Start [feat-XXX]
+2. Then proceed to [feat-YYY]
+
+Code State: MERGE-READY / IN-PROGRESS
+Tests Passing: YES / NO
+Dev Server: RUNNING / STOPPED
+
+---
+
+[Future sessions will be appended above this line]
