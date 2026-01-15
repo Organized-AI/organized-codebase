@@ -106,7 +106,11 @@ desktop.ini
 *.sublime-workspace
 
 # AI/Claude specific
-.claude/
+# Share commands, agents, skills with team (Boris methodology)
+# But ignore local settings and cache
+.claude/settings.local.json
+.claude/.cache/
+.claude/*.db
 .cursor/
 .ai/
 .clinerules/
