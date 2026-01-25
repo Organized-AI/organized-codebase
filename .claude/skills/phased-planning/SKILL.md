@@ -24,33 +24,26 @@ Creates comprehensive phased implementation plans that generate copy-paste ready
 
 ## 🎯 Build Mode Selection
 
-At the start of every phased plan, present this interactive prompt:
+At the start of every phased plan, present this prompt:
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║              🏗️  PHASED PLANNING - BUILD MODE                    ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  How would you like to build this project?                       ║
+║  [1] 📋 Standard Mode - Manual phase-by-phase execution          ║
+║      • Copy-paste prompts into Claude Code                       ║
+║      • Full control over each phase                              ║
+║      • Best for: Learning, complex decisions                     ║
 ║                                                                  ║
-║  [1] 📋 Standard Mode (Manual Phase Execution)                   ║
-║      - Generate phase prompts for copy-paste into Claude Code    ║
-║      - Execute each phase manually with full control             ║
-║      - Best for: Learning, complex decisions, custom workflows   ║
-║                                                                  ║
-║  [2] 🤖 Ralphy Mode (Autonomous PRD Execution)                   ║
-║      - Generate PRD files with checkbox tasks                    ║
-║      - Ralphy runs Claude Code in a loop until complete          ║
-║      - Best for: Fast builds, parallel execution, hands-off      ║
-║                                                                  ║
-║  [3] 🔄 Hybrid Mode (Both Outputs)                               ║
-║      - Generate both standard prompts AND Ralphy PRDs            ║
-║      - Choose execution method per phase                         ║
-║      - Best for: Flexibility, trying both approaches             ║
+║  [2] 🤖 Ralphy Mode - ONE command, ALL phases, hands-off         ║
+║      • Generate PRDs, run one command, walk away                 ║
+║      • Automatic verification after each phase                   ║
+║      • Best for: Fast builds, known patterns                     ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-Enter choice [1/2/3]: 
+Enter choice [1/2]: 
 ```
 
 ---
@@ -100,7 +93,7 @@ Generate `PLANNING/IMPLEMENTATION-MASTER-PLAN.md`:
 **Created:** [DATE]
 **Project Path:** [PATH]
 **Runtime:** [TECHNOLOGY]
-**Build Mode:** [Standard | Ralphy | Hybrid]
+**Build Mode:** [Standard | Ralphy]
 
 ---
 
@@ -136,14 +129,9 @@ Based on selected build mode:
 - Create `CLAUDE-CODE-PHASE-0.md` quick-start
 
 #### Mode 2: Ralphy (Autonomous)
-- Create `prd/phase-X-[name].md` PRD files
+- Create `prd/` directory with all phase PRD files
 - Create `.ralphy/config.yaml` configuration
-- Create `start-ralphy-build.sh` execution script
-
-#### Mode 3: Hybrid (Both)
-- Create all Standard mode files
-- Create all Ralphy mode files
-- User chooses per phase
+- User runs ONE command to build everything
 
 ---
 
@@ -204,7 +192,7 @@ git commit -m "[PLAN-ID] Phase [X]: [NAME] complete"
 ```
 ```
 
-### Execution
+### Standard Mode Execution
 
 ```bash
 cd [project]
@@ -218,9 +206,18 @@ claude --dangerously-skip-permissions
 
 ## Ralphy Mode Output
 
+### The Philosophy
+
+Ralphy mode is **set it and forget it**:
+1. Generate all PRD files upfront
+2. Run ONE command
+3. Ralphy executes all phases sequentially
+4. Automatic verification after each phase
+5. Walk away and come back to a built project
+
 ### PRD File Template
 
-Create `prd/phase-X-[name].md`:
+Create `prd/phase-X-[name].md` for each phase:
 
 ```markdown
 # Phase [X]: [NAME]
@@ -242,9 +239,9 @@ Create `prd/phase-X-[name].md`:
 - [ ] [Task description with specific deliverable]
 - [ ] [Task description with specific deliverable]
 
-### Testing
-- [ ] [Verification task]
-- [ ] [Verification task]
+### Verification
+- [ ] [Test/verify task]
+- [ ] [Test/verify task]
 ```
 
 ### Ralphy Configuration
@@ -275,97 +272,39 @@ boundaries:
     - "[other protected files]"
 ```
 
-### Execution Script
+### Ralphy Mode Execution
 
-Create `start-ralphy-build.sh`:
-
-```bash
-#!/bin/bash
-# [PROJECT NAME] - Ralphy Build Script
-# Plan ID: PLAN-[KEYWORD]-[YYMMDD]
-
-set -e
-
-PROJECT_DIR="[PROJECT_PATH]"
-
-echo "🚀 [PROJECT NAME] - Ralphy Build"
-echo "================================"
-
-cd "$PROJECT_DIR"
-
-# Check Ralphy is installed
-if ! command -v ralphy &> /dev/null; then
-    echo "Installing Ralphy..."
-    npm install -g ralphy
-fi
-
-# Initialize if needed
-if [ ! -d ".ralphy" ]; then
-    echo "Initializing Ralphy..."
-    ralphy --init
-fi
-
-# Phase selection
-case "${1:-1}" in
-    0) ralphy --prd prd/phase-0-setup.md -- --dangerously-skip-permissions ;;
-    1) ralphy --prd prd/phase-1-infrastructure.md -- --dangerously-skip-permissions ;;
-    2) ralphy --prd prd/phase-2-core.md -- --dangerously-skip-permissions ;;
-    # Add more phases as needed
-    all) ralphy --prd prd/ --parallel 3 -- --dangerously-skip-permissions ;;
-    *)
-        echo "Usage: $0 [0|1|2|...|all]"
-        exit 1
-        ;;
-esac
-
-echo "✅ Complete!"
-```
-
-### Execution
+**ONE command to build everything:**
 
 ```bash
-# Install Ralphy (one time)
-npm install -g ralphy
-
-# Run single phase
-ralphy --prd prd/phase-1-infrastructure.md -- --dangerously-skip-permissions
-
-# Run all phases in parallel
-ralphy --prd prd/ --parallel 3 -- --dangerously-skip-permissions
-
-# Or use the script
-chmod +x start-ralphy-build.sh
-./start-ralphy-build.sh 1      # Phase 1
-./start-ralphy-build.sh all    # All phases (parallel)
+cd [project]
+ralphy --prd prd/ -- --dangerously-skip-permissions
 ```
 
----
+That's it. Ralphy will:
+1. ✅ Execute Phase 0 → verify all checkboxes → commit
+2. ✅ Execute Phase 1 → verify all checkboxes → commit
+3. ✅ Execute Phase 2 → verify all checkboxes → commit
+4. ✅ Continue until all phases complete
+5. ✅ You come back to a finished project
 
-## Ralphy Features
+### What Ralphy Does Automatically
 
-### Parallel Execution
-Run multiple phases simultaneously:
+- **Sequential execution** - Phases run in order (phase-0, phase-1, etc.)
+- **Checkpoint verification** - Won't proceed until all checkboxes pass
+- **Auto-commits** - Commits after each successful phase
+- **Progress tracking** - Updates `.ralphy/progress.txt` in real-time
+- **Error recovery** - Retries failed tasks before moving on
+
+### Monitoring Progress
+
+While Ralphy runs, you can watch:
 ```bash
-ralphy --prd prd/ --parallel 4 -- --dangerously-skip-permissions
+# In another terminal
+tail -f .ralphy/progress.txt
 ```
 
-### Branch Per Task
-Create separate branches and PRs:
-```bash
-ralphy --prd prd/phase-1.md --branch-per-task --create-pr
-```
-
-### Browser Automation
-For web testing:
-```bash
-ralphy "test login flow" --browser
-```
-
-### Progress Tracking
-Ralphy automatically:
-- Tracks checkbox completion in PRD files
-- Creates `.ralphy/progress.txt`
-- Auto-commits on task completion
+Or just check back later - Ralphy handles everything.
 
 ---
 
@@ -398,25 +337,6 @@ PROJECT/
 ├── .ralphy/
 │   ├── config.yaml
 │   └── progress.txt (auto-generated)
-├── start-ralphy-build.sh
-└── CLAUDE.md
-```
-
-### Hybrid Mode
-```
-PROJECT/
-├── PLANNING/
-│   ├── IMPLEMENTATION-MASTER-PLAN.md
-│   └── implementation-phases/
-│       ├── PHASE-0-PROMPT.md
-│       └── PHASE-1-PROMPT.md
-├── prd/
-│   ├── phase-0-setup.md
-│   └── phase-1-infrastructure.md
-├── .ralphy/
-│   └── config.yaml
-├── start-ralphy-build.sh
-├── CLAUDE-CODE-PHASE-0.md
 └── CLAUDE.md
 ```
 
@@ -447,32 +367,6 @@ PROJECT/
 
 ---
 
-## Completion Template
-
-### Standard Mode
-```markdown
-# Phase [X]: [NAME] - COMPLETE
-
-**Completed:** [DATE]
-**Plan ID:** PLAN-[KEYWORD]-[YYMMDD]
-
-## Deliverables
-- [x] [File/feature 1]
-- [x] [File/feature 2]
-
-## Verification
-- `[command 1]`: ✅
-- `[command 2]`: ✅
-
-## Next Phase
-Proceed to Phase [X+1]: [NAME]
-```
-
-### Ralphy Mode
-Ralphy auto-generates completion by marking all checkboxes in the PRD file.
-
----
-
 ## Output Template
 
 When creating a new phased plan, always output:
@@ -485,7 +379,7 @@ Present the interactive selection (shown above)
 📋 Plan Created: PLAN-[KEYWORD]-[YYMMDD]
 📁 Project: [PROJECT NAME]
 🔢 Phases: [N] phases
-🏗️ Build Mode: [Standard | Ralphy | Hybrid]
+🏗️ Build Mode: [Standard | Ralphy]
 ```
 
 ### 3. Environment Variable
@@ -493,7 +387,7 @@ Present the interactive selection (shown above)
 CLAUDE_CODE_TASK_LIST_ID=PLAN-[KEYWORD]-[YYMMDD]
 ```
 
-### 4. Quick Start Commands
+### 4. Quick Start Command
 
 **Standard Mode:**
 ```bash
@@ -505,8 +399,8 @@ claude --dangerously-skip-permissions
 **Ralphy Mode:**
 ```bash
 cd [project]
-npm install -g ralphy  # if not installed
-ralphy --prd prd/phase-0-setup.md -- --dangerously-skip-permissions
+ralphy --prd prd/ -- --dangerously-skip-permissions
+# That's it. Walk away.
 ```
 
 ### 5. Phase Files
@@ -527,9 +421,9 @@ ralphy --prd prd/phase-0-setup.md -- --dangerously-skip-permissions
 ### Ralphy-Specific
 1. **Keep tasks atomic** - One clear deliverable per checkbox
 2. **Use boundaries** - Protect files Ralphy shouldn't touch
-3. **Test parallel builds** - Start with 2-3 agents before scaling
-4. **Monitor progress.txt** - Check Ralphy's progress tracking
-5. **Use --branch-per-task** for PRs - Good for code review
+3. **Name PRDs with numbers** - `phase-0-`, `phase-1-` for correct ordering
+4. **Include verification tasks** - Ralphy checks these before proceeding
+5. **Trust the process** - Let Ralphy run, check progress.txt if curious
 
 ---
 
@@ -539,11 +433,26 @@ ralphy --prd prd/phase-0-setup.md -- --dangerously-skip-permissions
 |----------|------------------|
 | Learning a new codebase | Standard |
 | Complex architectural decisions | Standard |
+| Need to make choices mid-build | Standard |
 | Quick prototype/MVP | Ralphy |
 | Repetitive scaffolding | Ralphy |
-| Mixed complexity phases | Hybrid |
-| Team code review needed | Ralphy + `--create-pr` |
-| Maximum speed | Ralphy + `--parallel` |
+| Known patterns, clear specs | Ralphy |
+| Want to walk away | Ralphy |
+| Maximum speed | Ralphy |
+
+---
+
+## Ralphy Installation
+
+First time only:
+```bash
+npm install -g ralphy
+```
+
+Verify:
+```bash
+ralphy --version
+```
 
 ---
 
@@ -553,4 +462,4 @@ Works with:
 - **organized-codebase-applicator** - For project structure
 - **phase-0-template** - For quick project setup
 - **tech-stack-orchestrator** - For component recommendations
-- **Ralphy** - For autonomous PRD execution
+- **Ralphy** - For autonomous PRD execution (https://github.com/michaelshimeles/ralphy)
