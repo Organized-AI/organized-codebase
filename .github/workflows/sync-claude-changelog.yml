@@ -1,0 +1,63 @@
+name: Sync Claude Code Changelog
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes'
+        required: false
+        default: 'false'
+
+jobs:
+  sync-changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Claude Code Changelog
+        run: |
+          mkdir -p DOCUMENTATION
+          curl -sSL https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md \
+            -o DOCUMENTATION/claude-code-changelog.md
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet DOCUMENTATION/claude-code-changelog.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract latest version
+        id: version
+        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          VERSION=$(grep -m 1 '^## \[' DOCUMENTATION/claude-code-changelog.md | sed 's/## \[\([^]]*\)\].*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add DOCUMENTATION/claude-code-changelog.md
+          git commit -m "docs: Update Claude Code changelog to v${{ steps.version.outputs.version }}"
+          git push
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.changes.outputs.changed }}" == "true" ]; then
+            echo "✅ Changelog updated to v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changelog updates detected" >> $GITHUB_STEP_SUMMARY
+          fi
