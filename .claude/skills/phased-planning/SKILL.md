@@ -41,9 +41,14 @@ At the start of every phased plan, present this prompt:
 ║      • Automatic verification after each phase                   ║
 ║      • Best for: Fast builds, known patterns                     ║
 ║                                                                  ║
+║  [3] 🔄 Hybrid Mode - Both outputs, maximum flexibility          ║
+║      • Generate BOTH standard prompts AND Ralphy PRDs            ║
+║      • Switch between manual/auto per phase as needed            ║
+║      • Best for: Uncertain complexity, wanting options           ║
+║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-Enter choice [1/2]: 
+Enter choice [1/2/3]: 
 ```
 
 ---
@@ -93,7 +98,7 @@ Generate `PLANNING/IMPLEMENTATION-MASTER-PLAN.md`:
 **Created:** [DATE]
 **Project Path:** [PATH]
 **Runtime:** [TECHNOLOGY]
-**Build Mode:** [Standard | Ralphy]
+**Build Mode:** [Standard | Ralphy | Hybrid]
 
 ---
 
@@ -132,6 +137,11 @@ Based on selected build mode:
 - Create `prd/` directory with all phase PRD files
 - Create `.ralphy/config.yaml` configuration
 - User runs ONE command to build everything
+
+#### Mode 3: Hybrid (Both)
+- Create ALL Standard mode files
+- Create ALL Ralphy mode files
+- User chooses execution method per phase or situation
 
 ---
 
@@ -308,6 +318,48 @@ Or just check back later - Ralphy handles everything.
 
 ---
 
+## Hybrid Mode
+
+### When to Use Hybrid
+
+Hybrid mode gives you both Standard prompts AND Ralphy PRDs. Use when:
+- You're unsure which approach fits best
+- Some phases need manual oversight, others can run autonomous
+- You want to start with Ralphy but have fallback prompts
+- Project complexity varies across phases
+
+### Hybrid Execution Options
+
+**Option A: Start with Ralphy, intervene if needed**
+```bash
+# Let Ralphy run
+ralphy --prd prd/ -- --dangerously-skip-permissions
+
+# If a phase fails or needs adjustment, switch to manual:
+claude --dangerously-skip-permissions
+# "Read PLANNING/implementation-phases/PHASE-2-PROMPT.md and execute"
+```
+
+**Option B: Manual for complex phases, Ralphy for simple ones**
+```bash
+# Phase 0-1: Run manually (complex setup decisions)
+claude --dangerously-skip-permissions
+# "Read PLANNING/implementation-phases/PHASE-0-PROMPT.md and execute"
+
+# Phase 2+: Let Ralphy handle the rest
+ralphy --prd prd/phase-2-core.md prd/phase-3-features.md -- --dangerously-skip-permissions
+```
+
+**Option C: Review PRDs, then decide**
+```bash
+# Look at generated PRDs
+cat prd/phase-*.md
+
+# Decide per phase which method to use
+```
+
+---
+
 ## File Organization
 
 ### Standard Mode
@@ -337,6 +389,25 @@ PROJECT/
 ├── .ralphy/
 │   ├── config.yaml
 │   └── progress.txt (auto-generated)
+└── CLAUDE.md
+```
+
+### Hybrid Mode
+```
+PROJECT/
+├── PLANNING/
+│   ├── IMPLEMENTATION-MASTER-PLAN.md
+│   └── implementation-phases/
+│       ├── PHASE-0-PROMPT.md
+│       ├── PHASE-1-PROMPT.md
+│       └── PHASE-2-PROMPT.md
+├── prd/
+│   ├── phase-0-setup.md
+│   ├── phase-1-infrastructure.md
+│   └── phase-2-core.md
+├── .ralphy/
+│   └── config.yaml
+├── CLAUDE-CODE-PHASE-0.md
 └── CLAUDE.md
 ```
 
@@ -379,7 +450,7 @@ Present the interactive selection (shown above)
 📋 Plan Created: PLAN-[KEYWORD]-[YYMMDD]
 📁 Project: [PROJECT NAME]
 🔢 Phases: [N] phases
-🏗️ Build Mode: [Standard | Ralphy]
+🏗️ Build Mode: [Standard | Ralphy | Hybrid]
 ```
 
 ### 3. Environment Variable
@@ -401,6 +472,17 @@ claude --dangerously-skip-permissions
 cd [project]
 ralphy --prd prd/ -- --dangerously-skip-permissions
 # That's it. Walk away.
+```
+
+**Hybrid Mode:**
+```bash
+cd [project]
+# Option 1: Let Ralphy run all phases
+ralphy --prd prd/ -- --dangerously-skip-permissions
+
+# Option 2: Run specific phases manually
+claude --dangerously-skip-permissions
+# "Read PLANNING/implementation-phases/PHASE-X-PROMPT.md and execute"
 ```
 
 ### 5. Phase Files
@@ -425,6 +507,11 @@ ralphy --prd prd/ -- --dangerously-skip-permissions
 4. **Include verification tasks** - Ralphy checks these before proceeding
 5. **Trust the process** - Let Ralphy run, check progress.txt if curious
 
+### Hybrid-Specific
+1. **Default to Ralphy** - Start autonomous, intervene only if needed
+2. **Use Standard for decisions** - Complex architectural choices benefit from manual control
+3. **Keep both in sync** - If you edit a PRD, update the matching prompt too
+
 ---
 
 ## When to Use Each Mode
@@ -439,6 +526,9 @@ ralphy --prd prd/ -- --dangerously-skip-permissions
 | Known patterns, clear specs | Ralphy |
 | Want to walk away | Ralphy |
 | Maximum speed | Ralphy |
+| Uncertain complexity | Hybrid |
+| Mixed simple/complex phases | Hybrid |
+| Want fallback options | Hybrid |
 
 ---
 
