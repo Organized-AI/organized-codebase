@@ -1,0 +1,501 @@
+# Organized Codebase Justfile
+# Run `just` to see available recipes
+# Run `just <recipe>` to execute a recipe
+
+# Default recipe - show help
+default:
+    @just --list
+
+# =============================================================================
+# SCAFFOLDING RECIPES
+# =============================================================================
+
+# Scaffold .claude/ directory with agents, commands, hooks, skills
+add-claude:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating .claude/ structure..."
+    mkdir -p .claude/{agents,commands,hooks,skills}
+
+    # Create settings.json if it doesn't exist
+    if [ ! -f .claude/settings.json ]; then
+        cat > .claude/settings.json << 'EOF'
+    {
+      "permissions": {
+        "allow": [
+          "Bash(git status)",
+          "Bash(git diff:*)",
+          "Bash(git log:*)",
+          "Bash(npm run:*)",
+          "Bash(npm test:*)",
+          "Bash(npx:*)",
+          "Bash(ls:*)",
+          "Bash(cat:*)",
+          "Bash(just:*)"
+        ],
+        "ask": [
+          "Bash(git push:*)",
+          "Bash(git commit:*)",
+          "Bash(rm:*)",
+          "Bash(npm install:*)"
+        ],
+        "deny": [
+          "Bash(git push --force:*)",
+          "Bash(git reset --hard:*)",
+          "Bash(rm -rf /)",
+          "Bash(sudo:*)"
+        ]
+      }
+    }
+    EOF
+        echo "  ✅ Created .claude/settings.json"
+    else
+        echo "  ⏭️  .claude/settings.json already exists"
+    fi
+
+    # Create verify command
+    if [ ! -f .claude/commands/verify.md ]; then
+        cat > .claude/commands/verify.md << 'EOF'
+    ---
+    description: Run all verification checks (Boris methodology)
+    ---
+
+    # Verify Current Work
+
+    Run verification suite:
+    1. `git status` - check for uncommitted changes
+    2. `npm run lint` - linting (if available)
+    3. `npm run typecheck` - type checking (if TypeScript)
+    4. `npm test` - run tests (if available)
+    5. `npm run build` - build check (if available)
+
+    Report Pass/Fail for each with specific errors.
+    EOF
+        echo "  ✅ Created .claude/commands/verify.md"
+    fi
+
+    # Create commit command
+    if [ ! -f .claude/commands/commit.md ]; then
+        cat > .claude/commands/commit.md << 'EOF'
+    ---
+    description: Smart commit with verification (Boris methodology)
+    ---
+
+    # Smart Commit
+
+    1. Run /verify first
+    2. Show `git status` and `git diff --stat`
+    3. Generate conventional commit message (feat/fix/docs/refactor/test/chore)
+    4. Ask for confirmation before committing
+    5. Do NOT push unless explicitly requested
+    EOF
+        echo "  ✅ Created .claude/commands/commit.md"
+    fi
+
+    # Create review command
+    if [ ! -f .claude/commands/review.md ]; then
+        cat > .claude/commands/review.md << 'EOF'
+    ---
+    description: Self-review before PR (Boris methodology)
+    ---
+
+    # Self-Review
+
+    1. Run `git diff main...HEAD`
+    2. Check for: console.logs, commented code, TODOs, missing error handling
+    3. Run full verification
+    4. Provide recommendation: Ready / Needs Work
+    EOF
+        echo "  ✅ Created .claude/commands/review.md"
+    fi
+
+    # Create status command
+    if [ ! -f .claude/commands/status.md ]; then
+        cat > .claude/commands/status.md << 'EOF'
+    ---
+    description: Project health check (Boris methodology)
+    ---
+
+    # Project Status
+
+    1. Git status and last 5 commits
+    2. `npm outdated` for dependency health
+    3. `npm test -- --coverage` for test coverage
+    4. Build status
+    5. Summary: Healthy / Needs Attention / Critical
+    EOF
+        echo "  ✅ Created .claude/commands/status.md"
+    fi
+
+    # Create verify-build agent
+    if [ ! -f .claude/agents/verify-build.md ]; then
+        cat > .claude/agents/verify-build.md << 'EOF'
+    ---
+    name: verify-build
+    description: Validate builds work correctly from clean state
+    ---
+
+    # Build Validation Agent
+
+    ## Checks
+    1. Clean install: `rm -rf node_modules && npm ci`
+    2. Build: `npm run build`
+    3. Verify artifacts exist
+    4. Smoke test: start app, check for crashes
+
+    ## Output
+    Build status, time, artifact sizes, warnings
+    EOF
+        echo "  ✅ Created .claude/agents/verify-build.md"
+    fi
+
+    # Create verify-architecture agent
+    if [ ! -f .claude/agents/verify-architecture.md ]; then
+        cat > .claude/agents/verify-architecture.md << 'EOF'
+    ---
+    name: verify-architecture
+    description: Verify code follows architectural patterns and project conventions
+    ---
+
+    # Architecture Verification Agent
+
+    ## Checks
+    1. Files in correct directories
+    2. No circular imports
+    3. Layer boundaries respected
+    4. Naming conventions followed
+
+    ## Output
+    - ✅ Passed checks
+    - ⚠️ Warnings
+    - ❌ Violations
+    EOF
+        echo "  ✅ Created .claude/agents/verify-architecture.md"
+    fi
+
+    echo "✅ .claude/ scaffolding complete!"
+
+# Create .ralphy/config.yaml for Ralphy integration
+add-ralphy:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating .ralphy/ structure..."
+    mkdir -p .ralphy
+
+    if [ ! -f .ralphy/config.yaml ]; then
+        cat > .ralphy/config.yaml << 'EOF'
+    # Ralphy Configuration
+    # https://github.com/ralphy
+
+    version: "1.0"
+
+    project:
+      name: ""  # Set your project name
+      description: ""
+
+    agents:
+      default_model: "claude-3-opus"
+      max_turns: 50
+
+    workflows:
+      verify:
+        - lint
+        - test
+        - build
+
+      deploy:
+        requires: [verify]
+        steps:
+          - build
+          - deploy
+
+    hooks:
+      pre_commit:
+        - just verify
+      post_commit:
+        - echo "Committed successfully"
+    EOF
+        echo "  ✅ Created .ralphy/config.yaml"
+    else
+        echo "  ⏭️  .ralphy/config.yaml already exists"
+    fi
+
+    echo "✅ Ralphy scaffolding complete!"
+
+# Create PLANNING/ documentation structure
+add-planning:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating PLANNING/ structure..."
+    mkdir -p PLANNING/{implementation-phases,decisions,experiments}
+
+    # Create README
+    if [ ! -f PLANNING/README.md ]; then
+        cat > PLANNING/README.md << 'EOF'
+    # Planning Documentation
+
+    This directory contains project planning artifacts.
+
+    ## Structure
+
+    ```
+    PLANNING/
+    ├── implementation-phases/  # Phased build prompts (PHASE-X-PROMPT.md)
+    ├── decisions/              # Architecture Decision Records (ADRs)
+    └── experiments/            # Experimental code and POCs
+    ```
+
+    ## Phased Build
+
+    Use `PHASE-X-PROMPT.md` files for structured implementation:
+
+    1. `PHASE-0-PROMPT.md` - Project bootstrap
+    2. `PHASE-1-PROMPT.md` - Core implementation
+    3. `PHASE-2-PROMPT.md` - Features
+    4. etc.
+
+    Run phases with: `/phased-build`
+    EOF
+        echo "  ✅ Created PLANNING/README.md"
+    fi
+
+    # Create PHASE-0 template
+    if [ ! -f PLANNING/implementation-phases/PHASE-0-PROMPT.md ]; then
+        cat > PLANNING/implementation-phases/PHASE-0-PROMPT.md << 'EOF'
+    # Phase 0: Project Bootstrap
+
+    ## Objective
+    Set up the foundational project structure and tooling.
+
+    ## Prerequisites
+    - Node.js 20+
+    - Git initialized
+
+    ## Tasks
+
+    ### 1. Initialize Package
+    ```bash
+    npm init -y
+    ```
+
+    ### 2. Install Dependencies
+    ```bash
+    npm install typescript @types/node --save-dev
+    ```
+
+    ### 3. Configure TypeScript
+    Create `tsconfig.json` with strict mode.
+
+    ### 4. Set Up Linting
+    ```bash
+    npm install eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin --save-dev
+    ```
+
+    ## Verification
+    - [ ] `npm run build` succeeds
+    - [ ] `npm run lint` passes
+    - [ ] Project structure matches CLAUDE.md
+
+    ## Next Phase
+    Proceed to PHASE-1 for core implementation.
+    EOF
+        echo "  ✅ Created PLANNING/implementation-phases/PHASE-0-PROMPT.md"
+    fi
+
+    echo "✅ PLANNING/ scaffolding complete!"
+
+# Create AGENT-HANDOFF/ directory for context transfer
+add-handoff:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating AGENT-HANDOFF/ structure..."
+    mkdir -p AGENT-HANDOFF
+
+    if [ ! -f AGENT-HANDOFF/HANDOFF.md ]; then
+        cat > AGENT-HANDOFF/HANDOFF.md << 'EOF'
+    # Agent Handoff Document
+
+    ## Project: [PROJECT_NAME]
+
+    ### Quick Context
+    [1-2 sentence description of what this project does]
+
+    ### Key Files to Read
+    1. `CLAUDE.md` - Project overview and conventions
+    2. `DOCUMENTATION/` - Technical documentation
+    3. `PLANNING/` - Implementation phases
+
+    ### Current State
+
+    | Component | Status |
+    |-----------|--------|
+    | Core Framework | ⏳ In Progress |
+    | Tests | ⏳ Not Started |
+    | Documentation | ⏳ Not Started |
+
+    ### Recent Changes
+    - [Date]: [Change description]
+
+    ### Blocked On
+    - [Any blockers or pending decisions]
+
+    ### Next Steps
+    1. [Next immediate task]
+    2. [Following task]
+
+    ### Known Issues
+    - [Issue 1]
+    - [Issue 2]
+
+    ### Environment Setup
+    ```bash
+    npm install
+    npm run build
+    npm test
+    ```
+    EOF
+        echo "  ✅ Created AGENT-HANDOFF/HANDOFF.md"
+    fi
+
+    if [ ! -f AGENT-HANDOFF/CONTEXT-WINDOW.md ]; then
+        cat > AGENT-HANDOFF/CONTEXT-WINDOW.md << 'EOF'
+    # Context Window State
+
+    Last updated: [TIMESTAMP]
+
+    ## Session Summary
+    [What was accomplished in the last session]
+
+    ## Files Modified
+    - `path/to/file1.ts` - [brief description]
+    - `path/to/file2.ts` - [brief description]
+
+    ## Decisions Made
+    - [Decision 1]: [Rationale]
+    - [Decision 2]: [Rationale]
+
+    ## Questions for Next Session
+    - [ ] [Question 1]
+    - [ ] [Question 2]
+
+    ## Token Budget Notes
+    - Estimated tokens used: X
+    - Remaining budget: Y
+    EOF
+        echo "  ✅ Created AGENT-HANDOFF/CONTEXT-WINDOW.md"
+    fi
+
+    echo "✅ AGENT-HANDOFF/ scaffolding complete!"
+
+# =============================================================================
+# MAIN RECIPE - Apply all scaffolding
+# =============================================================================
+
+# Apply complete Organized Codebase structure
+apply-organized: add-claude add-ralphy add-planning add-handoff
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ""
+    echo "📁 Creating additional directories..."
+    mkdir -p ARCHITECTURE DOCUMENTATION SPECIFICATIONS CONFIG scripts .archive
+
+    # Create CLAUDE.md if it doesn't exist
+    if [ ! -f CLAUDE.md ]; then
+        cat > CLAUDE.md << 'EOF'
+    # [Project Name]
+
+    Brief description of your project.
+
+    ## Tech Stack
+    - Runtime: Node.js 20+
+    - Languages: TypeScript
+    - Key Dependencies: [list major packages]
+
+    ## Project Structure
+    ```
+    .claude/           → Claude Code config (agents, commands, hooks, skills)
+    PLANNING/          → Implementation phases and planning docs
+    ARCHITECTURE/      → System design documentation
+    DOCUMENTATION/     → General docs and guides
+    SPECIFICATIONS/    → Functional/technical specs
+    AGENT-HANDOFF/     → Context transfer between sessions
+    CONFIG/            → Configuration files
+    scripts/           → Automation scripts
+    ```
+
+    ## Code Conventions
+    - Use TypeScript with strict mode
+    - Prefer async/await over callbacks
+    - Use conventional commits (feat/fix/docs/refactor/test/chore)
+
+    ## DO NOT
+    - Never use `--dangerously-skip-permissions`
+    - Never skip plan mode for complex features
+    - Never commit without running verification first
+
+    ## Verification Requirements
+    Before completing ANY task:
+    1. Describe your verification approach
+    2. Run `npm test` and `npm run lint`
+    3. For UI changes: provide screenshot
+    EOF
+        echo "  ✅ Created CLAUDE.md"
+    fi
+
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "  ✅ ORGANIZED CODEBASE STRUCTURE APPLIED!"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo ""
+    echo "  Next steps:"
+    echo "  1. Update CLAUDE.md with your project details"
+    echo "  2. Review .claude/settings.json permissions"
+    echo "  3. Customize PLANNING/implementation-phases/"
+    echo "  4. Run 'just verify' to test verification commands"
+    echo ""
+
+# =============================================================================
+# UTILITY RECIPES
+# =============================================================================
+
+# Run verification (delegates to Claude commands)
+verify:
+    @echo "Running verification suite..."
+    @echo "Use /verify in Claude Code for full verification"
+
+# Show project status
+project-status:
+    @echo "=== Project Status ==="
+    @git status --short 2>/dev/null || echo "Not a git repository"
+    @echo ""
+    @echo "=== Recent Commits ==="
+    @git log --oneline -5 2>/dev/null || echo "No commits yet"
+    @echo ""
+    @echo "=== Structure Check ==="
+    @ls -la .claude 2>/dev/null || echo "No .claude/ directory"
+
+# Archive iteration directories
+archive-iterations:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📦 Archiving iteration directories..."
+    mkdir -p .archive
+
+    # Find and move iteration directories
+    for pattern in "*-pwa" "*-app" "*-v[0-9]*" "*-old" "*-backup"; do
+        for dir in $pattern; do
+            if [ -d "$dir" ] && [ "$dir" != ".archive" ]; then
+                mv "$dir" .archive/
+                echo "  Archived: $dir"
+            fi
+        done 2>/dev/null || true
+    done
+
+    echo "✅ Archive complete. Check .archive/ directory."
+
+# Clean regenerable directories
+clean-regenerable:
+    #!/usr/bin/env bash
+    echo "🧹 Cleaning regenerable directories..."
+    rm -rf node_modules dist build .next .cache .turbo
+    echo "✅ Cleaned. Run 'npm install' to regenerate."
