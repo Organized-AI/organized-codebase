@@ -19,29 +19,73 @@
 
 const https = require('https');
 
-// Configuration - Remote URLs (raw content)
+// Configuration - Remote URLs
+// Using GitHub API for real-time content (avoids CDN caching)
 const CONFIG = {
   // Our tracked changelog on GitHub
   localRepo: {
+    api: 'https://api.github.com/repos/Organized-AI/organized-codebase/contents/DOCUMENTATION/claude-code-changelog.md',
     raw: 'https://raw.githubusercontent.com/Organized-AI/organized-codebase/main/DOCUMENTATION/claude-code-changelog.md',
     web: 'https://github.com/Organized-AI/organized-codebase/blob/main/DOCUMENTATION/claude-code-changelog.md',
   },
   // Upstream source
   upstream: {
+    api: 'https://api.github.com/repos/anthropics/claude-code/contents/CHANGELOG.md',
     raw: 'https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md',
     web: 'https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md',
   },
 };
 
 /**
- * Fetch content from GitHub raw URL
+ * Fetch content via GitHub API (avoids CDN caching)
  */
-function fetchFromGitHub(url) {
+function fetchFromGitHubAPI(url) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      headers: {
+        'User-Agent': 'organized-codebase-changelog-verifier',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    };
+    
+    https.get(url, options, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        return fetchFromGitHubAPI(res.headers.location).then(resolve).catch(reject);
+      }
+      
+      if (res.statusCode === 404) {
+        return reject(new Error(`404 Not Found: ${url}`));
+      }
+      
+      if (res.statusCode !== 200) {
+        return reject(new Error(`HTTP ${res.statusCode}: ${url}`));
+      }
+      
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          // GitHub API returns base64 encoded content
+          const content = Buffer.from(json.content, 'base64').toString('utf-8');
+          resolve(content);
+        } catch (e) {
+          reject(new Error('Failed to parse GitHub API response'));
+        }
+      });
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+/**
+ * Fetch content from GitHub raw URL (fallback)
+ */
+function fetchFromGitHubRaw(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
-      // Handle redirects
       if (res.statusCode === 301 || res.statusCode === 302) {
-        return fetchFromGitHub(res.headers.location).then(resolve).catch(reject);
+        return fetchFromGitHubRaw(res.headers.location).then(resolve).catch(reject);
       }
       
       if (res.statusCode === 404) {
@@ -61,10 +105,22 @@ function fetchFromGitHub(url) {
 }
 
 /**
+ * Fetch with API preferred, raw as fallback
+ */
+async function fetchContent(source, name) {
+  try {
+    console.log(`   Trying GitHub API...`);
+    return await fetchFromGitHubAPI(source.api);
+  } catch (apiError) {
+    console.log(`   API failed (${apiError.message}), trying raw URL...`);
+    return await fetchFromGitHubRaw(source.raw);
+  }
+}
+
+/**
  * Extract version from changelog content
  */
 function extractLatestVersion(content) {
-  // Match version patterns like "## 2.1.22" or "## [2.1.22]"
   const versionMatch = content.match(/##\s*\[?(\d+\.\d+\.\d+)\]?/);
   return versionMatch ? versionMatch[1] : null;
 }
@@ -92,7 +148,6 @@ function parseVersion(v) {
 
 /**
  * Compare two version strings
- * Returns: 1 if a > b, -1 if a < b, 0 if equal
  */
 function compareVersions(a, b) {
   const va = parseVersion(a);
@@ -128,7 +183,7 @@ async function verify() {
     console.log('⏳ Fetching from Organized-AI/organized-codebase...');
     let localContent;
     try {
-      localContent = await fetchFromGitHub(CONFIG.localRepo.raw);
+      localContent = await fetchContent(CONFIG.localRepo, 'local');
     } catch (err) {
       console.log('❌ Failed to fetch local repo changelog');
       console.log(`   ${err.message}`);
@@ -139,7 +194,7 @@ async function verify() {
     }
     
     console.log('⏳ Fetching from anthropics/claude-code...');
-    const upstreamContent = await fetchFromGitHub(CONFIG.upstream.raw);
+    const upstreamContent = await fetchContent(CONFIG.upstream, 'upstream');
 
     // Extract versions
     const localVersion = extractLatestVersion(localContent);
@@ -172,7 +227,6 @@ async function verify() {
     }
 
     if (comparison > 0) {
-      // Find missing versions
       const missingVersions = upstreamVersions.filter(v => 
         !localVersions.includes(v) && compareVersions(v, localVersion) > 0
       );
@@ -208,7 +262,6 @@ async function verify() {
       };
     }
 
-    // Local is ahead (shouldn't happen normally)
     console.log('🤔 STATUS: LOCAL AHEAD OF UPSTREAM');
     console.log();
     console.log(`   Local v${localVersion} > Upstream v${upstreamVersion}`);
@@ -235,7 +288,6 @@ async function verify() {
 async function main() {
   const result = await verify();
   
-  // Output JSON for automation if --json flag
   if (process.argv.includes('--json')) {
     console.log();
     console.log('JSON Output:');
@@ -245,7 +297,6 @@ async function main() {
   process.exit(result.exitCode);
 }
 
-// Run if called directly
 if (require.main === module) {
   main();
 }
