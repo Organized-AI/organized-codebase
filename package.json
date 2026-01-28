@@ -7,7 +7,8 @@
     "test": "node tests/benchmark.test.js",
     "cli": "node src/cli/hybrid-agent-cli.js",
     "benchmark": "node tests/benchmark.test.js",
-    "agent:setup": "node scripts/setup-agent.js"
+    "agent:setup": "node scripts/setup-agent.js",
+    "changelog:fetch": "node scripts/fetch-changelog.js"
   },
   "bin": {
     "hybrid-agent": "./src/cli/hybrid-agent-cli.js"
@@ -32,7 +33,8 @@
     "commander": "^12.1.0",
     "dotenv": "^16.4.7",
     "glob": "^11.0.0",
-    "openai": "^4.76.1"
+    "openai": "^4.76.1",
+    "apify-client": "^2.9.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

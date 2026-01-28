@@ -1,0 +1,59 @@
+{
+  "name": "changelog-tracker",
+  "description": "Configuration for Claude Code Changelog Tracker",
+  "version": "1.0.0",
+  
+  "actor": {
+    "id": "apify/rag-web-browser",
+    "name": "RAG Web Browser",
+    "description": "Web browser for scraping and returning content as Markdown"
+  },
+  
+  "targets": [
+    {
+      "name": "claude-code-changelog",
+      "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+      "description": "Official Claude Code changelog on GitHub",
+      "enabled": true
+    },
+    {
+      "name": "claude-code-releases",
+      "url": "https://github.com/anthropics/claude-code/releases",
+      "description": "Claude Code GitHub releases page",
+      "enabled": false
+    },
+    {
+      "name": "anthropic-api-changelog",
+      "url": "https://docs.anthropic.com/en/release-notes/overview",
+      "description": "Anthropic API release notes",
+      "enabled": false
+    }
+  ],
+  
+  "settings": {
+    "maxResults": 1,
+    "outputFormats": ["markdown"],
+    "requestTimeoutSecs": 60,
+    "dynamicContentWaitSecs": 10,
+    "removeCookieWarnings": true,
+    "scrapingTool": "browser-playwright"
+  },
+  
+  "output": {
+    "directory": "DOCUMENTATION",
+    "filename": "CLAUDE-CODE-CHANGELOG.md",
+    "rawFilename": "changelog-raw.json",
+    "includeMetadata": true
+  },
+  
+  "schedule": {
+    "enabled": false,
+    "cron": "0 9 * * 1",
+    "description": "Weekly on Monday at 9am (disabled by default)"
+  },
+  
+  "notifications": {
+    "onNewVersion": false,
+    "webhookUrl": null
+  }
+}
