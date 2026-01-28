@@ -1,6 +1,6 @@
 ---
 name: changelog-tracker
-description: Fetches and tracks Claude Code changelog updates from GitHub using Apify RAG Web Browser. Outputs formatted markdown to DOCUMENTATION/. Use when user wants to update changelog, track Claude Code updates, fetch latest releases, or mentions "changelog", "claude code updates", "what's new in claude code".
+description: Fetches, verifies, and tracks Claude Code changelog updates from GitHub using Apify RAG Web Browser. Outputs formatted markdown to DOCUMENTATION/. Use when user wants to update changelog, verify changelog status, track Claude Code updates, fetch latest releases, or mentions "changelog", "claude code updates", "what's new in claude code", "verify changelog".
 user-invocable: true
 allowed-tools:
   - Bash
@@ -10,15 +10,15 @@ allowed-tools:
 
 # Claude Code Changelog Tracker
 
-Automatically fetches the Claude Code changelog from GitHub and outputs clean, formatted markdown to your project's `DOCUMENTATION/` directory.
+Automatically fetches and verifies the Claude Code changelog from GitHub, outputting clean formatted markdown to your project's `DOCUMENTATION/` directory.
 
 ## Features
 
-- Scrapes official Claude Code changelog via Apify RAG Web Browser
-- Parses and cleans markdown content
-- Adds metadata header with timestamps and version info
-- Detects new versions compared to previous fetch
-- Integrates with Organized Codebase structure
+- **Fetch**: Scrapes official Claude Code changelog via Apify RAG Web Browser
+- **Verify**: Compares local vs upstream versions without fetching full content
+- **Parse**: Cleans markdown content and adds metadata
+- **Detect**: Identifies new versions compared to previous fetch
+- **Integrate**: Works with Organized Codebase structure
 
 ## Prerequisites
 
@@ -28,57 +28,151 @@ Automatically fetches the Claude Code changelog from GitHub and outputs clean, f
 
 ## Usage
 
-### Via Slash Command
+### Verify Status (Quick Check)
+
+Check if local changelog is up-to-date without fetching:
+
+```bash
+# Via CLI
+node scripts/verify-changelog.js
+
+# JSON output for automation
+node scripts/verify-changelog.js --json
+```
+
+**Compares:**
+- `https://github.com/Organized-AI/organized-codebase/blob/main/DOCUMENTATION/claude-code-changelog.md`  
+- `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md`
+
+### Update Changelog (Full Fetch)
+
+Fetch and update the local changelog:
+
 ```
 /update-changelog
 ```
 
-### Via CLI
+Or via CLI:
 ```bash
-# From Organized Codebase root
 node scripts/fetch-changelog.js
-```
-
-### Via npm script
-```bash
-npm run changelog:fetch
 ```
 
 ## Workflow
 
-1. **Check Environment**: Verify APIFY_TOKEN is set
-2. **Fetch Changelog**: Call Apify RAG Web Browser actor
-3. **Parse Content**: Extract and clean markdown
-4. **Detect Changes**: Compare with existing changelog
-5. **Write Output**: Save to `DOCUMENTATION/CLAUDE-CODE-CHANGELOG.md`
-6. **Report Results**: Show version count and any new releases
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 CHANGELOG TRACKER WORKFLOW                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────┐    ┌─────────────┐    ┌──────────────────┐   │
+│  │  VERIFY  │───▶│  OUTDATED?  │───▶│  FETCH & UPDATE  │   │
+│  └──────────┘    └─────────────┘    └──────────────────┘   │
+│       │                │                     │              │
+│       ▼                ▼                     ▼              │
+│   Compare         If yes, show         Use Apify RAG       │
+│   versions        missing versions     to fetch full       │
+│   (fast)          and prompt           changelog           │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │                    GIT WORKFLOW                       │  │
+│  │  git add → git commit → git push                     │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Output Location
+### Step-by-Step
+
+1. **Verify** (Optional): Run `node scripts/verify-changelog.js` to check status
+2. **Fetch**: If outdated, run `/update-changelog` or `node scripts/fetch-changelog.js`
+3. **Review**: Check `DOCUMENTATION/claude-code-changelog.md`
+4. **Commit**: `git add -A && git commit -m "docs: Update Claude Code Changelog to vX.X.X"`
+5. **Push**: `git push origin main`
+
+## Output Files
 
 ```
 DOCUMENTATION/
-├── CLAUDE-CODE-CHANGELOG.md   # Formatted changelog with metadata
-└── changelog-raw.json          # Raw API response (for debugging)
+├── claude-code-changelog.md   # Formatted changelog with metadata
+└── changelog-raw.json         # Raw API response (for debugging)
+```
+
+## Verification Output Example
+
+```
+══════════════════════════════════════════════════════════════
+  Claude Code Changelog Verification
+  Comparing: Local ↔ Upstream
+══════════════════════════════════════════════════════════════
+
+📍 Sources:
+   Local:    https://github.com/Organized-AI/organized-codebase/...
+   Upstream: https://github.com/anthropics/claude-code/...
+
+📊 Version Comparison:
+────────────────────────────────────────
+   Upstream Latest: v2.1.22
+   Local Latest:    v2.1.20
+   Upstream Total:  89 versions
+   Local Total:     45 versions
+
+⚠️  STATUS: UPDATES AVAILABLE
+
+🆕 Missing Versions:
+   • v2.1.22
+   • v2.1.21
+
+📝 To update, run:
+   /update-changelog
+══════════════════════════════════════════════════════════════
 ```
 
 ## Configuration
 
 Edit `CONFIG/changelog-tracker.json` to customize:
-- Target URLs
-- Output settings
-- Scheduling options
 
-## Example Output Header
+```json
+{
+  "targets": [
+    {
+      "name": "claude-code",
+      "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+      "outputFile": "claude-code-changelog.md"
+    }
+  ],
+  "output": {
+    "directory": "DOCUMENTATION",
+    "filename": "claude-code-changelog.md"
+  },
+  "verification": {
+    "enabled": true,
+    "checkOnStartup": false
+  }
+}
+```
+
+## Metadata Header
 
 ```markdown
 ---
 title: Claude Code Changelog
 source: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 fetched_at: 2025-01-28T12:00:00.000Z
-latest_version: 2.1.4
+latest_version: 2.1.22
 total_versions: 45
+actor: apify/rag-web-browser
+generated_by: organized-codebase/changelog-tracker
 ---
 ```
+
+## Exit Codes
+
+| Script | Code | Meaning |
+|--------|------|---------|
+| verify-changelog.js | 0 | Up to date |
+| verify-changelog.js | 1 | Updates available or error |
+| fetch-changelog.js | 0 | Fetch successful |
+| fetch-changelog.js | 1 | Fetch failed |
 
 ## Troubleshooting
 
@@ -86,10 +180,11 @@ total_versions: 45
 |-------|----------|
 | "APIFY_TOKEN not set" | Export your token: `export APIFY_TOKEN=apify_api_xxx` |
 | Empty changelog | Check `changelog-raw.json` for API response |
+| Verification fails | Check network connection to GitHub |
 | Parse errors | The GitHub page structure may have changed |
 
 ## Integration with Other Skills
 
-This skill works well with:
 - **repo-manager**: Auto-commit changelog updates
-- **skill-creator-enhanced**: Create custom changelog trackers for other projects
+- **skill-creator-enhanced**: Create custom changelog trackers
+- **daily-checkpoint**: Track changelog updates in daily reviews
