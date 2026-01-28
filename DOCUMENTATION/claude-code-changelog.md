@@ -1,10 +1,10 @@
 ---
 title: Claude Code Changelog
 source: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
-fetched_at: 2025-01-28T13:58:00.000Z
-latest_version: 2.1.20
+fetched_at: 2025-01-28T14:05:00.000Z
+latest_version: 2.1.22
 total_versions: 45+
-actor: web_search (manual fetch)
+actor: apify/rag-web-browser + web_fetch
 generated_by: organized-codebase/changelog-tracker
 ---
 
@@ -12,12 +12,38 @@ generated_by: organized-codebase/changelog-tracker
 
 > **Last Updated:** January 28, 2025  
 > **Source:** [GitHub - anthropics/claude-code](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)  
-> **Latest Version:** 2.1.20  
-> **Fetched via:** Web Search + Manual Compilation
+> **Latest Version:** 2.1.22  
+> **Fetched via:** Apify RAG Web Browser + Web Fetch
 
 ---
 
-## 2.1.20 (Latest)
+## 2.1.22 (Latest)
+
+- Fixed structured outputs for non-interactive (-p) mode
+
+---
+
+## 2.1.21
+
+### Added
+- Support for full-width (zenkaku) number input from Japanese IME in option selection prompts
+- [VSCode] Automatic Python virtual environment activation, ensuring `python` and `pip` commands use the correct interpreter (configurable via `claudeCode.usePythonEnvironment` setting)
+
+### Fixed
+- Shell completion cache files being truncated on exit
+- API errors when resuming sessions that were interrupted during tool execution
+- Auto-compact triggering too early on models with large output token limits
+- Task IDs potentially being reused after deletion
+- File search not working in VS Code extension on Windows
+- [VSCode] Message action buttons having incorrect background colors
+
+### Improved
+- Read/search progress indicators to show "Reading…" while in progress and "Read" when complete
+- Claude to prefer file operation tools (Read, Edit, Write) over bash equivalents (cat, sed, awk)
+
+---
+
+## 2.1.20
 
 ### Added
 - Arrow key history navigation in vim normal mode when cursor cannot move further
