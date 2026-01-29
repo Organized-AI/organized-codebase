@@ -29,9 +29,34 @@ Features completed: feat-001 (Skill scaffold and SKILL.md)
 Features in progress: None
 
 Next session should:
-1. Complete feat-001: Create SKILL.md with proper frontmatter
-2. Start feat-002: Implement changelog diff detection
+1. Use subagents to build features in parallel where possible
+2. Start feat-002: Changelog diff detection (BLOCKING - others depend on this)
 3. Reference CHANGELOG-STANDARDS.md for category markers
+
+=== PARALLELIZATION STRATEGY ===
+
+Phase 1 (Sequential - must complete first):
+  └─ feat-002: Changelog diff detection
+
+Phase 2 (Can parallelize after feat-002):
+  ├─ Subagent A: feat-003 (Entry parser with category detection)
+  └─ Subagent B: feat-005 (Interactive presentation layer - scaffold UI)
+
+Phase 3 (Can parallelize after feat-003):
+  ├─ Subagent A: feat-004 (Action type mapper)
+  ├─ Subagent B: feat-006 (Config update handler)
+  └─ Subagent C: feat-007 (Command demo handler)
+
+Phase 4 (After handlers complete):
+  └─ feat-008, feat-009, feat-010, feat-011, feat-012 (integration work)
+
+=== SUBAGENT PROMPTS (for next Claude) ===
+
+To build in parallel, spawn Task agents like:
+```
+Task(Explore): "Read feat-002 requirements and implement changelog diff detection"
+Task(Explore): "Scaffold the interactive presentation layer UI for feat-005"
+```
 
 Code is in merge-ready state: YES (planning artifacts only)
 Tests passing: N/A (no code yet)
