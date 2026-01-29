@@ -1,0 +1,56 @@
+{
+  "name": "create-organized-codebase",
+  "version": "0.1.0",
+  "description": "Interactive CLI to set up Organized Codebase with Boris methodology for Claude Code projects",
+  "type": "module",
+  "bin": {
+    "create-organized-codebase": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.2.23",
+    "ora": "^8.0.1",
+    "boxen": "^7.1.1",
+    "simple-git": "^3.24.0",
+    "glob": "^10.3.12"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.12.7",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "cli",
+    "scaffolding",
+    "organized-codebase",
+    "boris-methodology"
+  ],
+  "author": "Organized AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Organized-AI/organized-codebase"
+  }
+}
