@@ -1,0 +1,18 @@
+{
+  "crawl": {
+    "httpStatusCode": 200,
+    "httpStatusMessage": "OK",
+    "loadedAt": "2026-01-29T13:30:41.880Z",
+    "uniqueKey": "Jp1YpJJiOJ",
+    "requestStatus": "handled"
+  },
+  "metadata": {
+    "title": "claude-code/CHANGELOG.md at main · anthropics/claude-code · GitHub",
+    "description": "Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows - all through natural language commands. - claude-code/CHANGELOG.md at main · anthropics/claude-code",
+    "languageCode": "en",
+    "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+    "redirectedUrl": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md"
+  },
+  "query": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+  "markdown": "claude-code/CHANGELOG.md at main · anthropics/claude-code · GitHub\n\n[Skip to content](#start-of-content)  \n\nYou signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert\n\n[anthropics](/anthropics) / **[claude-code](/anthropics/claude-code)** Public\n\n*   [Notifications](/login?return_to=%2Fanthropics%2Fclaude-code) You must be signed in to change notification settings\n*   [Fork 4.6k](/login?return_to=%2Fanthropics%2Fclaude-code)\n*   [Star 62.1k](/login?return_to=%2Fanthropics%2Fclaude-code)\n    \n\nYou can’t perform that action at this time."
+}
