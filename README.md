@@ -1,142 +1,189 @@
-# Organized Codebase
+# Organized Codebase Template
 
-> 🚀 **A curated collection of Claude Code skills, commands, and project templates implementing the Boris methodology - the verification-first workflow from Claude Code's creator.**
+> 🚀 **A comprehensive boilerplate for structuring projects with Claude Code, featuring the Boris methodology for verification-first development.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Organized AI](https://img.shields.io/badge/Organized-AI-blue.svg)](https://organized.ai)
 
-## 🎯 What's Included
+## 🎯 Purpose
 
-This repository provides everything you need to supercharge your Claude Code experience:
+This template provides a standardized project structure optimized for AI-assisted development with Claude Code. It bridges the gap between human planning and AI execution, giving you:
 
-- **15+ Skills** - Specialized capabilities from project setup to deployment
-- **8 Commands** - Quick actions like `/commit`, `/verify`, `/review`
-- **Boris Methodology** - Verification-first development workflow
-- **Project Templates** - Organized structure for new projects
-- **NPM Package** - `create-organized-codebase` for instant setup
+- **Structured directories** for planning, architecture, and handoff
+- **Verification infrastructure** via the Boris methodology
+- **Ready-to-use commands** like `/verify`, `/commit`, `/review`
+- **Permission management** with allow/ask/deny patterns
+
+**Perfect for:**
+- [Organized AI Live Events](https://lu.ma/organizedai-starterstacks) attendees
+- Developers using Claude Code for AI-assisted development
+- Teams wanting better project documentation and handoff processes
+- Anyone building software with AI assistance
 
 ## ⚡ Quick Start
 
-### Option 1: Use the NPM Package (Recommended)
+### Option 1: NPM Package (New Projects)
 
 ```bash
 npx create-organized-codebase my-project
+cd my-project
 ```
 
-This creates a new project with:
-- ✅ Boris methodology pre-configured
-- ✅ All verification commands ready
-- ✅ Planning documents structure
-- ✅ Claude Code settings optimized
+### Option 2: Apply to Existing Project
 
-### Option 2: Clone and Apply
+Use the **organized-codebase-applicator** skill (our flagship tool):
 
 ```bash
-# Clone the repository
-git clone https://github.com/Organized-AI/organized-codebase.git
+# Install Just (required for v2)
+brew install just  # macOS
+# cargo install just  # Linux
 
-# Copy skills to your project
-cp -r organized-codebase/.claude/skills ~/.claude/skills
-cp -r organized-codebase/.claude/commands ~/.claude/commands
+# Copy justfile to your project
+curl -o justfile https://raw.githubusercontent.com/Organized-AI/organized-codebase/main/templates/justfile
+
+# Apply full template
+just apply-organized
+
+# Or apply individual components
+just add-claude    # Just .claude/ directory
+just add-planning  # Just PLANNING/ docs
+just add-handoff   # Just AGENT-HANDOFF/
+```
+
+### Option 3: Use via Claude Code
+
+Just ask Claude:
+- *"Apply Organized Codebase template to this project"*
+- *"Set up verification infrastructure"*
+- *"Add planning documentation"*
+
+## 📁 Template Structure
+
+```
+project-root/
+├── .claude/                 # Claude Code configuration
+│   ├── agents/              # Verification agents
+│   │   ├── verify-build.md
+│   │   └── verify-architecture.md
+│   ├── commands/            # Slash commands
+│   │   ├── verify.md        # /verify
+│   │   ├── commit.md        # /commit
+│   │   ├── review.md        # /review
+│   │   └── status.md        # /status
+│   ├── hooks/               # Pre/post execution hooks
+│   ├── skills/              # Local project skills
+│   └── settings.json        # Permissions (allow/ask/deny)
+│
+├── PLANNING/                # Planning documentation
+│   ├── implementation-phases/
+│   │   └── PHASE-0-PROMPT.md
+│   ├── decisions/           # Architecture Decision Records
+│   └── experiments/         # POCs and experiments
+│
+├── AGENT-HANDOFF/           # Context transfer documents
+│   ├── HANDOFF.md
+│   └── CONTEXT-WINDOW.md
+│
+├── ARCHITECTURE/            # System design documentation
+├── DOCUMENTATION/           # General docs and guides
+├── SPECIFICATIONS/          # Functional and technical specs
+├── CONFIG/                  # Configuration files
+├── scripts/                 # Automation scripts
+│
+├── justfile                 # Just recipes for scaffolding
+└── CLAUDE.md                # Project overview for Claude
 ```
 
 ## 🤖 Boris Methodology
 
-> "Always give Claude a way to verify its work." - Boris (Claude Code Creator)
+This template implements the **Boris methodology** - a verification-first development workflow from Claude Code's creator:
 
-The Boris methodology is a verification-first development workflow that ensures quality at every step:
+> "Always give Claude a way to verify its work."
 
-| Phase | Command | Purpose |
-|-------|---------|---------|
-| **Start** | `/status` | Orient to project state |
-| **Plan** | Plan Mode | Design before coding |
-| **Build** | One feature | Focused implementation |
-| **Verify** | `/verify` | Run all checks |
-| **Commit** | `/commit` | Smart git workflow |
-| **Review** | `/review` | Self-review before PR |
+### Core Commands
 
-### Core Principles
+| Command | Purpose |
+|---------|---------|
+| `/status` | Check project health and git state |
+| `/verify` | Run lint, typecheck, tests, build |
+| `/commit` | Smart commit with pre-verification |
+| `/review` | Self-review before creating PR |
 
-1. **Verification First** - Define how to verify before writing code
-2. **One Feature at a Time** - Focus prevents bugs
-3. **Plan Mode for Complexity** - Think before you code
-4. **Continuous Verification** - Check as you go
+### Verification Agents
 
-## 📦 Available Skills
+| Agent | Purpose |
+|-------|---------|
+| `verify-build` | Validate builds from clean state |
+| `verify-architecture` | Check code follows patterns |
 
-| Skill | Description |
-|-------|-------------|
-| `boris` | Master orchestrator for Boris methodology |
-| `git-worktree-master` | Manage parallel branches and isolated workspaces |
-| `long-runner` | Orchestrate multi-session development |
-| `phased-build` | Execute multi-phase builds with verification gates |
-| `phase-0-bootstrap` | Bootstrap TypeScript/Node.js projects |
-| `phased-planning` | Create structured implementation plans |
-| `changelog-updater` | Track and apply Claude Code updates |
-| `skill-creator-enhanced` | Create new skills with packaging |
-| `tech-stack-orchestrator` | Analyze and recommend Claude Code components |
-| `organized-codebase-applicator` | Apply template structure to existing projects |
-| `repo-manager` | Automate repository maintenance |
-| `data-audit` | Meta Ads account auditing |
-| `posthog-wizard` | PostHog integration patterns |
-| `skill-genie` | Skill discovery and recommendations |
-
-## ⌨️ Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `/verify` | Run all verification checks |
-| `/commit` | Smart commit with verification |
-| `/review` | Self-review before PR |
-| `/status` | Project health check |
-| `/j` | Just command runner integration |
-| `/new-project` | Create new project from template |
-| `/update-changelog` | Fetch latest Claude Code changelog |
-| `/verify-changelog` | Verify changelog is up-to-date |
-
-## 📁 Project Structure
+### Workflow
 
 ```
-organized-codebase/
-├── .claude/
-│   ├── skills/              → 15+ specialized skills
-│   ├── commands/            → Quick action commands
-│   └── settings.json        → Claude Code configuration
-├── packages/
-│   └── create-organized-codebase/  → NPM scaffolding tool
-├── PLANNING/                → Implementation methodology docs
-├── DOCUMENTATION/           → Guides and references
-│   ├── BORIS-CHEAT-SHEET.md
-│   ├── BORIS-METHODOLOGY-DEMO.md
-│   ├── CHANGELOG-STANDARDS.md
-│   └── claude-code-changelog.md
-└── ARCHITECTURE/            → System design docs
+Start Session → /status
+     ↓
+Plan (use plan mode for complex tasks)
+     ↓
+Build (one feature at a time)
+     ↓
+/verify → Fix issues → /verify
+     ↓
+/commit
+     ↓
+/review → Create PR
 ```
 
-## 🚀 Using Skills
+## 🔌 Plugin Marketplace
 
-Skills activate automatically based on triggers. Examples:
+Find more Claude Code components (skills, commands, agents) in our **Plugin Marketplace**:
 
+👉 **[github.com/Organized-AI/plugin-marketplace](https://github.com/Organized-AI/plugin-marketplace)**
+
+### Install from Marketplace
+
+```bash
+# Add the marketplace
+/plugin marketplace add Organized-AI/plugin-marketplace
+
+# Install individual plugins
+/plugin install boris@organized-ai-marketplace
+/plugin install phased-planning@organized-ai-marketplace
 ```
-# Boris methodology
-"help me start a new session"  → boris skill
-"verify my work"               → boris skill
 
-# Git worktrees
-"work on multiple branches"    → git-worktree-master
-"create isolated workspace"    → git-worktree-master
+### Featured Plugins
 
-# Project phases
-"execute phase 2"              → phased-build
-"create implementation plan"   → phased-planning
+| Plugin | Description |
+|--------|-------------|
+| `boris` | Verification-first methodology commands |
+| `phased-planning` | Generate structured implementation plans |
+| `organized-codebase-applicator` | Apply this template to projects |
+| `gtm-ai-plugin` | Google Tag Manager automation |
+
+## 🛠️ Customization
+
+### Selective Application
+
+Apply only what you need:
+
+```bash
+just add-claude    # .claude/ with commands and agents
+just add-planning  # PLANNING/ with phase templates
+just add-handoff   # AGENT-HANDOFF/ for context transfer
+just add-ralphy    # .ralphy/ workflow configuration
 ```
 
-Or invoke directly:
-```
-/boris
-/git-worktree-master
-/phased-build
+### Permission Management
+
+The `.claude/settings.json` uses a tiered permission model:
+
+```json
+{
+  "permissions": {
+    "allow": ["git status", "npm run *", "just *"],
+    "ask": ["git push", "npm install"],
+    "deny": ["git push --force", "rm -rf /"]
+  }
+}
 ```
 
 ## 📚 Documentation
@@ -144,16 +191,15 @@ Or invoke directly:
 - [Boris Cheat Sheet](DOCUMENTATION/BORIS-CHEAT-SHEET.md) - Quick reference
 - [Boris Methodology Demo](DOCUMENTATION/BORIS-METHODOLOGY-DEMO.md) - Full walkthrough
 - [Changelog Standards](DOCUMENTATION/CHANGELOG-STANDARDS.md) - Version tracking
-- [Claude Code Changelog](DOCUMENTATION/claude-code-changelog.md) - Latest updates
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help:
+We welcome contributions!
 
-1. **Add Skills** - Create new skills using `skill-creator-enhanced`
-2. **Improve Docs** - Help clarify documentation
-3. **Report Issues** - Share feedback and bugs
-4. **Share Workflows** - Submit your verified patterns
+1. **Improve templates** - Enhance directory structures
+2. **Add commands** - Create useful slash commands
+3. **Submit skills** - Build specialized skills
+4. **Fix bugs** - Found an issue? Submit a fix
 
 See [DOCUMENTATION/CONTRIBUTING.md](DOCUMENTATION/CONTRIBUTING.md) for guidelines.
 
@@ -162,7 +208,7 @@ See [DOCUMENTATION/CONTRIBUTING.md](DOCUMENTATION/CONTRIBUTING.md) for guideline
 ### Organized AI
 - **Live Events**: [Organized AI Events](https://lu.ma/organizedai-starterstacks)
 - **Community**: [Join Us](https://lu.ma/Organizedai)
-- **Website**: [organized.ai](https://organized.ai)
+- **Plugin Marketplace**: [github.com/Organized-AI/plugin-marketplace](https://github.com/Organized-AI/plugin-marketplace)
 
 ### Learn More
 - [Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M) - Original source
@@ -174,6 +220,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Ready to level up your Claude Code workflow?** Start with `/boris` and let the methodology guide you to better code!
+**Ready to organize your project?** Run `npx create-organized-codebase my-project` or apply to an existing project with `just apply-organized`!
 
 For questions, join the [Organized AI community](https://lu.ma/Organizedai).
