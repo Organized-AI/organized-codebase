@@ -19,7 +19,7 @@ generated_by: organized-codebase/changelog-tracker
 
 ## 2.1.22 (Latest)
 
-- Fixed structured outputs for non-interactive (-p) mode
+- Fixed structured outputs for non-interactive (`-p`) mode. Structured outputs allow you to specify `--output-format json` or `--output-format stream-json` to get machine-parseable responses for scripting and automation
 
 ---
 
@@ -32,8 +32,8 @@ generated_by: organized-codebase/changelog-tracker
 ### Fixed
 - Shell completion cache files being truncated on exit
 - API errors when resuming sessions that were interrupted during tool execution
-- Auto-compact triggering too early on models with large output token limits
-- Task IDs potentially being reused after deletion
+- Auto-compact triggering too early on models with large output token limits. Auto-compact automatically summarizes conversation history when approaching context limits to preserve session continuity
+- Task IDs potentially being reused after deletion (in the new Task tracking system)
 - File search not working in VS Code extension on Windows
 - [VSCode] Message action buttons having incorrect background colors
 
@@ -50,7 +50,7 @@ generated_by: organized-codebase/changelog-tracker
 - External editor shortcut (Ctrl+G) to the help menu for better discoverability
 - PR review status indicator to the prompt footer, showing the current branch's PR state (approved, changes requested, pending, or draft) as a colored dot with a clickable link
 - Support for loading `CLAUDE.md` files from additional directories specified via `--add-dir` flag (requires setting `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`)
-- Ability to delete tasks via the `TaskUpdate` tool
+- Ability to delete tasks via the `TaskUpdate` tool (part of the new Task system introduced in 2.1.19)
 - Customizable keyboard shortcuts. Configure keybindings per context, create chord sequences, and personalize your workflow. Run `/keybindings` to get started
 
 ### Fixed
@@ -69,7 +69,7 @@ generated_by: organized-codebase/changelog-tracker
 ## 2.1.19
 
 ### Added
-- Env var `CLAUDE_CODE_ENABLE_TASKS`, set to false to keep the old system temporarily
+- **New Task system** replacing the old TODO/TodoWrite system. Tasks provide better tracking with unique IDs, status management, and a `TaskUpdate` tool for modifications (added in 2.1.20). Set env var `CLAUDE_CODE_ENABLE_TASKS=false` to temporarily use the legacy TodoWrite system
 - Shorthand `$0`, `$1`, etc. for accessing individual arguments in custom commands
 
 ### Fixed
@@ -84,7 +84,7 @@ generated_by: organized-codebase/changelog-tracker
 ## 2.1.18
 
 ### Added
-- `/teleport` and `/remote-env` slash commands for claude.ai subscribers, allowing them to resume and configure remote sessions
+- `/teleport` and `/remote-env` slash commands for claude.ai subscribers. `/teleport` lets you resume a Claude Code session that was started on claude.ai (cloud-based), while `/remote-env` configures environment variables for those remote sessions
 - Support for disabling specific agents using `Task(AgentName)` syntax in settings.json permissions or the `--disallowedTools` CLI flag
 - Hooks support to agent frontmatter, allowing agents to define PreToolUse, PostToolUse, and Stop hooks scoped to the agent's lifecycle
 - New Vim motions: `;` and `,` to repeat f/F/t/T motions, `y` operator for yank with `yy`/`Y`, `p`/`P` for paste, text objects (`iw`, `aw`, `iW`, `aW`, `i"`, `a"`, `i'`, `a'`, `i(`, `a(`, `i[`, `a[`, `i{`, `a{`), `>>` and `<<` for indent/dedent, and `J` to join lines
@@ -101,9 +101,9 @@ generated_by: organized-codebase/changelog-tracker
 - Support for prompt and agent hook types from plugins (previously only command hooks were supported)
 - Cmd+V support for image paste in iTerm2 (maps to Ctrl+V)
 - Left/right arrow key navigation for cycling through tabs in dialogs
-- Real-time thinking block display in Ctrl+O transcript mode
+- Real-time thinking block display in Ctrl+O transcript mode. Transcript mode shows the raw conversation history including Claude's thinking process, useful for debugging and understanding model behavior
 - Filepath to full output in background bash task details dialog
-- Skills as a separate category in the context visualization
+- Skills as a separate category in the context visualization. Context visualization (accessible via `/context` or the status bar) shows what information Claude can see, including files, CLAUDE.md, and now skills
 
 ### Fixed
 - OAuth token refresh not triggering when server reports token expired but local expiration check disagrees
@@ -142,13 +142,13 @@ generated_by: organized-codebase/changelog-tracker
 ## 2.1.15
 
 ### Removed
-- `#` shortcut for quick memory entry (tell Claude to edit your CLAUDE.md instead)
+- `#` shortcut for quick memory entry. Previously, typing `#` at the prompt start would add a note to Claude's memory. Now, ask Claude directly to "remember this" or "add to CLAUDE.md" instead
 
 ### Fixed
 - Thinking mode toggle in `/config` not persisting correctly
 - IME (Input Method Editor) support for languages like Chinese, Japanese, and Korean by correctly positioning the composition window at the cursor
 - A bug where disallowed MCP tools were visible to the model
-- An issue where steering messages could be lost while a subagent is working
+- An issue where steering messages could be lost while a subagent is working. Steering messages are system-level instructions that guide Claude's behavior during a session
 - Option+Arrow word navigation treating entire CJK text sequences as a single word
 
 ### Improved
@@ -165,7 +165,7 @@ generated_by: organized-codebase/changelog-tracker
 ### Changed
 - Ctrl+Z to suspend Claude Code. Resume by running `fg`. Prompt input undo is now Ctrl+U
 - Teammate messages to render with rich Markdown formatting (bold, code blocks, lists, etc.) instead of plain text
-- ToolSearch results to appear as a brief notification instead of inline in the conversation
+- ToolSearch results to appear as a brief notification instead of inline in the conversation. ToolSearch is an internal tool Claude uses to discover and load deferred MCP tools on-demand
 - The `/commit-push-pr` skill to automatically post PR URLs to Slack channels when configured via MCP tools
 - The `/copy` command to be available to all users
 - Background agents to prompt for tool permissions before launching
@@ -178,7 +178,7 @@ generated_by: organized-codebase/changelog-tracker
 ### Added
 - Tilde (~) expansion support to `/add-dir` command
 - Hooks: EPIPE system error handling
-- Hooks: Split Stop hook triggering into Stop and SubagentStop
+- Hooks: Split Stop hook triggering into Stop and SubagentStop. Stop fires when the main Claude session completes, while SubagentStop fires when a spawned subagent (Task tool) finishes—useful for different cleanup behaviors
 - Hooks: Optional timeout configuration for each command
 - Hooks: "hook_event_name" to hook input
 

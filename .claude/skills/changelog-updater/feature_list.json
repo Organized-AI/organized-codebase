@@ -1,0 +1,116 @@
+{
+  "project": "changelog-updater",
+  "description": "Interactive changelog update skill that notifies users of Claude Code updates and helps them apply relevant changes",
+  "total_features": 12,
+  "completed": 1,
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Skill scaffold and SKILL.md",
+      "description": "Create basic skill structure with triggers, metadata, and frontmatter",
+      "priority": 1,
+      "passes": true,
+      "last_tested": "2025-01-28",
+      "dependencies": []
+    },
+    {
+      "id": "feat-002",
+      "name": "Changelog diff detection",
+      "description": "Compare local changelog version against fetched version, identify new entries",
+      "priority": 2,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-001"]
+    },
+    {
+      "id": "feat-003",
+      "name": "Entry parser with category detection",
+      "description": "Parse changelog entries and classify by category (config, command, tool, architecture, fix, improvement, breaking)",
+      "priority": 3,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-002"]
+    },
+    {
+      "id": "feat-004",
+      "name": "Action type mapper",
+      "description": "Map categories to action types (awareness, config_update, learn_command, migrate)",
+      "priority": 4,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-003"]
+    },
+    {
+      "id": "feat-005",
+      "name": "Interactive presentation layer",
+      "description": "Display grouped updates with action buttons using AskUserQuestion tool",
+      "priority": 5,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-004"]
+    },
+    {
+      "id": "feat-006",
+      "name": "Config update handler",
+      "description": "Execute settings.json and env var updates when user approves",
+      "priority": 6,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-005"]
+    },
+    {
+      "id": "feat-007",
+      "name": "Command demo handler",
+      "description": "Allow user to try new commands directly from the update flow",
+      "priority": 7,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-005"]
+    },
+    {
+      "id": "feat-008",
+      "name": "Migration guide generator",
+      "description": "For breaking changes, generate contextual migration steps based on user's codebase",
+      "priority": 8,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-005"]
+    },
+    {
+      "id": "feat-009",
+      "name": "Acknowledgment tracking",
+      "description": "Track which updates user has seen/dismissed to avoid re-prompting",
+      "priority": 9,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-006", "feat-007", "feat-008"]
+    },
+    {
+      "id": "feat-010",
+      "name": "Integration with changelog-tracker",
+      "description": "Hook into existing changelog-tracker skill to trigger updates automatically",
+      "priority": 10,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-009"]
+    },
+    {
+      "id": "feat-011",
+      "name": "Batch apply mode",
+      "description": "Allow user to apply all recommended changes at once",
+      "priority": 11,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-009"]
+    },
+    {
+      "id": "feat-012",
+      "name": "Summary report generation",
+      "description": "Generate markdown summary of what was updated and what was skipped",
+      "priority": 12,
+      "passes": false,
+      "last_tested": null,
+      "dependencies": ["feat-011"]
+    }
+  ]
+}
