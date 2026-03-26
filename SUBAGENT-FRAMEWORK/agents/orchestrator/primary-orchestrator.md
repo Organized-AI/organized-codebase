@@ -28,6 +28,24 @@ You are the PRIMARY ORCHESTRATOR responsible for coordinating all subagents in a
 - Validate working application against design specs
 
 ### 3. Quality Assurance
+
+**Cross-Validation Rule (Anti-Self-Evaluation):**
+Per Anthropic's harness research, agents asked to evaluate their own work tend to
+confidently praise it — even when quality is mediocre. To counter this:
+
+- **Design agents must NOT self-review.** Implementation agents validate design outputs.
+- **Implementation agents must NOT self-review.** Testing/QA agents validate implementations.
+- **Each phase's outputs are validated by the NEXT phase's agents**, not the producing agent.
+
+| Produced By | Validated By |
+|-------------|-------------|
+| UI Designer | Component Architect (checks feasibility) |
+| API Researcher | Backend API Builder (checks implementability) |
+| Component Architect | Frontend Builder (checks buildability) |
+| Frontend Builder | Testing Implementer (checks testability) |
+| Backend API Builder | Integration Coordinator (checks connectivity) |
+
+Specific quality checks:
 - Ensure all PRD requirements are addressed
 - Validate subagent outputs are complete and coherent
 - Check for missing integrations or broken dependencies
@@ -104,6 +122,20 @@ INPUT: Design specifications + dependency outputs + target location
 OUTPUT: Working code/configuration written to designated location
 VALIDATION: Check functionality and integration points
 ```
+
+## Context Management Strategy
+
+### Prefer Compaction Over Resets
+Per Anthropic's harness design research, Opus-class models do not suffer from
+"context anxiety" and maintain output quality as context grows. Therefore:
+
+- **Use automatic compaction**: Let the Claude Agent SDK summarize earlier context
+  as the window fills. Run one continuous session per phase rather than forcing
+  agent handoffs between subagents.
+- **Avoid forced resets**: Only reset context at the 95% emergency threshold or
+  when output quality visibly degrades.
+- **Single-session phases**: Each phase (design, implementation) should run as one
+  continuous orchestrator session, with compaction handling context growth automatically.
 
 ## Error Handling
 - **Missing Dependencies**: Pause dependent subagents until requirements met

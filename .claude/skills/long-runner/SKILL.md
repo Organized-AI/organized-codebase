@@ -53,11 +53,25 @@ Agents working across multiple context windows face:
 2. **Premature completion**: Declaring victory with work incomplete
 3. **Broken handoffs**: Next session finds undocumented bugs
 4. **Insufficient testing**: Features marked done without E2E verification
+5. **Repeated dead ends**: Successor sessions retry approaches that already failed
 
 ### The Solution
-A two-agent approach:
+A streamlined continuous-session approach:
 1. **Initializer Agent**: Sets up environment on first run
 2. **Coding Agent**: Makes incremental progress per session
+
+### Context Strategy: Compaction over Resets
+
+Per Anthropic's research, Opus-class models (Opus 4.5+) do not exhibit "context anxiety" —
+the tendency to rush or produce lower-quality output as the context window fills. This means:
+
+- **Prefer compaction**: Let the Claude Agent SDK's automatic compaction handle context growth.
+  Run one continuous session across the entire build rather than forcing agent handoffs.
+- **Reserve resets for emergencies**: Only use explicit context resets at the 95% emergency
+  threshold or when the agent shows clear signs of degraded output quality.
+- **Compaction vs. reset tradeoff**: Compaction summarizes earlier conversation so the same
+  agent continues with full momentum. A reset provides a clean slate but requires the handoff
+  artifact to carry enough state for the next agent to pick up cleanly.
 
 ### Key Artifacts
 ```
@@ -238,6 +252,9 @@ Features worked on:
 Blockers:
 - [any blockers for next session]
 
+Failed Approaches (DO NOT RETRY):
+- [approach tried] → [why it failed] → [what to do instead]
+
 Next session should:
 - Continue feat-024 (implement error handling)
 - Then proceed to feat-025
@@ -279,9 +296,13 @@ All tests passing. Code is merge-ready."
 
 | Threshold | Action |
 |-----------|--------|
-| 70% | Soft checkpoint - save progress, can continue |
-| 85% | Hard checkpoint - commit, prepare for handoff |
-| 95% | Emergency save - force end session immediately |
+| 70% | Soft checkpoint - save progress, **rely on automatic compaction** to continue |
+| 85% | Hard checkpoint - commit, update progress file. **Compaction handles context; no reset needed** |
+| 95% | Emergency save - force end session, write detailed handoff for clean restart |
+
+> **Note:** With Opus-class models, automatic compaction keeps the agent productive through
+> the 70-85% range without quality degradation. Only the 95% emergency threshold requires
+> an actual session reset. This eliminates most forced handoffs.
 
 ---
 

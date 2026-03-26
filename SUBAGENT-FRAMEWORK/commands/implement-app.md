@@ -146,11 +146,21 @@ Wait for ALL quality subagents to complete before proceeding to Phase 5.
 
 ### Phase 5: Final Validation and Documentation
 ```markdown
-STEP 7: FINAL VALIDATION
+STEP 7: FINAL CROSS-VALIDATION
+
+IMPORTANT: Per Anthropic's harness research, agents evaluating their own work
+tend to confidently praise it even when mediocre. Each subagent's output must be
+validated by a DIFFERENT agent, not the one that produced it.
+
+CROSS-VALIDATION MATRIX:
+1. [ ] Testing-implementer validates component-builder output (not component-builder self-reviewing)
+2. [ ] Security-hardener validates backend-api-builder output (not API builder self-reviewing)
+3. [ ] Performance-optimizer validates ui-foundation-builder output (not UI builder self-reviewing)
+4. [ ] Integration-coordinator validates all connection points (independent of individual builders)
 
 FUNCTIONALITY VALIDATION:
 1. [ ] Application builds without errors
-2. [ ] All API integrations function correctly  
+2. [ ] All API integrations function correctly
 3. [ ] UI components render as designed
 4. [ ] User flows work end-to-end
 5. [ ] Error handling works properly

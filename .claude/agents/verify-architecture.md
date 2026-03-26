@@ -108,6 +108,34 @@ Result: ✅ COMPLIANT / ⚠️ WARNINGS / ❌ VIOLATIONS
 - Before PR creation
 - When `/review` is invoked
 
+## Ralph Loop: Completion Challenge
+
+After all checks pass, apply the Ralph Loop — an anti-laziness pattern from
+Anthropic's harness research that challenges premature completion claims.
+
+Before declaring "COMPLIANT", ask yourself:
+
+1. **Did I scan ALL files**, or just the ones I expected to find?
+2. **Did I actually run the circular dependency check**, or assume it was clean?
+3. **Are there new files added** since last check that I haven't verified?
+4. **Did I check import order in files I modified**, not just existing files?
+5. **Would `git diff --name-only` reveal files I haven't verified?**
+
+If ANY answer is "no" or uncertain, go back and run the actual check.
+
+```
+═══════════════════════════════════════════
+  RALPH LOOP CHECK
+═══════════════════════════════════════════
+  "Are you REALLY done?"
+
+  [ ] All files scanned (not just expected ones)
+  [ ] Circular dependency check was actually executed
+  [ ] New/modified files verified against conventions
+  [ ] Import order checked in changed files
+═══════════════════════════════════════════
+```
+
 ## Auto-Fix Suggestions
 
 When violations found, suggest specific fixes:

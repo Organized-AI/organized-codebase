@@ -108,6 +108,34 @@ Build Status: ✅ VERIFIED / ❌ BROKEN
 - After build configuration changes
 - In CI/CD pipeline
 
+## Ralph Loop: Completion Challenge
+
+After all verification steps pass, apply the Ralph Loop — an anti-laziness
+pattern from Anthropic's harness research that challenges premature completion claims.
+
+Before declaring "BUILD VERIFIED", ask yourself:
+
+1. **Did I actually run every command**, or did I assume it would pass?
+2. **Did I read the full output**, or just check the exit code?
+3. **Are there warnings I dismissed** that indicate real problems?
+4. **Would a fresh `rm -rf node_modules && npm ci && npm run build`** still pass?
+5. **Did I verify artifacts exist and have reasonable sizes**, not just that the build exited 0?
+
+If ANY answer is "no" or uncertain, go back and run the actual check before reporting success.
+
+```
+═══════════════════════════════════════════
+  RALPH LOOP CHECK
+═══════════════════════════════════════════
+  "Are you REALLY done?"
+
+  [ ] Every command was actually executed
+  [ ] Full output was reviewed (not just exit codes)
+  [ ] No warnings were silently ignored
+  [ ] Artifacts verified on disk
+═══════════════════════════════════════════
+```
+
 ## Failure Recovery
 
 If build fails:

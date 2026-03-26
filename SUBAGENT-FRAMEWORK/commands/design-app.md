@@ -140,22 +140,27 @@ Wait for ALL three subagents to complete before proceeding to Phase 4.
 
 ### Phase 4: Synthesis and Validation
 ```markdown
-STEP 5: VALIDATION AND SYNTHESIS
+STEP 5: CROSS-VALIDATION AND SYNTHESIS
 
-VALIDATION CHECKLIST:
+IMPORTANT: Per Anthropic's harness research, agents that evaluate their own work
+tend to confidently praise it — even when quality is mediocre. Therefore, each
+subagent's output is validated by a DIFFERENT subagent's perspective, not self-reviewed.
+
+CROSS-VALIDATION CHECKLIST:
+
 1. Verify all expected output files exist:
    - [ ] design-outputs/ui-specifications.md
-   - [ ] design-outputs/api-integrations.md  
+   - [ ] design-outputs/api-integrations.md
    - [ ] design-outputs/component-architecture.md
    - [ ] design-outputs/testing-strategy.md
    - [ ] design-outputs/security-requirements.md
 
-2. Content validation:
-   - [ ] UI specifications include wireframes and component specs
-   - [ ] API integrations include authentication and error handling
-   - [ ] Component architecture defines clear component hierarchy
-   - [ ] Testing strategy covers unit, integration, and e2e testing
-   - [ ] Security requirements address all API integrations
+2. Cross-validation (each output validated by a different agent's lens):
+   - [ ] UI specs reviewed through Component Architect lens (are these feasible to build?)
+   - [ ] API integrations reviewed through Security lens (are auth flows complete?)
+   - [ ] Component architecture reviewed through Testing lens (are components testable?)
+   - [ ] Testing strategy reviewed through UI lens (do test scenarios match user flows?)
+   - [ ] Security requirements reviewed through API lens (are all endpoints covered?)
 
 3. PRD requirement mapping:
    - [ ] All PRD features have corresponding design specifications

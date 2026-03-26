@@ -44,6 +44,30 @@ Use this template when creating `PHASE-X-COMPLETE.md` files.
 - [Feature detail]
 - [Feature detail]
 
+## Quality Checkpoint Table
+
+Rate each dimension so downstream phases can gauge confidence in this phase's outputs.
+
+| Dimension | Rating | Evidence | Notes |
+|-----------|--------|----------|-------|
+| **Completeness** | [High/Medium/Low] | [X of Y tasks done] | [any gaps] |
+| **Test Coverage** | [High/Medium/Low] | [X% coverage or N tests] | [untested areas] |
+| **Code Quality** | [High/Medium/Low] | [linter/type check results] | [known debt] |
+| **Integration Ready** | [High/Medium/Low] | [interfaces validated?] | [coupling risks] |
+| **Confidence for Next Phase** | [High/Medium/Low] | [blockers or concerns] | [recommendations] |
+
+> **Why this table matters:** Per Anthropic's harness research, downstream phases need
+> to gauge confidence in upstream outputs — not just "done/not done" but how reliable
+> the output is. A "Medium" confidence rating tells the next phase to verify before building on top.
+
+## Failed Approaches
+
+| Approach Tried | Why It Failed | Alternative Used |
+|---------------|---------------|-----------------|
+| [approach] | [reason] | [what worked instead] |
+
+> Tracking failed approaches prevents successor phases/sessions from retrying dead ends.
+
 ## Notes
 
 [Any issues encountered, deviations from plan, or important decisions made]

@@ -31,14 +31,17 @@ git log --oneline -20                  # Recent history
 ./init.sh                              # Start environment
 ```
 
+**CRITICAL**: Check the "Failed Approaches" section in claude-progress.txt before starting work. Do NOT retry approaches that previous sessions documented as failed. Use the alternative approaches noted there instead.
+
 ## Session End Protocol
 
 1. Check for debug code (remove any console.log, debugger, print)
 2. Run all tests
 3. Update claude-progress.txt with session summary
-4. Update feature_list.json with feature status
-5. Commit with descriptive message
-6. Write handoff notes for next session
+4. **Document any failed approaches** with why they failed and what to try instead
+5. Update feature_list.json with feature status
+6. Commit with descriptive message
+7. Write handoff notes for next session
 
 ## Anti-Patterns to Avoid
 

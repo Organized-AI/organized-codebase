@@ -68,7 +68,9 @@ npx tsx src/index.ts  # Run verification script
 PLANNING/implementation-phases/PHASE-N-COMPLETE.md
 ```
 
-Use template from `references/completion-template.md`.
+Use template from `references/completion-template.md`. **IMPORTANT**: Always fill in the
+Quality Checkpoint Table with honest ratings — downstream phases use this to gauge confidence
+in upstream outputs. A "Medium" or "Low" rating is more valuable than a false "High".
 
 **f) Git commit:**
 ```bash

@@ -346,6 +346,14 @@
 
 *This checklist should be completed thoroughly before any production deployment. Each checked item represents a verified and tested aspect of the application.*
 
+## 🚫 Failed Approaches Log
+
+*Document approaches that were tried and failed, so future sessions don't retry them:*
+
+| Approach Tried | Why It Failed | Alternative to Use Instead |
+|---------------|---------------|---------------------------|
+| [approach] | [reason] | [alternative] |
+
 ## 📝 Notes & Known Issues
 
 *Document any known limitations, future improvements, or specific deployment notes:*
