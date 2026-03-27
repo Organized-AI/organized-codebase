@@ -11,6 +11,8 @@ Meta-repository for Claude Code skills, commands, agents, and project templates.
 ## Project Structure
 ```
 .claude/           → Local Claude Code config (commands, agents, skills, hooks)
+  workflows/       → Kata config, mode templates, prompts, verification tools
+  agents/          → Subagent definitions (markdown with YAML frontmatter)
 PLANNING/          → Implementation phases and methodology docs
 ARCHITECTURE/      → System design documentation
 DOCUMENTATION/     → General docs and guides
@@ -24,12 +26,29 @@ scripts/           → Automation scripts
 - Use conventional commits (feat/fix/docs/refactor/test/chore)
 - Skills use SKILL.md format with YAML frontmatter
 
+## Kata Workflow Enforcement
+
+This repo uses [@codevibesmatter/kata](https://github.com/codevibesmatter/kata) for workflow enforcement.
+
+**Setup:** `npx kata setup --batteries --strict` (run automatically by `just add-kata`)
+
+**Workflow:** `kata enter <mode>` → work through phases → `kata can-exit` → `kata exit`
+
+**Modes:** planning, implementation, task, research, verify, debug, freeform, onboard
+
+**Config:** `.claude/workflows/kata.yaml` — test commands, spec paths, rules, mode definitions
+
+**Agent dispatch:** `kata agent-run --prompt=<name>` or `kata agent-run --custom="<text>"`
+
+**Multi-project:** `kata projects list|add|sync|doctor` for managing kata across repos
+
 ## DO NOT
 - Never use `--dangerously-skip-permissions` (use structured permissions instead)
 - Never skip plan mode for complex features (always plan first)
 - Never commit without running verification first
 - Never hardcode paths - use relative paths or environment variables
 - Never create files without reading existing patterns first
+- Never edit `.claude/workflows/kata.yaml` manually when `kata config` commands exist
 
 ## Verification Requirements
 Before completing ANY task:
