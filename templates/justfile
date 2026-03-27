@@ -222,6 +222,43 @@ add-ralphy:
 
     echo "✅ Ralphy scaffolding complete!"
 
+# Scaffold kata workflow enforcement (batteries + strict mode)
+add-kata:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Setting up kata workflow enforcement..."
+
+    # Check if kata is installed
+    if ! npx kata --version &>/dev/null; then
+        echo "  📦 Installing @codevibesmatter/kata..."
+        npm install --save-dev @codevibesmatter/kata
+    else
+        echo "  ✅ kata already installed ($(npx kata --version))"
+    fi
+
+    # Run kata setup with batteries + strict hooks
+    if [ ! -f .claude/workflows/kata.yaml ]; then
+        echo "  🔧 Running kata setup --batteries --strict..."
+        npx kata setup --batteries --strict
+        echo "  ✅ kata configured with batteries + strict mode"
+    else
+        echo "  ⏭️  .claude/workflows/kata.yaml already exists"
+        echo "  💡 Run 'npx kata batteries --update' to refresh templates"
+    fi
+
+    echo ""
+    echo "✅ kata scaffolding complete!"
+    echo ""
+    echo "  Available modes:"
+    echo "    kata enter planning        — Research, spec, review"
+    echo "    kata enter implementation  — Execute approved specs"
+    echo "    kata enter task            — Small changes"
+    echo "    kata enter debug           — Systematic debugging"
+    echo "    kata enter research        — Explore and synthesize"
+    echo "    kata enter freeform        — Quick questions"
+    echo ""
+    echo "  Workflow: kata enter <mode> → work → kata can-exit → kata exit"
+
 # Create PLANNING/ documentation structure
 add-planning:
     #!/usr/bin/env bash
@@ -392,7 +429,7 @@ add-handoff:
 # =============================================================================
 
 # Apply complete Organized Codebase structure
-apply-organized: add-claude add-ralphy add-planning add-handoff
+apply-organized: add-claude add-kata add-ralphy add-planning add-handoff
     #!/usr/bin/env bash
     set -euo pipefail
     echo ""
@@ -451,7 +488,8 @@ apply-organized: add-claude add-ralphy add-planning add-handoff
     echo "  1. Update CLAUDE.md with your project details"
     echo "  2. Review .claude/settings.json permissions"
     echo "  3. Customize PLANNING/implementation-phases/"
-    echo "  4. Run 'just verify' to test verification commands"
+    echo "  4. Run 'kata enter onboard' for guided kata setup"
+    echo "  5. Run 'just verify' to test verification commands"
     echo ""
 
 # =============================================================================

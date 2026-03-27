@@ -8,6 +8,12 @@ Create a well-crafted git commit with verification checks.
 
 ## Workflow
 
+### Step 0: Check Kata Session
+```bash
+npx kata status 2>/dev/null || echo "No kata session active"
+```
+If a kata session is active, include the current mode and phase in the commit context.
+
 ### Step 1: Run Verification First
 Execute `/verify` checks. If any critical checks fail, STOP and report issues.
 

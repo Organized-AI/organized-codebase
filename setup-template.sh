@@ -121,7 +121,9 @@ if [ ! -f "package.json" ]; then
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@codevibesmatter/kata": "^0.3.0"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT"
@@ -231,8 +233,9 @@ echo "Option 2: 🤖 AI-POWERED SETUP (Recommended!)"
 echo "  1. 📝 Fill out PLANNING/01-project-brief.md (basic info)"
 echo "  2. Set your API key: export ANTHROPIC_API_KEY='your-key'"
 echo "  3. Run: npm install"
-echo "  4. Run: npm run agent:setup"
-echo "  5. ✨ Let Claude Agent SDK configure everything!"
+echo "  4. Run: npx kata setup --batteries --strict"
+echo "  5. Run: npm run agent:setup"
+echo "  6. ✨ Let Claude Agent SDK configure everything!"
 echo ""
 echo "Option 3: DevContainer (Isolated Environment)"
 echo "  1. Open folder in VS Code"

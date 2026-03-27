@@ -94,10 +94,15 @@ direct_scaffold() {
     mkdir -p "$target_dir/scripts"
     mkdir -p "$target_dir/.archive"
     mkdir -p "$target_dir/.ralphy"
+    mkdir -p "$target_dir/.claude/workflows"
 
-    echo "  Created PLANNING/, ARCHITECTURE/, DOCUMENTATION/, etc."
+    echo "  Created PLANNING/, ARCHITECTURE/, DOCUMENTATION/, .claude/workflows/, etc."
 
     echo -e "${GREEN}✅ Directory structure created${NC}"
+    echo ""
+    echo -e "${YELLOW}💡 To enable kata workflow enforcement:${NC}"
+    echo "  npm install --save-dev @codevibesmatter/kata"
+    echo "  npx kata setup --batteries --strict"
 }
 
 # Main execution
@@ -157,6 +162,7 @@ main() {
             echo "  just                   # See available recipes"
             echo "  just apply-organized   # Apply full structure"
             echo "  just add-claude        # Just add .claude/"
+            echo "  just add-kata          # Just add kata workflow enforcement"
             echo "  just add-planning      # Just add PLANNING/"
             echo "  just add-handoff       # Just add AGENT-HANDOFF/"
             echo "  just add-ralphy        # Just add .ralphy/"
