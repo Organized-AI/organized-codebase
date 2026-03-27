@@ -10,6 +10,13 @@ Run a complete verification suite to ensure code quality before committing.
 
 Execute these checks in order:
 
+### 0. Kata Status (if active)
+```bash
+npx kata status 2>/dev/null || echo "No kata session active"
+npx kata can-exit --json 2>/dev/null || echo "No kata session active"
+```
+If a kata session is active, report mode, phase, and unmet stop conditions.
+
 ### 1. Git Status Check
 ```bash
 git status
