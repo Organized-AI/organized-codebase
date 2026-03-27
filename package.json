@@ -29,14 +29,15 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "agent-booster": "^0.2.2",
+    "apify-client": "^2.9.0",
     "axios": "^1.7.9",
     "commander": "^12.1.0",
     "dotenv": "^16.4.7",
     "glob": "^11.0.0",
-    "openai": "^4.76.1",
-    "apify-client": "^2.9.0"
+    "openai": "^4.76.1"
   },
   "devDependencies": {
+    "@codevibesmatter/kata": "^0.3.0",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
   },
