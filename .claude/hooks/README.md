@@ -13,6 +13,21 @@ Hooks allow you to:
 
 ## 📋 Available Hooks
 
+### Boris Evolution Hooks (New)
+
+These hook specs pair with the Boris guide's recommendations to keep the scaffold light and verification strong.
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `session-start-ablation-check.md` | `SessionStart` | Detect scaffold drift after model upgrades and recommend `/ablate` |
+| `stop-verification-evidence.md` | `Stop` | Block completion claims that have no verification surface or evidence summary |
+
+Recommended companions:
+- `/ablate`
+- `/outcome-prompt`
+- `boris-ablation` skill
+- `verification-surface-designer` skill
+
 ### Token Budget Monitor (Optional - Advanced)
 See `PLANNING/07-token-tracking-implementation.md` for full implementation guide.
 
