@@ -18,6 +18,18 @@ Strip the scaffold back to the smallest safe baseline, rerun real tasks, and add
 
 > This is not "delete documentation forever." It is **measure → prune → reintroduce only what earns its keep**.
 
+## Before you delete anything
+
+Use both:
+- **tests** to protect code correctness
+- **evals** to protect methodology correctness
+
+Recommended companion docs:
+- `DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md`
+- `DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md`
+
+If you cannot show that a layer no longer improves outcomes across the relevant task pack, model route, and harness, do not delete it yet.
+
 ## Inputs to gather first
 
 1. **Representative tasks**
@@ -35,6 +47,7 @@ Strip the scaffold back to the smallest safe baseline, rerun real tasks, and add
    - current output quality
    - failure modes you already know about
    - verification commands that prove success
+   - ablation scorecard for comparing variants
 
 ## Procedure
 
@@ -85,6 +98,8 @@ For each task, capture:
 - what failed repeatedly
 - whether the failure is due to missing context, missing tooling, or missing verification
 
+If the repo supports multiple harnesses or model routes, re-run the same task pack across the relevant routes before deleting a global layer.
+
 ### Step 5 — Reintroduce only the smallest winning delta
 
 If the model fails:
@@ -123,6 +138,8 @@ Keep an instruction only if it passes all three tests:
 1. **Repeatedly needed**
 2. **Short enough to justify its token cost**
 3. **Better than solving the problem with tooling or verification**
+
+If the layer only helps a Pi/local/custom harness route, move it into a companion skill rather than keeping it global.
 
 ## Anti-patterns
 

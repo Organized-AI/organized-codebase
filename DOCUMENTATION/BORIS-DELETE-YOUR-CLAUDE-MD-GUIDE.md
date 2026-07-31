@@ -209,9 +209,11 @@ Agentic leverage is no longer just a coding skill. It is a systems + product + e
 
 ### Build next
 - an ablation / re-baseline workflow for `CLAUDE.md`, hooks, and skills
+- an eval matrix + scorecard so deletion decisions are evidence-backed
 - routine templates for self-maintenance tasks
 - stronger guidance on outcome-first prompting
 - more examples of verification surfaces for long-running agent tasks
+- companion skills for harness-specific routes such as Pi/local setups
 
 ---
 
@@ -221,10 +223,12 @@ When a new model lands:
 1. Back up the current scaffold.
 2. Remove non-essential `CLAUDE.md` guidance.
 3. Disable optional hooks/skills temporarily.
-4. Re-run real project tasks.
-5. Record where the model truly fails.
-6. Add back only the smallest instruction/tooling delta that fixes repeated failure.
-7. Refresh evals once they stop distinguishing quality.
+4. Re-run real project tasks **and record the run in an eval scorecard**.
+5. Compare results across the models/harnesses you actually care about.
+6. Record where the model truly fails.
+7. Add back only the smallest instruction/tooling delta that fixes repeated failure.
+8. Move route-specific logic into companion skills instead of keeping it global.
+9. Refresh evals once they stop distinguishing quality.
 
 ---
 

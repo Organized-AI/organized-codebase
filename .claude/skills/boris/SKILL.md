@@ -19,6 +19,7 @@ metadata:
     - verify-architecture (agent)
     - verify-build (agent)
     - boris-ablation (skill)
+    - boris-pi-harness-companion (skill)
     - verification-surface-designer (skill)
     - long-runner (skill)
     - phased-build (skill)
@@ -95,6 +96,7 @@ This skill activates when:
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
 | `boris-ablation` | Controlled scaffold pruning after model upgrades | When `CLAUDE.md`, hooks, or skills feel stale |
+| `boris-pi-harness-companion` | Route-specific guidance for Pi/local/custom harnesses | When eval results differ by harness or model route |
 | `verification-surface-designer` | Build evidence loops for hard or long-running tasks | When Claude needs better ways to prove correctness |
 | `long-runner` | Multi-session project orchestration | Complex 50+ feature projects |
 | `phased-build` | Execute PHASE-X-PROMPT.md files | Structured implementation plans |
@@ -118,6 +120,7 @@ MODEL UPGRADE CHECKLIST
 2. RUN A CONTROLLED ABLATION
    ├── Create a branch
    ├── Preserve permissions + verification
+   ├── Run tests + eval matrix, not vibes
    ├── Remove optional prompt layers
    └── Re-run representative tasks
 
@@ -130,6 +133,8 @@ MODEL UPGRADE CHECKLIST
 ```
 
 **Action:** Run `/ablate` when the scaffold feels stale or a new model generation lands.
+
+**Rule:** tests protect code; evals protect methodology. If a rule only helps a Pi/local route, move it into `boris-pi-harness-companion` instead of keeping it global.
 
 ---
 
