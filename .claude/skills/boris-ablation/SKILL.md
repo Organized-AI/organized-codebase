@@ -11,6 +11,7 @@ metadata:
     - ablate (command)
     - outcome-prompt (command)
     - boris (skill)
+    - boris-pi-harness-companion (skill)
 triggers:
   - "ablate"
   - "rebaseline"
@@ -30,6 +31,17 @@ Use this skill to **prune stale project instructions without losing safety**.
 Model capability changes faster than most scaffolds do.
 
 That means `CLAUDE.md`, hooks, skills, and harness prompts should be treated as **hypotheses**, not scripture.
+
+## Non-negotiable evaluation rule
+
+- **Tests protect code correctness.**
+- **Evals protect methodology correctness.**
+
+Run both before deciding what to prune.
+
+Default companions:
+- `DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md`
+- `DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md`
 
 ## Keep vs prune
 
@@ -81,6 +93,8 @@ For each task, record:
 - whether failure repeated
 - whether the failure was actually a context/tooling problem
 
+If the project uses multiple harnesses or model routes, run the same task pack across the relevant routes before deleting a global layer.
+
 ### 6. Add back the smallest winning delta
 Prefer this order:
 1. shorter instruction
@@ -112,6 +126,8 @@ A successful ablation yields:
 - more focused skills
 - better verification surfaces
 - higher confidence that remaining instructions actually matter
+
+If a layer only helps one route (for example a Pi/local harness), success may mean **moving** it into a companion skill instead of deleting it globally.
 
 ## Deliverable template
 
