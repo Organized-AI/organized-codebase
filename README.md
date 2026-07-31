@@ -307,7 +307,6 @@ npx create-organized-codebase@latest my-project
 ## Resources
 
 - **[Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M)** — Original source from Claude Code's creator
-- **[Graph Engineering’s Weakest Link — The Verification Playbook Behind AI LABS’ Anthropic Takeaway](DOCUMENTATION/GRAPH-ENGINEERING-VERIFICATION-PLAYBOOK.md)** — July 2026 graph-engineering synthesis covering nodes, edges, judge quality, second-opinion review, and orchestrated verification
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
 - **[Organized AI Events](https://lu.ma/organizedai-starterstacks)** — Live sessions and workshops
 - **[Community](https://lu.ma/Organizedai)** — Join the conversation
