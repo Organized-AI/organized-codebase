@@ -307,7 +307,6 @@ npx create-organized-codebase@latest my-project
 ## Resources
 
 - **[Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M)** — Original source from Claude Code's creator
-- **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
 - **[Organized AI Events](https://lu.ma/organizedai-starterstacks)** — Live sessions and workshops
 - **[Community](https://lu.ma/Organizedai)** — Join the conversation
