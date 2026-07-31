@@ -10,12 +10,16 @@ metadata:
   author: Boris (Claude Code Creator)
   source: https://www.youtube.com/watch?v=B-UXpneKw6M
   integrates_with:
+    - ablate (command)
     - verify (command)
     - commit (command)
+    - outcome-prompt (command)
     - review (command)
     - status (command)
     - verify-architecture (agent)
     - verify-build (agent)
+    - boris-ablation (skill)
+    - verification-surface-designer (skill)
     - long-runner (skill)
     - phased-build (skill)
     - phase-0-bootstrap (skill)
@@ -31,6 +35,9 @@ triggers:
   - "end session"
   - "before commit"
   - "before PR"
+  - "model upgrade"
+  - "rebaseline"
+  - "verification surface"
 ---
 
 # Boris Agent Skill
@@ -70,8 +77,10 @@ This skill activates when:
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
 | `/status` | Project health check | Session start |
+| `/ablate` | Re-baseline `CLAUDE.md`, hooks, and skills | After model upgrades or prompt drift |
 | `/verify` | Run all verification checks | Before any commit |
 | `/commit` | Smart commit with verification | After completing work |
+| `/outcome-prompt` | Rewrite a task into outcome + guardrails + exit criteria + verification | When prompt is bloated or over-specified |
 | `/review` | Self-review before PR | Before creating PR |
 
 ### Verification Agents
@@ -85,9 +94,42 @@ This skill activates when:
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
+| `boris-ablation` | Controlled scaffold pruning after model upgrades | When `CLAUDE.md`, hooks, or skills feel stale |
+| `verification-surface-designer` | Build evidence loops for hard or long-running tasks | When Claude needs better ways to prove correctness |
 | `long-runner` | Multi-session project orchestration | Complex 50+ feature projects |
 | `phased-build` | Execute PHASE-X-PROMPT.md files | Structured implementation plans |
 | `phase-0-bootstrap` | TypeScript/Node.js project setup | Starting new projects |
+
+---
+
+## 📋 Protocol 0: Model Upgrade Re-Baselining
+
+When the model changes materially, do **not** assume the old scaffold is still optimal.
+
+```
+MODEL UPGRADE CHECKLIST
+═══════════════════════════════════════════
+
+1. CHECK FOR DRIFT
+   ├── Is CLAUDE.md larger than it needs to be?
+   ├── Are hooks/skills still justified?
+   └── Are failures really prompt problems?
+
+2. RUN A CONTROLLED ABLATION
+   ├── Create a branch
+   ├── Preserve permissions + verification
+   ├── Remove optional prompt layers
+   └── Re-run representative tasks
+
+3. REINTRODUCE ONLY WINNING DELTAS
+   ├── Prefer shorter instructions
+   ├── Prefer tools/tests over prose
+   └── Convert repeated guidance into focused skills
+
+═══════════════════════════════════════════
+```
+
+**Action:** Run `/ablate` when the scaffold feels stale or a new model generation lands.
 
 ---
 

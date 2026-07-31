@@ -192,8 +192,10 @@ You stop approving `git status` 50 times per session. Claude just works.
 | Command | What it does |
 |---------|--------------|
 | `/status` | Project health check — git state, recent changes, what's next |
+| `/ablate` | Re-baseline `CLAUDE.md`, hooks, and skills after a model upgrade |
 | `/verify` | Run lint, typecheck, tests, build — all your checks |
 | `/commit` | Smart commit with pre-verification |
+| `/outcome-prompt` | Rewrite work into outcome + guardrails + exit criteria + verification |
 | `/review` | Self-review before creating PR |
 
 ### Verification Agents
