@@ -193,6 +193,7 @@ You stop approving `git status` 50 times per session. Claude just works.
 |---------|--------------|
 | `/status` | Project health check — git state, recent changes, what's next |
 | `/ablate` | Re-baseline `CLAUDE.md`, hooks, and skills after a model upgrade |
+| `/context-ladder` | Route a failure to the right layer: prompt vs `CLAUDE.md` vs skill vs MCP vs verification |
 | `/verify` | Run lint, typecheck, tests, build — all your checks |
 | `/commit` | Smart commit with pre-verification |
 | `/outcome-prompt` | Rewrite work into outcome + guardrails + exit criteria + verification |
@@ -310,7 +311,7 @@ npx create-organized-codebase@latest my-project
 
 - **[Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M)** — Original source from Claude Code's creator
 - **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
-- **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Where prompt guidance belongs: prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
+- **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Operator rules for prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses
 - **[Boris Ablation Scorecard Template](DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md)** — Default results sheet for scaffold deletion experiments
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
