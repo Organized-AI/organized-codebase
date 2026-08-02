@@ -243,6 +243,8 @@ Want more commands, agents, and skills?
 | `long-runner` | Multi-session development orchestration |
 | `git-worktree-master` | Parallel branch workflows |
 
+If you're running multiple agents in parallel, pair that plugin with the repo playbook: **[Git Worktrees in Organized Codebase — The Parallel Branch Process](DOCUMENTATION/GIT-WORKTREES-ORGANIZED-CODEBASE-PROCESS.md)**.
+
 ---
 
 ## Configuration
@@ -312,6 +314,7 @@ npx create-organized-codebase@latest my-project
 - **[Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M)** — Original source from Claude Code's creator
 - **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
 - **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Operator rules for prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
+- **[Git Worktrees in Organized Codebase — The Parallel Branch Process](DOCUMENTATION/GIT-WORKTREES-ORGANIZED-CODEBASE-PROCESS.md)** — Why every parallel agent should get its own branch, worktree, and verification loop
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses
 - **[Boris Ablation Scorecard Template](DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md)** — Default results sheet for scaffold deletion experiments
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
