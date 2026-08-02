@@ -312,9 +312,13 @@ npx create-organized-codebase@latest my-project
 - **[Boris Methodology Video](https://www.youtube.com/watch?v=B-UXpneKw6M)** — Original source from Claude Code's creator
 - **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
 - **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Operator rules for prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
+- **[Graph Engineering in Organized Codebase](DOCUMENTATION/GRAPH-ENGINEERING-ORGANIZED-CODEBASE-FIT.md)** — Practical use cases, anti-use-cases, and a narrow rollout recommendation for OC
+- **[Closed-Loop Evals for Multimodal Agents](DOCUMENTATION/CLOSED-LOOP-EVALS-MULTIMODAL-AGENTS.md)** — TwelveLabs + transcript-grounded takeaways from Uber’s multimodal eval talk, translated into OC operator rules
+- **[Eval Loop Spec Template](PLANNING/spec-templates/eval-loop.md)** — Reusable scaffold for stage metrics, judges, replay, promotion gates, and rollback
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses
 - **[Boris Ablation Scorecard Template](DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md)** — Default results sheet for scaffold deletion experiments
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
+
 - **[Organized AI Events](https://lu.ma/organizedai-starterstacks)** — Live sessions and workshops
 - **[Community](https://lu.ma/Organizedai)** — Join the conversation
 
