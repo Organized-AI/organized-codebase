@@ -213,6 +213,13 @@ Codex should rely primarily on the project-local adapter surface:
 
 Codex standing-up is usually lighter than Claude or Hermes.
 
+The Organized AI Plugin Marketplace is Claude-native today, but the **plugin capabilities can be ported into Codex-facing surfaces** when they prove durable. In practice that means translating marketplace behaviors into:
+
+- `.codex/agents/*.toml` role cards
+- `AGENTS.md` operator guidance
+- repo-local prompts or task packets
+- future Codex plugin/extension surfaces when that layer is stable enough to standardize
+
 #### Standard Codex checks
 
 Confirm:

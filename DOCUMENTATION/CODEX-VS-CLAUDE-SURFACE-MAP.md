@@ -5,6 +5,7 @@
 | Repo-wide operator primer | `CLAUDE.md` | `AGENTS.md` | Keep `AGENTS.md` shorter; point back to `CLAUDE.md` for deep context. |
 | Role specialization | `.claude/agents/*.md` | `.codex/agents/*.toml` | Same intent, different config surface. |
 | Reusable commands | `.claude/commands/*.md` | invoke from prompt / agent roles | Codex does not mirror slash commands directly. |
+| Marketplace portability | Organized AI Plugin Marketplace is native here | port proven plugin capabilities into `.codex/agents/`, `AGENTS.md`, or future Codex plugin surfaces | Share the behavior, not a forced 1:1 install path. |
 | Verification discipline | Boris commands + kata | Boris rules from `AGENTS.md` + reviewer role | Verification policy stays shared. |
 | Routing policy | `CONFIG/router/*` | `CONFIG/router/*` | Shared declarative layer; separate from both harnesses. |
 | Pi/local harness companion | `harnesses/pi-agent/*` | `harnesses/pi-agent/*` | Shared sibling surface; not global core. |

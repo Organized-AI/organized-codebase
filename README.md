@@ -241,6 +241,8 @@ When these are being loaded inside a **Herdr-managed Claude Code session**, use 
 
 - `DOCUMENTATION/HERDR-TOOL-STANDUP.md`
 
+Note: the marketplace is Claude-native today, but proven Organized Codebase plugin capabilities can be **ported into Codex-facing surfaces** rather than remaining Claude-only workflow assumptions.
+
 | Plugin | What it does |
 |--------|--------------|
 | `boris` | Full Boris methodology orchestration |
