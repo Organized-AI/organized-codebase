@@ -696,6 +696,49 @@ add-pi-harness-companion:
 
     echo "✅ Pi/local harness scaffolding complete!"
 
+# Scaffold Herdr post-bootstrap tool standing-up standard (optional)
+add-herdr-tool-standup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating Herdr tool stand-up standard..."
+    mkdir -p DOCUMENTATION
+
+    if [ ! -f DOCUMENTATION/HERDR-TOOL-STANDUP.md ]; then
+        cat > DOCUMENTATION/HERDR-TOOL-STANDUP.md << 'EOF'
+    # Herdr Tool Stand-Up Standard
+
+    Standardize tool standing-up **after** the repo is bootstrapped and the Herdr session already exists.
+
+    Order:
+    1. Bootstrap repo
+    2. Bootstrap Herdr session / pane
+    3. Start the target agent
+    4. Stand up only the tools/plugins that agent actually needs
+
+    Claude Code baseline inside Herdr:
+    - `/plugin marketplace add Organized-AI/plugin-marketplace`
+    - `/plugin install boris@organized-ai-marketplace`
+    - `/plugin install phased-planning@organized-ai-marketplace`
+
+    Hermes baseline inside Herdr:
+    - `hermes tools enable terminal`
+    - `hermes tools enable file`
+    - `hermes tools enable skills`
+    - `hermes tools enable session_search`
+    - `hermes tools enable delegation`
+
+    Codex baseline inside Herdr:
+    - rely on `AGENTS.md`
+    - rely on `.codex/config.toml`
+    - use `.codex/agents/*.toml`
+
+    Keep tool standing-up task-driven. Do not install everything by default.
+    EOF
+        echo "  ✅ Created DOCUMENTATION/HERDR-TOOL-STANDUP.md"
+    fi
+
+    echo "✅ Herdr tool stand-up scaffolding complete!"
+
 # =============================================================================
 # MAIN RECIPE - Apply all scaffolding
 # =============================================================================
@@ -765,6 +808,7 @@ apply-organized: add-claude add-kata add-ralphy add-planning add-handoff
     echo "  6. Optional: 'just add-codex' for a thin Codex surface"
     echo "  7. Optional: 'just add-organized-router' for routing policy"
     echo "  8. Optional: 'just add-pi-harness-companion' for local/frontier sibling harnesses"
+    echo "  9. Optional: 'just add-herdr-tool-standup' for post-bootstrap tool standing-up rules"
     echo ""
 
 # =============================================================================

@@ -136,7 +136,7 @@ your-project/
 ├── AGENTS.md                # Optional Codex-facing primer
 ├── PLANNING/                # Planning documentation
 ├── AGENT-HANDOFF/           # Context transfer
-├── CONFIG/router/           # Optional Organized Router policy layer
+├── CONFIG/organized-router/ # Optional Organized Router gateway integration layer
 ├── harnesses/pi-agent/      # Optional Pi/local harness companion layer
 ├── justfile                 # Scaffolding recipes
 └── CLAUDE.md                # Canonical project overview
@@ -212,8 +212,9 @@ You stop approving `git status` 50 times per session. Claude just works.
 | `just add-planning` | `PLANNING/` docs only |
 | `just add-handoff` | `AGENT-HANDOFF/` only |
 | `just add-codex` | `AGENTS.md` + `.codex/` thin Codex adapter |
-| `just add-organized-router` | `CONFIG/router/` policy files + Router docs |
+| `just add-organized-router` | `CONFIG/organized-router/` gateway config + Router docs |
 | `just add-pi-harness-companion` | `harnesses/pi-agent/` pairing presets + scaffold script |
+| `just add-herdr-tool-standup` | `DOCUMENTATION/HERDR-TOOL-STANDUP.md` and the post-bootstrap tool standing-up standard |
 | `just verify` | Run verification suite |
 | `just project-status` | Show git status and structure |
 
@@ -236,6 +237,10 @@ Want more commands, agents, and skills?
 
 ### Featured Plugins
 
+When these are being loaded inside a **Herdr-managed Claude Code session**, use the standardized post-bootstrap flow in:
+
+- `DOCUMENTATION/HERDR-TOOL-STANDUP.md`
+
 | Plugin | What it does |
 |--------|--------------|
 | `boris` | Full Boris methodology orchestration |
@@ -256,6 +261,7 @@ just add-claude               # Commands + agents + permissions
 just add-codex                # AGENTS.md + .codex/ thin adapter
 just add-organized-router     # CONFIG/router policy layer
 just add-pi-harness-companion # local/frontier sibling harness scaffold
+just add-herdr-tool-standup   # standardized post-bootstrap tool standing-up doc
 just add-planning             # Phase templates + ADRs
 just add-handoff              # Context transfer docs
 just add-ralphy               # Ralphy workflow config
@@ -321,6 +327,7 @@ npx create-organized-codebase@latest my-project
 - **[Organized Router](DOCUMENTATION/ORGANIZED-ROUTER.md)** — Separate routing policy layer for Claude, Codex, and Pi/local routes
 - **[Pi Agent Harness Companion](DOCUMENTATION/PI-AGENT-HARNESS-COMPANION.md)** — How to spin up frontier-paired local sibling harnesses
 - **[Cross-Harness Execution Standard](DOCUMENTATION/CROSS-HARNESS-EXECUTION-STANDARD.md)** — Canonical execution modes, Herdr session role, naming rules, and anti-bloat guardrails
+- **[Herdr Tool Stand-Up Standard](DOCUMENTATION/HERDR-TOOL-STANDUP.md)** — Standard post-bootstrap process for loading plugin bundles, toolsets, and agent capabilities inside Herdr sessions
 - **[Closed-Loop Evals for Multimodal Agents](DOCUMENTATION/CLOSED-LOOP-EVALS-MULTIMODAL-AGENTS.md)** — TwelveLabs + transcript-grounded takeaways from Uber’s multimodal eval talk, translated into OC operator rules
 - **[Eval Loop Spec Template](PLANNING/spec-templates/eval-loop.md)** — Reusable scaffold for stage metrics, judges, replay, promotion gates, and rollback
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses

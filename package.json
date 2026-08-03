@@ -1,10 +1,10 @@
 {
   "name": "organized-codebase",
   "version": "1.0.0",
-  "description": "Claude-first scaffolding with optional Codex, Organized Router, and Pi/local harness companion surfaces",
+  "description": "Claude-first scaffolding with Organized Router gateway integration, optional Codex, and Pi/local harness companion surfaces",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/router.test.js && node tests/codex-surface.test.js && node tests/pi-harness-scaffold.test.js",
+    "test": "node tests/router.test.js && node tests/codex-surface.test.js && node tests/pi-harness-scaffold.test.js && node tests/herdr-tool-standup.test.js",
     "cli": "node src/cli/hybrid-agent-cli.js",
     "benchmark": "node tests/benchmark.test.js",
     "agent:setup": "node scripts/setup-agent.js",

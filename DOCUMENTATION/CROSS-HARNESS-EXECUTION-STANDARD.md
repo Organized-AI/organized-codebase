@@ -38,6 +38,10 @@ That means:
 
 ## Standard layers
 
+For the standardized post-bootstrap flow that stands up plugins, toolsets, and agent capabilities **after** a Herdr session already exists, see:
+
+- `DOCUMENTATION/HERDR-TOOL-STANDUP.md`
+
 ### 1. Core scaffold
 
 The global defaults remain:
