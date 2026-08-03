@@ -175,6 +175,127 @@ add-claude:
 
     echo "✅ .claude/ scaffolding complete!"
 
+# Scaffold thin Codex adapter surface (optional)
+add-codex:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating Codex adapter surface..."
+    mkdir -p .codex/agents DOCUMENTATION
+
+    if [ ! -f AGENTS.md ]; then
+        cat > AGENTS.md << 'EOF'
+    # AGENTS.md
+
+    ## Organized Codebase — cross-harness operator brief
+
+    Keep the core scaffold lean.
+    - `CLAUDE.md` stays canonical
+    - `AGENTS.md` stays short for Codex
+    - `CONFIG/router/` owns routing policy
+    - `harnesses/pi-agent/` owns local harness behavior
+
+    Preserve Boris workflow: plan first, verify before commit, review before merge.
+    EOF
+        echo "  ✅ Created AGENTS.md"
+    fi
+
+    if [ ! -f .codex/config.toml ]; then
+        cat > .codex/config.toml << 'EOF'
+    #:schema https://developers.openai.com/codex/config-schema.json
+    approval_policy = "on-request"
+    sandbox_mode = "workspace-write"
+    web_search = "cached"
+    persistent_instructions = "Follow AGENTS.md and Boris verification-first workflow."
+
+    [features]
+    multi_agent = true
+
+    [agents]
+    max_threads = 4
+    max_depth = 1
+
+    [agents.explorer]
+    description = "Read-only explorer for evidence gathering"
+    config_file = "agents/explorer.toml"
+
+    [agents.reviewer]
+    description = "Reviewer focused on correctness and missing verification"
+    config_file = "agents/reviewer.toml"
+
+    [agents.docs_researcher]
+    description = "Docs/API verification specialist"
+    config_file = "agents/docs-researcher.toml"
+    EOF
+        echo "  ✅ Created .codex/config.toml"
+    fi
+
+    if [ ! -f .codex/agents/explorer.toml ]; then
+        cat > .codex/agents/explorer.toml << 'EOF'
+    model = "gpt-5-codex"
+    model_reasoning_effort = "medium"
+    sandbox_mode = "read-only"
+
+    developer_instructions = """
+    Stay in exploration mode. Cite files and symbols before proposing change.
+    """
+    EOF
+        echo "  ✅ Created .codex/agents/explorer.toml"
+    fi
+
+    if [ ! -f .codex/agents/reviewer.toml ]; then
+        cat > .codex/agents/reviewer.toml << 'EOF'
+    model = "gpt-5-codex"
+    model_reasoning_effort = "high"
+    sandbox_mode = "read-only"
+
+    developer_instructions = """
+    Prioritize correctness, regressions, and missing verification.
+    """
+    EOF
+        echo "  ✅ Created .codex/agents/reviewer.toml"
+    fi
+
+    if [ ! -f .codex/agents/docs-researcher.toml ]; then
+        cat > .codex/agents/docs-researcher.toml << 'EOF'
+    model = "gpt-5-codex"
+    model_reasoning_effort = "medium"
+    sandbox_mode = "read-only"
+
+    developer_instructions = """
+    Verify workflow claims against primary docs and repo files.
+    """
+    EOF
+        echo "  ✅ Created .codex/agents/docs-researcher.toml"
+    fi
+
+    if [ ! -f DOCUMENTATION/CODEX-SETUP.md ]; then
+        cat > DOCUMENTATION/CODEX-SETUP.md << 'EOF'
+    # Codex Setup
+
+    Add thin Codex support without importing an ECC-sized control plane.
+
+    Use:
+    - `AGENTS.md`
+    - `.codex/config.toml`
+    - `.codex/agents/*.toml`
+    EOF
+        echo "  ✅ Created DOCUMENTATION/CODEX-SETUP.md"
+    fi
+
+    if [ ! -f DOCUMENTATION/CODEX-VS-CLAUDE-SURFACE-MAP.md ]; then
+        cat > DOCUMENTATION/CODEX-VS-CLAUDE-SURFACE-MAP.md << 'EOF'
+    # Codex vs Claude Surface Map
+
+    - `CLAUDE.md` = canonical project manual
+    - `AGENTS.md` = thin Codex primer
+    - `CONFIG/router/` = shared routing policy
+    - `harnesses/pi-agent/` = shared local harness layer
+    EOF
+        echo "  ✅ Created DOCUMENTATION/CODEX-VS-CLAUDE-SURFACE-MAP.md"
+    fi
+
+    echo "✅ Codex scaffolding complete!"
+
 # Create .ralphy/config.yaml for Ralphy integration
 add-ralphy:
     #!/usr/bin/env bash
@@ -424,6 +545,157 @@ add-handoff:
 
     echo "✅ AGENT-HANDOFF/ scaffolding complete!"
 
+# Scaffold Organized Router policy surface (optional)
+add-organized-router:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating Organized Router policy surface..."
+    mkdir -p CONFIG/router DOCUMENTATION
+
+    if [ ! -f CONFIG/router/README.md ]; then
+        cat > CONFIG/router/README.md << 'EOF'
+    # Organized Router
+
+    Keep routing policy separate from the core scaffold.
+    Route by task class, privacy boundary, verification burden, and cost ceiling.
+    EOF
+        echo "  ✅ Created CONFIG/router/README.md"
+    fi
+
+    if [ ! -f CONFIG/router/task-classes.json ]; then
+        cat > CONFIG/router/task-classes.json << 'EOF'
+    {
+      "version": "1",
+      "aliases": {
+        "code-analysis": "review",
+        "code-generation": "codegen",
+        "refactoring": "codegen",
+        "simple-edit": "artifact-polish"
+      },
+      "classes": {
+        "summarize": {"defaultPolicy": "local-first"},
+        "classify": {"defaultPolicy": "local-first"},
+        "plan": {"defaultPolicy": "balanced"},
+        "codegen": {"defaultPolicy": "balanced"},
+        "review": {"defaultPolicy": "quality"},
+        "verify": {"defaultPolicy": "balanced"},
+        "research": {"defaultPolicy": "balanced"},
+        "artifact-polish": {"defaultPolicy": "local-first"}
+      }
+    }
+    EOF
+        echo "  ✅ Created CONFIG/router/task-classes.json"
+    fi
+
+    if [ ! -f CONFIG/router/route-policies.json ]; then
+        cat > CONFIG/router/route-policies.json << 'EOF'
+    {
+      "version": "1",
+      "defaults": {"policy": "balanced", "privacy": "standard"},
+      "policies": {
+        "balanced": {"description": "local first pass, strong remote judgment when needed"},
+        "local-first": {"description": "prefer local routes until ambiguity forces escalation"},
+        "quality": {"description": "bias toward stronger frontier reasoning"},
+        "private-first": {"description": "keep work local unless approved otherwise"},
+        "budget-first": {"description": "minimize cost; escalate narrowly"}
+      }
+    }
+    EOF
+        echo "  ✅ Created CONFIG/router/route-policies.json"
+    fi
+
+    if [ ! -f CONFIG/router/model-manifests.json ]; then
+        cat > CONFIG/router/model-manifests.json << 'EOF'
+    {
+      "version": "1",
+      "models": {
+        "qwen3:8b": {"family": "local"},
+        "gemma-4-e4b-it-Q4_K_M": {"family": "local"},
+        "claude-sonnet-4": {"family": "frontier"},
+        "claude-opus-4-20250514": {"family": "frontier"},
+        "gpt-5-codex": {"family": "frontier"}
+      }
+    }
+    EOF
+        echo "  ✅ Created CONFIG/router/model-manifests.json"
+    fi
+
+    if [ ! -f DOCUMENTATION/ORGANIZED-ROUTER.md ]; then
+        cat > DOCUMENTATION/ORGANIZED-ROUTER.md << 'EOF'
+    # Organized Router
+
+    Router is separate from both Claude and Codex harness surfaces.
+    Use it to decide when work stays local, when it goes to Claude, and when it goes to Codex.
+    EOF
+        echo "  ✅ Created DOCUMENTATION/ORGANIZED-ROUTER.md"
+    fi
+
+    echo "✅ Organized Router scaffolding complete!"
+
+# Scaffold Pi/local harness companion surface (optional)
+add-pi-harness-companion:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📁 Creating Pi/local harness companion surface..."
+    mkdir -p harnesses/pi-agent DOCUMENTATION scripts
+
+    if [ ! -f harnesses/pi-agent/frontier-pairings.json ]; then
+        cat > harnesses/pi-agent/frontier-pairings.json << 'EOF'
+    {
+      "version": "1",
+      "pairings": [
+        {"name": "claude-sonnet4-qwen3-8b", "frontier": "claude-sonnet-4", "local": "qwen3:8b"},
+        {"name": "claude-opus4-gemma4-fable", "frontier": "claude-opus-4-20250514", "local": "gemma-4-e4b-it-Q4_K_M"},
+        {"name": "gpt5-codex-qwen3-8b", "frontier": "gpt-5-codex", "local": "qwen3:8b"}
+      ]
+    }
+    EOF
+        echo "  ✅ Created harnesses/pi-agent/frontier-pairings.json"
+    fi
+
+    if [ ! -f DOCUMENTATION/PI-AGENT-HARNESS-COMPANION.md ]; then
+        cat > DOCUMENTATION/PI-AGENT-HARNESS-COMPANION.md << 'EOF'
+    # Pi Agent Harness Companion
+
+    Keep local/frontier sibling harnesses separate from the core scaffold and separate from Organized Router.
+    EOF
+        echo "  ✅ Created DOCUMENTATION/PI-AGENT-HARNESS-COMPANION.md"
+    fi
+
+    if [ ! -f scripts/scaffold-pi-harness.js ]; then
+        cat > scripts/scaffold-pi-harness.js << 'EOF'
+    #!/usr/bin/env node
+    const fs = require('fs');
+    const path = require('path');
+    const args = Object.fromEntries(process.argv.slice(2).map((v, i, arr) => v.startsWith('--') ? [v.slice(2), arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : true] : null).filter(Boolean));
+    if (!args.name || !args.frontier || !args.local) {
+      console.log('Usage: node scripts/scaffold-pi-harness.js --name <name> --frontier <frontier-model> --local <local-model>');
+      process.exit(1);
+    }
+    const slug = String(args.name).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const base = path.join(process.cwd(), 'harnesses', slug);
+    if (fs.existsSync(base)) {
+      console.error(`Harness already exists: ${base}`);
+      process.exit(1);
+    }
+    fs.mkdirSync(path.join(base, 'agents'), { recursive: true });
+    fs.mkdirSync(path.join(base, 'tasks'), { recursive: true });
+    fs.mkdirSync(path.join(base, 'runs'), { recursive: true });
+    fs.mkdirSync(path.join(base, 'logs'), { recursive: true });
+    fs.writeFileSync(path.join(base, 'harness.json'), JSON.stringify({ name: slug, frontierModel: args.frontier, localModel: args.local }, null, 2) + '\n');
+    fs.writeFileSync(path.join(base, 'agents', 'orchestrator.md'), `# ${slug} orchestrator\n\nPreserve the frontier parent's task shape and escalate when local confidence is low.\n`);
+    fs.writeFileSync(path.join(base, 'agents', 'worker.md'), `# ${slug} worker\n\nLocal ${args.local} worker. Emit bounded JSON and cite evidence.\n`);
+    fs.writeFileSync(path.join(base, 'agents', 'verifier.md'), `# ${slug} verifier\n\nReject outputs that violate the JSON contract or skip escalation.\n`);
+    fs.writeFileSync(path.join(base, 'tasks', 'task_packet.template.json'), JSON.stringify({ frontier_parent: args.frontier, local_worker: args.local, acceptance: ['return bounded JSON', 'cite evidence', 'state escalation reason if needed'] }, null, 2) + '\n');
+    fs.writeFileSync(path.join(base, 'README.md'), `# ${slug}\n\nFrontier parent: ${args.frontier}\nLocal worker: ${args.local}\n`);
+    console.log(base);
+    EOF
+        chmod +x scripts/scaffold-pi-harness.js
+        echo "  ✅ Created scripts/scaffold-pi-harness.js"
+    fi
+
+    echo "✅ Pi/local harness scaffolding complete!"
+
 # =============================================================================
 # MAIN RECIPE - Apply all scaffolding
 # =============================================================================
@@ -490,6 +762,9 @@ apply-organized: add-claude add-kata add-ralphy add-planning add-handoff
     echo "  3. Customize PLANNING/implementation-phases/"
     echo "  4. Run 'kata enter onboard' for guided kata setup"
     echo "  5. Run 'just verify' to test verification commands"
+    echo "  6. Optional: 'just add-codex' for a thin Codex surface"
+    echo "  7. Optional: 'just add-organized-router' for routing policy"
+    echo "  8. Optional: 'just add-pi-harness-companion' for local/frontier sibling harnesses"
     echo ""
 
 # =============================================================================
