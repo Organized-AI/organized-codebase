@@ -1,225 +1,199 @@
 /**
- * Model Selection Strategy
- * Intelligently selects optimal models based on task type and provider
+ * Organized Router-backed model selection strategy.
+ *
+ * Keeps legacy provider/task inputs working while adding:
+ * - task classes
+ * - harness-aware routing (Claude, Codex, Pi/local)
+ * - privacy / policy / deterministic-first signals
  */
 
+const fs = require('fs');
+const path = require('path');
+
+const DEFAULT_TASK_CLASS_CONFIG = require('../../CONFIG/router/task-classes.json');
+const DEFAULT_ROUTE_POLICIES = require('../../CONFIG/router/route-policies.json');
+const DEFAULT_MODEL_MANIFESTS = require('../../CONFIG/router/model-manifests.json');
+
 class ModelSelector {
-  /**
-   * Select optimal model based on task and provider
-   * @param {string} task - Task type: 'code-analysis', 'code-generation', 'refactoring', 'simple-edit'
-   * @param {string} provider - Provider: 'glm', 'openrouter', 'anthropic', 'auto'
-   * @param {Object} options - Additional options: { priority: 'default'|'fast'|'quality'|'cheap' }
-   * @returns {string} - Model identifier
-   */
-  static selectModel(task, provider = 'glm', options = {}) {
-    // Provider-specific model strategies
-    const glmStrategies = {
-      'code-analysis': {
-        default: 'glm-4',
-        fast: 'glm-4-flash',
-        quality: 'glm-4',
-        specialized: 'codegeex-4',
-        cheap: 'glm-3-turbo'
-      },
-      'code-generation': {
-        default: 'codegeex-4',
-        fast: 'glm-4-flash',
-        quality: 'glm-4',
-        specialized: 'codegeex-4',
-        cheap: 'glm-3-turbo'
-      },
-      'refactoring': {
-        default: 'glm-4',
-        fast: 'glm-4-flash',
-        quality: 'glm-4',
-        specialized: 'codegeex-4',
-        cheap: 'glm-3-turbo'
-      },
-      'simple-edit': {
-        default: 'glm-4-flash',
-        fast: 'glm-3-turbo',
-        quality: 'glm-4',
-        specialized: 'glm-4-flash',
-        cheap: 'glm-3-turbo'
-      }
-    };
-
-    const openRouterStrategies = {
-      'code-analysis': {
-        default: 'anthropic/claude-opus-4-1-20250805',
-        fast: 'google/gemini-2.5-flash',
-        quality: 'anthropic/claude-opus-4-1-20250805',
-        specialized: 'anthropic/claude-sonnet-4',
-        cheap: 'meta-llama/llama-3.1-8b-instruct:free'
-      },
-      'code-generation': {
-        default: 'anthropic/claude-sonnet-4',
-        fast: 'anthropic/claude-haiku-3.5',
-        quality: 'anthropic/claude-opus-4-1-20250805',
-        specialized: 'deepseek/deepseek-coder',
-        cheap: 'deepseek/deepseek-coder'
-      },
-      'refactoring': {
-        default: 'anthropic/claude-opus-4-1-20250805',
-        fast: 'anthropic/claude-sonnet-4',
-        quality: 'anthropic/claude-opus-4-1-20250805',
-        specialized: 'anthropic/claude-opus-4-1-20250805',
-        cheap: 'openai/gpt-4o-mini'
-      },
-      'simple-edit': {
-        default: 'anthropic/claude-haiku-3.5',
-        fast: 'google/gemini-2.5-flash',
-        quality: 'anthropic/claude-sonnet-4',
-        specialized: 'anthropic/claude-haiku-3.5',
-        cheap: 'meta-llama/llama-3.1-8b-instruct:free'
-      }
-    };
-
-    const anthropicStrategies = {
-      'code-analysis': {
-        default: 'claude-opus-4-20250514',
-        fast: 'claude-3-5-haiku-20241022',
-        quality: 'claude-opus-4-20250514',
-        specialized: 'claude-3-5-sonnet-20241022',
-        cheap: 'claude-3-5-haiku-20241022'
-      },
-      'code-generation': {
-        default: 'claude-3-5-sonnet-20241022',
-        fast: 'claude-3-5-haiku-20241022',
-        quality: 'claude-opus-4-20250514',
-        specialized: 'claude-3-5-sonnet-20241022',
-        cheap: 'claude-3-5-haiku-20241022'
-      },
-      'refactoring': {
-        default: 'claude-opus-4-20250514',
-        fast: 'claude-3-5-sonnet-20241022',
-        quality: 'claude-opus-4-20250514',
-        specialized: 'claude-opus-4-20250514',
-        cheap: 'claude-3-5-sonnet-20241022'
-      },
-      'simple-edit': {
-        default: 'claude-3-5-haiku-20241022',
-        fast: 'claude-3-5-haiku-20241022',
-        quality: 'claude-3-5-sonnet-20241022',
-        specialized: 'claude-3-5-haiku-20241022',
-        cheap: 'claude-3-5-haiku-20241022'
-      }
-    };
-
-    // Select strategy based on provider
-    let strategies;
-    if (provider === 'glm') {
-      strategies = glmStrategies;
-    } else if (provider === 'openrouter') {
-      strategies = openRouterStrategies;
-    } else if (provider === 'anthropic') {
-      strategies = anthropicStrategies;
-    } else {
-      // Default to GLM for auto
-      strategies = glmStrategies;
-    }
-
-    const priority = options.priority || 'default'; // 'default', 'fast', 'quality', 'specialized', 'cheap'
-    const taskStrategy = strategies[task] || strategies['code-analysis'];
-
-    return taskStrategy[priority] || taskStrategy.default;
+  static getRepoRoot() {
+    return path.resolve(__dirname, '../..');
   }
 
-  /**
-   * Estimate cost for a model operation
-   * @param {string} model - Model identifier
-   * @param {Object} tokens - Token counts { input, output }
-   * @param {string} provider - Provider name
-   * @returns {number} - Estimated cost in USD
-   */
-  static estimateCost(model, tokens, provider = 'auto') {
+  static loadJson(relativePath, fallback) {
+    const candidates = [
+      path.join(process.cwd(), relativePath),
+      path.join(this.getRepoRoot(), relativePath)
+    ];
+
+    for (const candidate of candidates) {
+      try {
+        if (fs.existsSync(candidate)) {
+          return JSON.parse(fs.readFileSync(candidate, 'utf8'));
+        }
+      } catch (error) {
+        // Fall through to fallback. Router config should never hard-crash the caller.
+      }
+    }
+
+    return fallback;
+  }
+
+  static loadRouterConfig() {
+    if (!this._routerConfig) {
+      this._routerConfig = {
+        taskClasses: this.loadJson(path.join('CONFIG', 'router', 'task-classes.json'), DEFAULT_TASK_CLASS_CONFIG),
+        routePolicies: this.loadJson(path.join('CONFIG', 'router', 'route-policies.json'), DEFAULT_ROUTE_POLICIES),
+        modelManifests: this.loadJson(path.join('CONFIG', 'router', 'model-manifests.json'), DEFAULT_MODEL_MANIFESTS)
+      };
+    }
+
+    return this._routerConfig;
+  }
+
+  static normalizeLegacyProvider(provider = 'auto') {
+    const providerMap = {
+      anthropic: { harness: 'claude-code', provider: 'anthropic' },
+      claude: { harness: 'claude-code', provider: 'anthropic' },
+      openai: { harness: 'codex', provider: 'openai' },
+      codex: { harness: 'codex', provider: 'openai' },
+      glm: { harness: 'pi-local', provider: 'ollama' },
+      openrouter: { harness: 'claude-code', provider: 'openrouter' },
+      ollama: { harness: 'pi-local', provider: 'ollama' },
+      local: { harness: 'pi-local', provider: 'ollama' },
+      auto: { harness: undefined, provider: undefined }
+    };
+
+    return providerMap[provider] || { harness: undefined, provider };
+  }
+
+  static normalizeTask(task = 'research') {
+    const { taskClasses } = this.loadRouterConfig();
+    const aliases = taskClasses.aliases || {};
+    return aliases[task] || task;
+  }
+
+  static resolveOptions(task, providerOrOptions = 'auto', maybeOptions = {}) {
+    if (typeof providerOrOptions === 'string') {
+      const normalizedProvider = this.normalizeLegacyProvider(providerOrOptions);
+      return {
+        taskClass: this.normalizeTask(task),
+        rawTask: task,
+        priority: maybeOptions.priority || 'default',
+        policy: maybeOptions.policy,
+        privacy: maybeOptions.privacy,
+        harness: maybeOptions.harness || normalizedProvider.harness,
+        provider: maybeOptions.provider || normalizedProvider.provider,
+        requestedProvider: providerOrOptions
+      };
+    }
+
+    const options = providerOrOptions || {};
+    const normalizedProvider = this.normalizeLegacyProvider(options.provider || 'auto');
+    return {
+      taskClass: this.normalizeTask(task),
+      rawTask: task,
+      priority: options.priority || 'default',
+      policy: options.policy,
+      privacy: options.privacy,
+      harness: options.harness || normalizedProvider.harness,
+      provider: normalizedProvider.provider,
+      requestedProvider: options.provider || 'auto'
+    };
+  }
+
+  static chooseHarness(profile, resolvedOptions) {
+    if (resolvedOptions.privacy === 'local-only' || resolvedOptions.privacy === 'private-first') {
+      return 'pi-local';
+    }
+
+    if (resolvedOptions.harness && profile.harnesses[resolvedOptions.harness]) {
+      return resolvedOptions.harness;
+    }
+
+    if (resolvedOptions.provider) {
+      const providerMatch = Object.entries(profile.harnesses).find(([, route]) => route.provider === resolvedOptions.provider);
+      if (providerMatch) {
+        return providerMatch[0];
+      }
+    }
+
+    return profile.defaultHarness || Object.keys(profile.harnesses)[0];
+  }
+
+  static selectRoute(task, providerOrOptions = 'auto', maybeOptions = {}) {
+    const { taskClasses, routePolicies, modelManifests } = this.loadRouterConfig();
+    const resolvedOptions = this.resolveOptions(task, providerOrOptions, maybeOptions);
+    const taskClass = resolvedOptions.taskClass;
+    const taskMeta = (taskClasses.classes || {})[taskClass] || { defaultPolicy: routePolicies.defaults.policy };
+    const policy = resolvedOptions.policy || taskMeta.defaultPolicy || routePolicies.defaults.policy || 'balanced';
+    const taskRoutes = routePolicies.routes[taskClass] || routePolicies.routes.research;
+    const profile = taskRoutes[policy] || taskRoutes[routePolicies.defaults.policy] || Object.values(taskRoutes)[0];
+    const harness = this.chooseHarness(profile, { ...resolvedOptions, policy, privacy: resolvedOptions.privacy || routePolicies.defaults.privacy || 'standard' });
+    const route = profile.harnesses[harness] || Object.values(profile.harnesses)[0];
+    const manifest = (modelManifests.models || {})[route.model] || null;
+
+    return {
+      taskClass,
+      rawTask: resolvedOptions.rawTask,
+      policy,
+      priority: resolvedOptions.priority,
+      privacy: resolvedOptions.privacy || routePolicies.defaults.privacy || 'standard',
+      harness,
+      provider: route.provider,
+      model: route.model,
+      deterministicFirst: Boolean(profile.deterministicFirst),
+      rationale: route.rationale,
+      requestedProvider: resolvedOptions.requestedProvider,
+      modelManifest: manifest
+    };
+  }
+
+  static selectModel(task, provider = 'auto', options = {}) {
+    return this.selectRoute(task, provider, options).model;
+  }
+
+  static estimateCost(model, tokens) {
     if (!tokens) return 0;
 
-    // GLM pricing (in USD, converted from CNY at ~7:1)
-    const glmPricing = {
-      'glm-4': { input: 0.1 / 7, output: 0.1 / 7 }, // per 1K tokens
-      'glm-4-flash': { input: 0.01 / 7, output: 0.01 / 7 },
-      'glm-3-turbo': { input: 0.005 / 7, output: 0.005 / 7 },
-      'codegeex-4': { input: 0.01 / 7, output: 0.01 / 7 }
+    const usage = {
+      input: tokens.input || tokens.prompt_tokens || 0,
+      output: tokens.output || tokens.completion_tokens || 0
     };
 
-    // OpenRouter/Anthropic pricing (per 1M tokens)
-    const standardPricing = {
-      'anthropic/claude-opus-4': { input: 15, output: 75 },
-      'anthropic/claude-opus-4-1-20250805': { input: 15, output: 75 },
-      'anthropic/claude-sonnet-4': { input: 3, output: 15 },
-      'anthropic/claude-haiku-3.5': { input: 0.8, output: 4 },
+    const pricing = {
       'claude-opus-4-20250514': { input: 15, output: 75 },
-      'claude-3-5-sonnet-20241022': { input: 3, output: 15 },
+      'claude-sonnet-4': { input: 3, output: 15 },
       'claude-3-5-haiku-20241022': { input: 0.8, output: 4 },
-      'openai/gpt-4o': { input: 2.5, output: 10 },
-      'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
-      'google/gemini-2.5-pro': { input: 1.25, output: 5 },
-      'google/gemini-2.5-flash': { input: 0.075, output: 0.3 },
-      'deepseek/deepseek-coder': { input: 0.14, output: 0.28 },
-      'meta-llama/llama-3.1-8b-instruct:free': { input: 0, output: 0 },
-      'meta-llama/llama-3.1-70b-instruct:free': { input: 0, output: 0 }
+      'qwen3:8b': { input: 0, output: 0 },
+      'gemma-4-e4b-it-Q4_K_M': { input: 0, output: 0 }
     };
 
-    let pricing;
-
-    // Check GLM models first
-    if (glmPricing[model]) {
-      pricing = glmPricing[model];
-      // GLM pricing is per 1K tokens
-      return ((tokens.input / 1000) * pricing.input) + ((tokens.output / 1000) * pricing.output);
-    }
-
-    // Check standard pricing
-    pricing = standardPricing[model];
-    if (!pricing) {
-      // Try partial match for model families
-      for (const [modelPattern, modelPricing] of Object.entries(standardPricing)) {
-        if (model.includes(modelPattern.split('/')[1]) || model.includes(modelPattern)) {
-          pricing = modelPricing;
-          break;
-        }
-      }
-    }
-
-    // Default pricing if not found
-    if (!pricing) {
-      pricing = { input: 1, output: 3 };
-    }
-
-    // Standard pricing is per 1M tokens
-    return ((tokens.input / 1_000_000) * pricing.input) + ((tokens.output / 1_000_000) * pricing.output);
+    const rates = pricing[model] || { input: 1, output: 3 };
+    return ((usage.input / 1000000) * rates.input) + ((usage.output / 1000000) * rates.output);
   }
 
-  /**
-   * Get recommended models for a specific task across all providers
-   * @param {string} task - Task type
-   * @returns {Object} - Recommendations by provider
-   */
-  static getRecommendations(task) {
+  static getRecommendations(task, options = {}) {
     return {
-      glm: {
-        recommended: this.selectModel(task, 'glm', { priority: 'default' }),
-        fast: this.selectModel(task, 'glm', { priority: 'fast' }),
-        quality: this.selectModel(task, 'glm', { priority: 'quality' }),
-        specialized: this.selectModel(task, 'glm', { priority: 'specialized' }),
-        cheap: this.selectModel(task, 'glm', { priority: 'cheap' })
+      taskClass: this.normalizeTask(task),
+      defaultRoute: this.selectRoute(task, options),
+      byPolicy: {
+        balanced: this.selectRoute(task, { ...options, policy: 'balanced' }),
+        'local-first': this.selectRoute(task, { ...options, policy: 'local-first' }),
+        quality: this.selectRoute(task, { ...options, policy: 'quality' }),
+        'private-first': this.selectRoute(task, { ...options, policy: 'private-first', privacy: 'local-only' }),
+        'budget-first': this.selectRoute(task, { ...options, policy: 'budget-first' })
       },
-      openrouter: {
-        recommended: this.selectModel(task, 'openrouter', { priority: 'default' }),
-        fast: this.selectModel(task, 'openrouter', { priority: 'fast' }),
-        quality: this.selectModel(task, 'openrouter', { priority: 'quality' }),
-        specialized: this.selectModel(task, 'openrouter', { priority: 'specialized' }),
-        cheap: this.selectModel(task, 'openrouter', { priority: 'cheap' })
-      },
-      anthropic: {
-        recommended: this.selectModel(task, 'anthropic', { priority: 'default' }),
-        fast: this.selectModel(task, 'anthropic', { priority: 'fast' }),
-        quality: this.selectModel(task, 'anthropic', { priority: 'quality' }),
-        specialized: this.selectModel(task, 'anthropic', { priority: 'specialized' }),
-        cheap: this.selectModel(task, 'anthropic', { priority: 'cheap' })
+      byHarness: {
+        'claude-code': this.selectRoute(task, { ...options, harness: 'claude-code' }),
+        codex: this.selectRoute(task, { ...options, harness: 'codex' }),
+        'pi-local': this.selectRoute(task, { ...options, harness: 'pi-local', privacy: options.privacy || 'local-only' })
       }
     };
+  }
+
+  static getSupportedTaskClasses() {
+    const { taskClasses } = this.loadRouterConfig();
+    return Object.keys(taskClasses.classes || {});
   }
 }
 
