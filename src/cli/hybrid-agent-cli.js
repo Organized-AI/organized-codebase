@@ -16,7 +16,7 @@ const program = new Command();
 
 program
   .name('hybrid-agent')
-  .description('Hybrid AI Agent CLI - GLM/OpenRouter + Agent Booster')
+  .description('Hybrid AI Agent CLI - Organized Router, Claude/Codex-aware surfaces, and Agent Booster')
   .version('1.0.0');
 
 // Edit command
@@ -311,14 +311,22 @@ program
 // Models command
 program
   .command('models')
-  .description('List available models')
-  .option('-p, --provider <provider>', 'LLM provider (glm/openrouter/anthropic)', 'glm')
+  .description('List available models or Organized Router recommendations')
+  .option('-p, --provider <provider>', 'LLM provider (glm/openrouter/anthropic/auto)', 'glm')
   .option('-t, --task <task>', 'Task type for recommendations')
+  .option('--policy <policy>', 'Router policy (balanced/local-first/quality/private-first/budget-first)')
+  .option('--harness <harness>', 'Preferred harness (claude-code/codex/pi-local)')
+  .option('--privacy <privacy>', 'Privacy mode (standard/local-only)')
   .action((options) => {
     try {
       if (options.task) {
-        const recommendations = ModelSelector.getRecommendations(options.task);
-        console.log(`\n📊 Model Recommendations for: ${options.task}`);
+        const recommendations = ModelSelector.getRecommendations(options.task, {
+          provider: options.provider,
+          policy: options.policy,
+          harness: options.harness,
+          privacy: options.privacy
+        });
+        console.log(`\n📊 Organized Router recommendations for: ${options.task}`);
         console.log(JSON.stringify(recommendations, null, 2));
       } else {
         const agent = new HybridAgent({ provider: options.provider });

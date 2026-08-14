@@ -104,6 +104,20 @@ harnesses/<name>/
   logs/
 ```
 
+## Frontier-paired sibling harnesses
+
+When the goal is to make a Pi/local model feel closer to a specific frontier parent,
+optimize for **behavioral shape** instead of prose imitation.
+
+Capture and preserve:
+- task packet structure
+- verifier threshold
+- escalation trigger
+- refusal boundary
+- summary / evidence format
+
+Put those pairing rules in the sibling harness itself, not in Boris core and not in Organized Router.
+
 ## Evaluation rule
 
 If a layer helps only Pi/local routes, do not keep it global.

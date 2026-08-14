@@ -1,0 +1,26 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "cached"
+
+persistent_instructions = "Follow AGENTS.md and Boris verification-first workflow. Use Organized Router when CONFIG/router exists. Pi/local harness rules live under harnesses/pi-agent and are opt-in."
+
+[features]
+multi_agent = true
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+[agents.explorer]
+description = "Read-only codebase explorer that gathers evidence before proposing changes."
+config_file = "agents/explorer.toml"
+
+[agents.reviewer]
+description = "Reviewer focused on correctness, regressions, and missing verification."
+config_file = "agents/reviewer.toml"
+
+[agents.docs_researcher]
+description = "Documentation role for APIs, workflows, and repo-facing operator guidance."
+config_file = "agents/docs-researcher.toml"
