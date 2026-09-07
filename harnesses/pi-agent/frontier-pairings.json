@@ -1,0 +1,56 @@
+{
+  "version": "1",
+  "pairings": [
+    {
+      "name": "claude-sonnet4-qwen3-8b",
+      "frontier": "claude-sonnet-4",
+      "local": "qwen3:8b",
+      "recommended_for": [
+        "repo orientation",
+        "summarization",
+        "task packet compression",
+        "light code scaffolding"
+      ],
+      "mimic_contract": [
+        "bounded JSON output",
+        "explicit verification checklist",
+        "escalate on ambiguity",
+        "compress broad context before remote escalation"
+      ]
+    },
+    {
+      "name": "claude-opus4-gemma4-fable",
+      "frontier": "claude-opus-4-20250514",
+      "local": "gemma-4-e4b-it-Q4_K_M",
+      "recommended_for": [
+        "privacy-sensitive first pass",
+        "draft planning",
+        "light research triage",
+        "frontier-judged local experiments"
+      ],
+      "mimic_contract": [
+        "strict allowed actions",
+        "verifier-gated output",
+        "route up for high-stakes synthesis",
+        "preserve refusal boundary"
+      ]
+    },
+    {
+      "name": "gpt5-codex-qwen3-8b",
+      "frontier": "gpt-5-codex",
+      "local": "qwen3:8b",
+      "recommended_for": [
+        "codebase skim",
+        "batch classification",
+        "diff labeling",
+        "task pre-routing"
+      ],
+      "mimic_contract": [
+        "execution-aware summaries",
+        "short evidence-first notes",
+        "escalate before risky edits",
+        "keep edit proposals bounded"
+      ]
+    }
+  ]
+}

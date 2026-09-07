@@ -1,30 +1,35 @@
 {
   "name": "organized-codebase",
   "version": "1.0.0",
-  "description": "Professional project template framework with hybrid AI agent system",
+  "description": "Claude-first scaffolding with Organized Router gateway integration, optional Codex, and Pi/local harness companion surfaces",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/benchmark.test.js",
+    "test": "node tests/router.test.js && node tests/codex-surface.test.js && node tests/pi-harness-scaffold.test.js && node tests/herdr-tool-standup.test.js",
     "cli": "node src/cli/hybrid-agent-cli.js",
     "benchmark": "node tests/benchmark.test.js",
     "agent:setup": "node scripts/setup-agent.js",
-    "changelog:fetch": "node scripts/fetch-changelog.js"
+    "changelog:fetch": "node scripts/fetch-changelog.js",
+    "scaffold:pi-harness": "node scripts/scaffold-pi-harness.js"
   },
   "bin": {
     "hybrid-agent": "./src/cli/hybrid-agent-cli.js"
   },
   "keywords": [
-    "project-template",
-    "boilerplate",
-    "ai-agent",
     "agent-booster",
-    "code-automation",
-    "glm",
+    "ai-agent",
+    "boilerplate",
     "claude",
-    "typescript",
-    "devcontainer"
+    "code-automation",
+    "codex",
+    "devcontainer",
+    "glm",
+    "ollama",
+    "organized-router",
+    "pi-agent",
+    "project-template",
+    "typescript"
   ],
-  "author": "Your Name",
+  "author": "Organized AI",
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
@@ -47,10 +52,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/organized-codebase.git"
+    "url": "https://github.com/Organized-AI/organized-codebase.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/organized-codebase/issues"
+    "url": "https://github.com/Organized-AI/organized-codebase/issues"
   },
-  "homepage": "https://github.com/yourusername/organized-codebase#readme"
+  "homepage": "https://github.com/Organized-AI/organized-codebase#readme"
 }

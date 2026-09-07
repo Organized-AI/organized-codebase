@@ -2,7 +2,7 @@
 
 # ORGANIZED CODEBASE
 
-**A lightweight boilerplate and scaffolding system for Claude Code projects.**
+**A lightweight scaffolding system for Claude Code with optional Codex, Organized Router, and Pi/local harness companion surfaces.**
 
 **Implements the Boris methodology — verification-first development from Claude Code's creator.**
 
@@ -60,6 +60,8 @@ Developers who use Claude Code and want:
 - Built-in verification commands (`/verify`, `/commit`, `/review`)
 - A sensible permissions system (allow/ask/deny)
 - Planning docs that actually get used
+- Optional Codex support without dragging in an ECC-sized control plane
+- Optional Router + Pi/local harness layers that stay separate from the core scaffold
 
 Not for you if you like reinventing folder structures for every project.
 
@@ -80,6 +82,14 @@ Done. You have:
 - `AGENT-HANDOFF/` for context transfer
 - Pre-configured permissions
 - Boris methodology ready to go
+
+Optional add-ons for cross-harness work:
+- `just add-codex`
+- `just add-organized-router`
+- `just add-pi-harness-companion`
+
+Canonical execution reference:
+- `DOCUMENTATION/CROSS-HARNESS-EXECUTION-STANDARD.md`
 
 ### Existing Project
 
@@ -122,27 +132,14 @@ Just ask:
 ```
 your-project/
 ├── .claude/                 # Claude Code configuration
-│   ├── commands/            # Slash commands
-│   │   ├── verify.md        # /verify — run all checks
-│   │   ├── commit.md        # /commit — smart commits
-│   │   ├── review.md        # /review — self-review before PR
-│   │   └── status.md        # /status — project health
-│   ├── agents/              # Verification agents
-│   │   ├── verify-build.md
-│   │   └── verify-architecture.md
-│   └── settings.json        # Permissions (allow/ask/deny)
-│
+├── .codex/                  # Optional Codex adapter surface
+├── AGENTS.md                # Optional Codex-facing primer
 ├── PLANNING/                # Planning documentation
-│   ├── implementation-phases/
-│   │   └── PHASE-0-PROMPT.md
-│   └── decisions/           # Architecture Decision Records
-│
 ├── AGENT-HANDOFF/           # Context transfer
-│   ├── HANDOFF.md
-│   └── CONTEXT-WINDOW.md
-│
+├── CONFIG/organized-router/ # Optional Organized Router gateway integration layer
+├── harnesses/pi-agent/      # Optional Pi/local harness companion layer
 ├── justfile                 # Scaffolding recipes
-└── CLAUDE.md                # Project overview for Claude
+└── CLAUDE.md                # Canonical project overview
 ```
 
 Claude reads `CLAUDE.md` first. It knows the structure. It follows the conventions.
@@ -214,6 +211,10 @@ You stop approving `git status` 50 times per session. Claude just works.
 | `just add-claude` | `.claude/` directory only |
 | `just add-planning` | `PLANNING/` docs only |
 | `just add-handoff` | `AGENT-HANDOFF/` only |
+| `just add-codex` | `AGENTS.md` + `.codex/` thin Codex adapter |
+| `just add-organized-router` | `CONFIG/organized-router/` gateway config + Router docs |
+| `just add-pi-harness-companion` | `harnesses/pi-agent/` pairing presets + scaffold script |
+| `just add-herdr-tool-standup` | `DOCUMENTATION/HERDR-TOOL-STANDUP.md` and the post-bootstrap tool standing-up standard |
 | `just verify` | Run verification suite |
 | `just project-status` | Show git status and structure |
 
@@ -236,6 +237,12 @@ Want more commands, agents, and skills?
 
 ### Featured Plugins
 
+When these are being loaded inside a **Herdr-managed Claude Code session**, use the standardized post-bootstrap flow in:
+
+- `DOCUMENTATION/HERDR-TOOL-STANDUP.md`
+
+Note: the marketplace is Claude-native today, but proven Organized Codebase plugin capabilities can be **ported into Codex-facing surfaces** rather than remaining Claude-only workflow assumptions.
+
 | Plugin | What it does |
 |--------|--------------|
 | `boris` | Full Boris methodology orchestration |
@@ -252,10 +259,14 @@ Want more commands, agents, and skills?
 Don't want everything? Pick what you need:
 
 ```bash
-just add-claude    # Commands + agents + permissions
-just add-planning  # Phase templates + ADRs
-just add-handoff   # Context transfer docs
-just add-ralphy    # Ralphy workflow config
+just add-claude               # Commands + agents + permissions
+just add-codex                # AGENTS.md + .codex/ thin adapter
+just add-organized-router     # CONFIG/router policy layer
+just add-pi-harness-companion # local/frontier sibling harness scaffold
+just add-herdr-tool-standup   # standardized post-bootstrap tool standing-up doc
+just add-planning             # Phase templates + ADRs
+just add-handoff              # Context transfer docs
+just add-ralphy               # Ralphy workflow config
 ```
 
 ### Customizing Permissions
@@ -313,6 +324,12 @@ npx create-organized-codebase@latest my-project
 - **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
 - **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Operator rules for prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
 - **[Graph Engineering in Organized Codebase](DOCUMENTATION/GRAPH-ENGINEERING-ORGANIZED-CODEBASE-FIT.md)** — Practical use cases, anti-use-cases, and a narrow rollout recommendation for OC
+- **[Codex Setup](DOCUMENTATION/CODEX-SETUP.md)** — Thin project-local Codex surface for Organized Codebase
+- **[Codex vs Claude Surface Map](DOCUMENTATION/CODEX-VS-CLAUDE-SURFACE-MAP.md)** — Where each harness-specific layer should live
+- **[Organized Router](DOCUMENTATION/ORGANIZED-ROUTER.md)** — Separate routing policy layer for Claude, Codex, and Pi/local routes
+- **[Pi Agent Harness Companion](DOCUMENTATION/PI-AGENT-HARNESS-COMPANION.md)** — How to spin up frontier-paired local sibling harnesses
+- **[Cross-Harness Execution Standard](DOCUMENTATION/CROSS-HARNESS-EXECUTION-STANDARD.md)** — Canonical execution modes, Herdr session role, naming rules, and anti-bloat guardrails
+- **[Herdr Tool Stand-Up Standard](DOCUMENTATION/HERDR-TOOL-STANDUP.md)** — Standard post-bootstrap process for loading plugin bundles, toolsets, and agent capabilities inside Herdr sessions
 - **[Closed-Loop Evals for Multimodal Agents](DOCUMENTATION/CLOSED-LOOP-EVALS-MULTIMODAL-AGENTS.md)** — TwelveLabs + transcript-grounded takeaways from Uber’s multimodal eval talk, translated into OC operator rules
 - **[Eval Loop Spec Template](PLANNING/spec-templates/eval-loop.md)** — Reusable scaffold for stage metrics, judges, replay, promotion gates, and rollback
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses

@@ -1,0 +1,63 @@
+{
+  "version": "1",
+  "models": {
+    "qwen3:8b": {
+      "family": "local",
+      "provider": "ollama",
+      "strengths": [
+        "summarization",
+        "classification",
+        "context compression"
+      ],
+      "notes": "Grounded in Organized Tokens local-first guidance and existing Qwen3 8B harness usage."
+    },
+    "gemma-4-e4b-it-Q4_K_M": {
+      "family": "local",
+      "provider": "llama.cpp",
+      "strengths": [
+        "local planning drafts",
+        "light research",
+        "privacy-sensitive first pass"
+      ],
+      "notes": "Grounded in the Gemma 4 Fable Pi harness layout."
+    },
+    "claude-3-5-haiku-20241022": {
+      "family": "frontier",
+      "provider": "anthropic",
+      "strengths": [
+        "fast summaries",
+        "light review"
+      ],
+      "notes": "Low-cost Claude route."
+    },
+    "claude-sonnet-4": {
+      "family": "frontier",
+      "provider": "anthropic",
+      "strengths": [
+        "planning",
+        "implementation",
+        "review"
+      ],
+      "notes": "Default strong Boris-aligned route."
+    },
+    "claude-opus-4-20250514": {
+      "family": "frontier",
+      "provider": "anthropic",
+      "strengths": [
+        "high-stakes synthesis",
+        "deep review"
+      ],
+      "notes": "Use selectively for quality-critical paths."
+    },
+    "gpt-5-codex": {
+      "family": "frontier",
+      "provider": "openai",
+      "strengths": [
+        "execution-aware coding",
+        "repo-grounded edits",
+        "parallel coding tasks"
+      ],
+      "notes": "Codex harness backend from the Organized AI Codex operator guide."
+    }
+  }
+}

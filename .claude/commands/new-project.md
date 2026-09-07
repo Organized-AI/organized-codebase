@@ -13,5 +13,9 @@ This will:
 4. Initialize git repository with initial commit
 5. Set up package.json and .gitignore
 6. Customize templates with your project name
+7. Suggest optional post-setup recipes for cross-harness work:
+   - `just add-codex`
+   - `just add-organized-router`
+   - `just add-pi-harness-companion`
 
 The boilerplate remains unchanged - new project is created as a sibling directory.

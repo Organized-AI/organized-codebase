@@ -1,0 +1,525 @@
+{
+  "version": "1",
+  "defaults": {
+    "policy": "balanced",
+    "privacy": "standard"
+  },
+  "policies": {
+    "balanced": {
+      "description": "Use local models for cheap first passes; route to strong harnesses for judgment-heavy work."
+    },
+    "local-first": {
+      "description": "Prefer local/Pi routes until verification burden or ambiguity forces escalation."
+    },
+    "quality": {
+      "description": "Bias toward frontier-quality reasoning and stronger review surfaces."
+    },
+    "private-first": {
+      "description": "Keep work local unless the user explicitly approves remote escalation."
+    },
+    "budget-first": {
+      "description": "Minimize cost; reserve frontier routes for a narrow final pass."
+    }
+  },
+  "routes": {
+    "summarize": {
+      "balanced": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap context compression"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "higher quality compression"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware summarization"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "keep compression local"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "fallback summarizer"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware fallback"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap draft"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "best synthesis"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "repo-aware summary"
+          }
+        }
+      }
+    },
+    "classify": {
+      "balanced": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap routing decisions"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "fallback classifier"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware classifier"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "local triage"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "fallback triage"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware fallback"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap first pass"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "better nuanced classification"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware nuance"
+          }
+        }
+      }
+    },
+    "plan": {
+      "balanced": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "cheap draft plan"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "strong planning + Boris alignment"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "planning when code execution context dominates"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "draft locally, escalate if uncertain"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "frontier fallback"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-context fallback"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "cheap planning draft"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-20250514",
+            "rationale": "highest planning quality"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-heavy planning"
+          }
+        }
+      }
+    },
+    "codegen": {
+      "balanced": {
+        "defaultHarness": "codex",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "scaffold or low-risk first pass"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "excellent repo-aware implementation"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "strong execution-oriented coding harness"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "prototype locally"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "escalate when ambiguity grows"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "escalate for execution-heavy tasks"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "codex",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap scaffold"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-20250514",
+            "rationale": "highest-judgment implementation review"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "best code execution surface"
+          }
+        }
+      }
+    },
+    "review": {
+      "balanced": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap smoke review"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "strong judgment + Boris fit"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware review with execution context"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap first-pass diff scan"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "escalate nuanced review"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "execution-aware escalation"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap draft review"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-20250514",
+            "rationale": "strongest judgment"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "secondary high-quality review"
+          }
+        }
+      }
+    },
+    "verify": {
+      "balanced": {
+        "deterministicFirst": true,
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "local explanation after deterministic checks"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "interpret failing checks"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "execution-aware failure analysis"
+          }
+        }
+      },
+      "local-first": {
+        "deterministicFirst": true,
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "local failure triage"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "deeper failure explanation"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "execution-aware escalation"
+          }
+        }
+      },
+      "quality": {
+        "deterministicFirst": true,
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap first pass"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-20250514",
+            "rationale": "highest-quality failure analysis"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "strong execution context"
+          }
+        }
+      }
+    },
+    "research": {
+      "balanced": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "cheap reading + extraction"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "deep synthesis"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "API/codebase-linked research"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "local extraction first"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "escalate synthesis"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "codebase-linked fallback"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "gemma-4-e4b-it-Q4_K_M",
+            "rationale": "cheap draft research"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-opus-4-20250514",
+            "rationale": "best synthesis"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "codebase-linked synthesis"
+          }
+        }
+      }
+    },
+    "artifact-polish": {
+      "balanced": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap small edits"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "cleaner polish"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware polish"
+          }
+        }
+      },
+      "local-first": {
+        "defaultHarness": "pi-local",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "keep polish local"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-3-5-haiku-20241022",
+            "rationale": "frontier fallback"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "code-aware fallback"
+          }
+        }
+      },
+      "quality": {
+        "defaultHarness": "claude-code",
+        "harnesses": {
+          "pi-local": {
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "rationale": "cheap first pass"
+          },
+          "claude-code": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-4",
+            "rationale": "higher-quality polish"
+          },
+          "codex": {
+            "provider": "openai",
+            "model": "gpt-5-codex",
+            "rationale": "repo-aware polish"
+          }
+        }
+      }
+    }
+  }
+}
