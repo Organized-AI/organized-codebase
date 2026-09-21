@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "aliases": {
+    "code-analysis": "review",
+    "code-generation": "codegen",
+    "refactoring": "codegen",
+    "simple-edit": "artifact-polish"
+  },
+  "classes": {
+    "summarize": {
+      "defaultPolicy": "local-first",
+      "description": "Compression, recap, low-risk summarization."
+    },
+    "classify": {
+      "defaultPolicy": "local-first",
+      "description": "Triage, tagging, routing, light schema decisions."
+    },
+    "plan": {
+      "defaultPolicy": "balanced",
+      "description": "Break work into bounded phases with exit criteria."
+    },
+    "codegen": {
+      "defaultPolicy": "balanced",
+      "description": "Generate or refactor implementation artifacts."
+    },
+    "review": {
+      "defaultPolicy": "quality",
+      "description": "Inspect correctness, regressions, architecture fit, and risk."
+    },
+    "verify": {
+      "defaultPolicy": "balanced",
+      "description": "Run deterministic checks first, then escalate if needed."
+    },
+    "research": {
+      "defaultPolicy": "balanced",
+      "description": "Gather evidence, compare sources, synthesize options."
+    },
+    "artifact-polish": {
+      "defaultPolicy": "local-first",
+      "description": "Formatting, cleanup, small edits, documentation polish."
+    }
+  }
+}

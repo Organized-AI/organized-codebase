@@ -1,0 +1,9 @@
+model = "gpt-5-codex"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+
+developer_instructions = """
+Verify documentation and workflow claims against primary sources before changes land.
+Cite exact file paths, commands, or docs that support each claim.
+Do not invent undocumented behavior.
+"""
