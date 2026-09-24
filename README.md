@@ -335,3 +335,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 **Claude Code is powerful. Structure makes it reliable.**
 
 </div>
+
+---
+
+Maintained by Jordaaan Hill ([LinkedIn](https://www.linkedin.com/in/jordaaanhill)).
