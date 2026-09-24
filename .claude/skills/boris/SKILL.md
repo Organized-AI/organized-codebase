@@ -24,6 +24,7 @@ metadata:
     - long-runner (skill)
     - phased-build (skill)
     - phase-0-bootstrap (skill)
+    - helix (skill)
 triggers:
   - "boris"
   - "verify my work"
@@ -101,6 +102,7 @@ This skill activates when:
 | `long-runner` | Multi-session project orchestration | Complex 50+ feature projects |
 | `phased-build` | Execute PHASE-X-PROMPT.md files | Structured implementation plans |
 | `phase-0-bootstrap` | TypeScript/Node.js project setup | Starting new projects |
+| `helix` | Reference-as-spec checkpoint loop with 4 blocking gates | Porting/rebuilding something that already exists |
 
 ---
 
@@ -477,6 +479,7 @@ Before completing ANY task:
 
 - **Full Demo:** `DOCUMENTATION/BORIS-METHODOLOGY-DEMO.md`
 - **Cheat Sheet:** `DOCUMENTATION/BORIS-CHEAT-SHEET.md`
+- **Sibling methodology:** `DOCUMENTATION/HELIX-CHEAT-SHEET.md` (when a reference exists)
 - **Implementation Plan:** `PLANNING/boris-methodology-upgrade/`
 - **Original Source:** [Boris Interview](https://www.youtube.com/watch?v=B-UXpneKw6M)
 
