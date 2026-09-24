@@ -1,0 +1,17 @@
+name = "helix-visual-gate"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[vars]
+GEMINI_MODEL = "gemini-2.5-pro"
+# Screenshot diffs are blockers by default. "false" lets the model clear minor/cosmetic diffs
+# without an explicit blocking=false (critical/major always block).
+DEFAULT_BLOCKING = "true"
+
+[[r2_buckets]]
+binding = "HELIX_ARTIFACTS"
+bucket_name = "helix-visual-gate-artifacts"
+
+# Secrets (wrangler secret put):
+#   GEMINI_API_KEY    - Google AI Studio key
+#   HELIX_GATE_TOKEN  - bearer token callers must send

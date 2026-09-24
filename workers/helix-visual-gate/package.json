@@ -1,0 +1,18 @@
+{
+  "name": "helix-visual-gate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Helix G2 visual gate: reference vs implementation screenshot diff via Gemini, artifacts in R2",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "r2:create": "wrangler r2 bucket create helix-visual-gate-artifacts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250901.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.0.0"
+  }
+}
