@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "project": "storefront-port",
+  "reference": {
+    "kind": "live_url",
+    "location": "https://legacy-store.example.com",
+    "pinned_at": "deploy-2026-09-20",
+    "viewports": ["1440x900", "390x844"],
+    "notes": "Legacy Liquid theme. Guest checkout only; accounts are out of scope."
+  },
+  "target": {
+    "location": "http://localhost:3000",
+    "worktree": "../worktrees/helix/storefront",
+    "branch": "helix/storefront"
+  },
+  "approval": {
+    "sequence_approved": true,
+    "approved_by": "jordan",
+    "approved_at": "2026-09-21T15:04:00Z"
+  },
+  "settings": {
+    "convergence_budget": 3,
+    "visual_gate_url": "https://helix-visual-gate.example.workers.dev"
+  },
+  "checkpoints": [
+    {
+      "id": "CP-01",
+      "title": "Product grid renders",
+      "status": "committed",
+      "has_ui": true,
+      "scope": { "routes": ["/collections/all"] },
+      "reference_anchors": ["https://legacy-store.example.com/collections/all .product-grid"],
+      "acceptance": [
+        "Visitor sees 12 product cards with image, title, price",
+        "Sold-out products show a 'Sold out' badge and no quick-add"
+      ],
+      "attempts": 1,
+      "gates": {
+        "g1_behavior": { "status": "pass", "evidence": "PLANNING/helix/evidence/CP-01/g1-tests.txt" },
+        "g2_visual": { "status": "pass", "evidence": "PLANNING/helix/evidence/CP-01/g2-visual.json" },
+        "g3_review_a": { "status": "pass", "evidence": "PLANNING/helix/evidence/CP-01/g3-review-a.md" },
+        "g3_review_b": { "status": "pass", "evidence": "PLANNING/helix/evidence/CP-01/g3-review-b.md" },
+        "g4_human": { "status": "pass", "at": "2026-09-21T18:30:00Z" }
+      },
+      "commit": "a1b2c3d"
+    },
+    {
+      "id": "CP-02",
+      "title": "Cart drawer opens",
+      "status": "in_progress",
+      "depends_on": ["CP-01"],
+      "has_ui": true,
+      "scope": { "components": ["CartDrawer"], "out_of_scope": ["discount codes"] },
+      "reference_anchors": ["https://legacy-store.example.com/collections/all [data-cart-drawer]"],
+      "acceptance": [],
+      "attempts": 0,
+      "gates": {
+        "g1_behavior": { "status": "pending" },
+        "g2_visual": { "status": "pending" },
+        "g3_review_a": { "status": "pending" },
+        "g3_review_b": { "status": "pending" },
+        "g4_human": { "status": "pending" }
+      }
+    },
+    {
+      "id": "CP-03",
+      "title": "Inventory sync endpoint",
+      "status": "planned",
+      "depends_on": ["CP-01"],
+      "has_ui": false,
+      "scope": { "endpoints": ["POST /api/inventory/sync"] },
+      "gates": {
+        "g1_behavior": { "status": "pending" },
+        "g2_visual": { "status": "skipped", "reason": "No UI: JSON endpoint only" },
+        "g3_review_a": { "status": "pending" },
+        "g3_review_b": { "status": "pending" },
+        "g4_human": { "status": "pending" }
+      }
+    }
+  ]
+}
