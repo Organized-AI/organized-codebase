@@ -81,6 +81,32 @@ git worktree remove "../feat-011" --force
 ```
 *See [workflows.md](references/workflows.md#case-study-parallel-feature-build-with-subagents) for full case study.*
 
+### Helix: Worktree per Target
+In a Helix loop (`.claude/skills/helix/SKILL.md`), every **target** — each thing being converged on a
+reference (web port, mobile port, one service per migration) — gets its own worktree, branch, and
+`PLANNING/helix/checkpoints.json`. Gates, evidence, and `feat(helix): CP-NN` commits never mix
+between targets, and `/helix-next N` can run in each worktree in parallel.
+```bash
+# One worktree per target, all from the same base (non-interactive; wt-create.sh prompts
+# before creating a NEW branch, so use it only to re-open existing target branches)
+git worktree add -b helix/storefront-web ../worktrees/helix/storefront-web main
+git worktree add -b helix/storefront-ios ../worktrees/helix/storefront-ios main
+
+# Pin a repo reference as a read-only detached worktree at reference.pinned_at
+git worktree add --detach ../worktrees/helix/_reference <pinned-sha>
+git worktree lock ../worktrees/helix/_reference --reason "Helix reference — do not modify"
+
+# Record in each target's checkpoints.json:
+#   "target": { "worktree": "../worktrees/helix/storefront-web", "branch": "helix/storefront-web" }
+```
+- **G3 isolation:** give reviewers a detached, throwaway worktree at the checkpoint's commit
+  (`git worktree add --detach ../worktrees/review/CP-07 <sha>`), so they read the artifact, not
+  the implementer's dirty tree. Remove it after the verdict.
+- **Merge order:** merge target branches back only after their batched G4 review; checkpoints are
+  already one-commit-each, so prefer `--no-ff` merges that keep the checkpoint history readable.
+- **Cleanup:** `scripts/wt-cleanup.sh ../worktrees/helix/storefront-web` after merge; unlock and remove
+  `_reference` when every target is done.
+
 ## Directory Organization
 
 Recommended structure:

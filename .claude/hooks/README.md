@@ -20,7 +20,7 @@ These hook specs pair with the Boris guide's recommendations to keep the scaffol
 | Hook | Trigger | Purpose |
 |------|---------|---------|
 | `session-start-ablation-check.md` | `SessionStart` | Detect scaffold drift after model upgrades and recommend `/ablate` |
-| `stop-verification-evidence.md` | `Stop` | Block completion claims that have no verification surface or evidence summary |
+| `stop-verification-evidence.md` | `Stop` | Block completion claims that have no verification surface or evidence summary; in Helix mode, require a complete per-checkpoint evidence bundle (tests, visual verdict, reviewer verdicts) |
 
 Recommended companions:
 - `/ablate`

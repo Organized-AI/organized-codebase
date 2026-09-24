@@ -102,3 +102,26 @@ test('stop: without a recorded SHA, falls back to commit subject lookup', () => 
   delete plan.checkpoints[0].commit;
   assert.strictEqual(stop(plan, 'CP-01').checkpoint_committed, false);
 });
+
+test('evidence: flags gates that claim a result without an evidence file', () => {
+  const os = require('os');
+  const { evidence } = require('../scripts/helix/helix-check');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'helix-'));
+  const plan = load();
+  const dir = path.join(root, 'PLANNING/helix/evidence/CP-01');
+  fs.mkdirSync(dir, { recursive: true });
+  for (const f of ['g1-tests.txt', 'g2-visual.json', 'g3-review-a.md']) fs.writeFileSync(path.join(dir, f), 'x');
+  const b = evidence(plan, 'CP-01', root);
+  assert.strictEqual(b.complete, false);
+  assert.deepStrictEqual(b.missing, ['g3_review_b (PLANNING/helix/evidence/CP-01/g3-review-b.md)']);
+  assert.ok(fs.existsSync(path.join(dir, 'bundle.json')));
+  fs.writeFileSync(path.join(dir, 'g3-review-b.md'), 'x');
+  assert.strictEqual(evidence(plan, 'CP-01', root).complete, true);
+});
+
+test('evidence: pending and skipped gates need no file', () => {
+  const { evidence } = require('../scripts/helix/helix-check');
+  const b = evidence(load(), 'CP-03', process.cwd(), false);
+  assert.strictEqual(b.complete, true);
+  assert.strictEqual(b.gates.find((g) => g.gate === 'g2_visual').status, 'skipped');
+});

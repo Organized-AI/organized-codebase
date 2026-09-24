@@ -111,7 +111,7 @@ blocking gates agree it matches.
 - **INVALID** = the gate couldn't judge (missing screenshot, wrong viewport, reference down, test harness crashed). Fix the evidence, re-run the gate. Never treat INVALID as a soft pass.
 - **Any fix re-runs from G1.** A reviewer-requested refactor can break behavior; a CSS fix can break a test selector.
 - **Non-UI checkpoints** (APIs, jobs, CLIs) mark G2 `skipped` with a one-line reason in `checkpoints.json`. Skipping G2 for a checkpoint that renders UI is not allowed.
-- **Convergence budget:** default 3 full G1→G3 loops per checkpoint. On the 4th failure, set status `blocked`, write the reason to `helix-memory.md`, and stop for the human.
+- **Convergence budget:** default 3 full G1→G3 loops per checkpoint. When all 3 have failed, set status `blocked`, write the reason to `helix-memory.md`, and stop for the human.
 
 ---
 
@@ -203,6 +203,13 @@ workers/helix-visual-gate/               # G2 Cloudflare Worker (Gemini + R2)
 | Verification | `/verify` | Success criteria | **4 ordered blocking gates** |
 | On fix | Re-verify | Re-run criteria | **Re-run from G1** |
 | Learning | CLAUDE.md DO NOT | Completion docs | **helix-memory.md → /ablate → CLAUDE.md** |
+
+**Multiple targets?** One worktree per target (e.g. web + iOS ports of the same reference), each with
+its own branch, `checkpoints.json`, and evidence — see `git-worktree-master` → "Helix: Worktree per
+Target". Pin a repo reference as a locked, detached worktree at `reference.pinned_at`.
+
+**Stop hook:** `stop-verification-evidence` requires a complete per-checkpoint evidence bundle
+(`helix-check.js evidence --all`) before a session that touched checkpoints can end.
 
 Use **Boris** as the always-on baseline. Reach for **Helix** when a reference exists and "done"
 means "indistinguishable from the reference". Helix checkpoints can live *inside* a phased-build

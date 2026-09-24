@@ -58,9 +58,56 @@ Suggested follow-up: /verify or add a verification contract.
 - small editorial changes where manual diff review is the evidence
 - scaffold planning that explicitly has no executable verification yet
 
+## Helix mode: per-checkpoint evidence bundle
+
+When `PLANNING/helix/checkpoints.json` exists and this session touched a checkpoint (status left
+`planned`, or a `feat(helix): CP-NN` commit was made), generic evidence is **not enough**. Each touched
+checkpoint must have a complete bundle:
+
+```
+PLANNING/helix/evidence/CP-NN/
+├── g1-tests.txt       # G1 — integration test output against the target (and reference run)
+├── g2-visual.json     # G2 — helix-visual-gate verdict {verdict, diffs[], artifacts{R2 keys}}
+├── g3-review-a.md     # G3 — reviewer A verdict (architecture & correctness)
+├── g3-review-b.md     # G3 — reviewer B verdict (reference fidelity & hostile user)
+└── bundle.json        # manifest written by helix-check: gate statuses, evidence paths, G4, commit
+```
+
+The hook runs:
+
+```bash
+node scripts/helix/helix-check.js validate && \
+node scripts/helix/helix-check.js evidence --all
+```
+
+`evidence` writes `bundle.json` for every non-`planned` checkpoint and exits `1` if any gate claims
+`pass` / `fail` / `invalid` without its evidence file. `pending` gates and a G2 `skipped` for a
+non-UI checkpoint need no file.
+
+**Block when:**
+- `validate` fails (e.g. `committed` with a reviewer still `fail`, G2 skipped on a UI checkpoint)
+- `evidence --all` exits 1 (a gate result with no artifact behind it)
+- a checkpoint is claimed done but `node scripts/helix/helix-check.js stop CP-NN` isn't `done: true`
+- the response claims G4 approval that isn't recorded in `checkpoints.json`
+
+**Suggested blocking message (Helix):**
+
+```text
+STOP BLOCKED — Helix evidence bundle incomplete.
+
+CP-04 Checkout address form [gates_passed]
+  missing: g3_review_b (PLANNING/helix/evidence/CP-04/g3-review-b.md)
+
+Re-run /helix-gate CP-04 (gates restart from G1) or record the missing verdict.
+```
+
+**Don't block** a `/helix-next` run that stopped early on a `blocked` checkpoint — that's the loop
+working. Require only that the blocked checkpoint has `blocked_reason` and a `helix-memory.md` entry.
+
 ## Best companion artifacts
 
 - `/verify`
 - `/outcome-prompt`
+- `/helix-gate`, `/helix-next` (Helix mode)
 - `verification-surface-designer` skill
 - project-specific build/test commands

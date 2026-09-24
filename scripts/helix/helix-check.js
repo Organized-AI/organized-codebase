@@ -6,6 +6,7 @@
  *   node scripts/helix/helix-check.js validate [--plan <path>]
  *   node scripts/helix/helix-check.js stop <CP-ID> [--plan <path>]
  *   node scripts/helix/helix-check.js next [N] [--plan <path>]
+ *   node scripts/helix/helix-check.js evidence <CP-ID|--all> [--plan <path>]
  *
  * validate  Structural + semantic checks on checkpoints.json (mirrors checkpoints.schema.json
  *           without needing a JSON Schema library, plus rules a schema can't express).
@@ -13,6 +14,9 @@
  *           gates_passed (G1, G2, G3a, G3b) and checkpoint_committed (SHA exists in git).
  *           Exit 0 only when both hold.
  * next      Lists up to N checkpoints eligible to run now, in plan order (used by /helix-next).
+ * evidence  Writes PLANNING/helix/evidence/<CP>/bundle.json (tests, visual verdict, reviewer verdicts)
+ *           and exits 1 if any gate claims a result without its evidence file (used by the Stop hook).
+ *           --all covers every checkpoint that has left `planned`.
  */
 
 const fs = require('fs');
@@ -156,6 +160,48 @@ function stop(plan, id) {
   };
 }
 
+const EVIDENCE_FILES = {
+  g1_behavior: 'g1-tests.txt',
+  g2_visual: 'g2-visual.json',
+  g3_review_a: 'g3-review-a.md',
+  g3_review_b: 'g3-review-b.md',
+};
+
+/**
+ * Build the per-checkpoint evidence bundle the Stop hook requires: every machine gate that claims
+ * pass/fail/invalid must point at an evidence file that exists. Writes evidence/<CP>/bundle.json.
+ */
+function evidence(plan, id, root = process.cwd(), write = true) {
+  const cp = plan.checkpoints.find((c) => c.id === id);
+  if (!cp) throw new Error(`checkpoint ${id} not found`);
+  const dir = path.join('PLANNING', 'helix', 'evidence', id);
+  const items = MACHINE_GATES.map((gate) => {
+    const g = cp.gates[gate];
+    const file = g.evidence || path.join(dir, EVIDENCE_FILES[gate]);
+    const needsFile = ['pass', 'fail', 'invalid'].includes(g.status);
+    const present = /^https?:\/\//.test(file) || fs.existsSync(path.join(root, file));
+    return { gate, status: g.status, evidence: needsFile ? file : null, present: needsFile ? present : null, reason: g.reason || null };
+  });
+  const missing = items.filter((i) => i.present === false).map((i) => `${i.gate} (${i.evidence})`);
+  const bundle = {
+    checkpoint: id,
+    title: cp.title,
+    status: cp.status,
+    commit: cp.commit || null,
+    attempts: cp.attempts || 0,
+    gates: items,
+    g4_human: cp.gates.g4_human,
+    missing,
+    complete: missing.length === 0,
+    at: new Date().toISOString(),
+  };
+  if (write) {
+    fs.mkdirSync(path.join(root, dir), { recursive: true });
+    fs.writeFileSync(path.join(root, dir, 'bundle.json'), JSON.stringify(bundle, null, 2) + '\n');
+  }
+  return bundle;
+}
+
 /** Checkpoints runnable now, in plan order. Deps must be committed or selected earlier in this run. */
 function next(plan, n) {
   if (!plan.approval || !plan.approval.sequence_approved) return { eligible: [], halted_by: 'sequence not approved' };
@@ -208,10 +254,22 @@ function main(argv) {
     console.log(JSON.stringify(next(plan, n), null, 2));
     return 0;
   }
-  console.error('usage: helix-check <validate|stop <CP-ID>|next [N]> [--plan <path>]');
+  if (cmd === 'evidence') {
+    if (!arg) { console.error('usage: helix-check evidence <CP-ID|--all>'); return 2; }
+    const ids = arg === '--all'
+      ? plan.checkpoints.filter((c) => c.status !== 'planned').map((c) => c.id)
+      : [arg];
+    const bundles = ids.map((id) => evidence(plan, id));
+    bundles.forEach((b) => {
+      const mark = b.complete ? '✓' : '✗';
+      console.log(`${mark} ${b.checkpoint} ${b.title} [${b.status}]${b.complete ? '' : ' missing: ' + b.missing.join(', ')}`);
+    });
+    return bundles.every((b) => b.complete) ? 0 : 1;
+  }
+  console.error('usage: helix-check <validate|stop <CP-ID>|next [N]|evidence <CP-ID|--all>> [--plan <path>]');
   return 2;
 }
 
 if (require.main === module) process.exit(main(process.argv));
 
-module.exports = { validate, stop, next, gatePassed, machineGatesPassed };
+module.exports = { validate, stop, next, evidence, gatePassed, machineGatesPassed };
