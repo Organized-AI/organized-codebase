@@ -155,3 +155,11 @@ If the ablation reveals missing structure, create or update:
 - a hook with a narrow purpose
 - a verification surface
 - a trimmed `CLAUDE.md` section
+
+## Helix memory candidates
+
+`PLANNING/helix/helix-memory.md` entries marked `candidate` (prevented a repeat on ≥ 3 checkpoints)
+arrive here as proposed **re-adds**. Apply Step 5: prefer a test / lint / `helix-check.js` rule,
+then a Helix reviewer checklist line, and only then one line in `CLAUDE.md`. Evidence is the entry's
+`Source` + `Prevented` checkpoints plus one representative checkpoint re-run without it.
+Mark the entry `promoted` (with SHA) or `retired`. Full path: `.claude/commands/helix-next.md` → "Promotion path".
