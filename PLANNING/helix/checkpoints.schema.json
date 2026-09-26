@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Organized-AI/organized-codebase/PLANNING/helix/checkpoints.schema.json",
+  "title": "Helix checkpoint plan",
+  "description": "Ordered checkpoints for a Helix convergence loop. Emitted by helix-planner, sequence approved by a human, gate state updated by /helix-gate and /helix-next.",
+  "type": "object",
+  "required": ["version", "reference", "approval", "checkpoints"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "project": { "type": "string" },
+    "reference": {
+      "description": "The thing being matched. Pin it: a moving reference makes every gate meaningless.",
+      "type": "object",
+      "required": ["kind", "location", "pinned_at"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["live_url", "repo", "design_export", "screenshots", "api", "other"] },
+        "location": { "type": "string", "minLength": 1 },
+        "pinned_at": {
+          "description": "Commit SHA, deploy id, export date, or ISO timestamp that freezes the reference.",
+          "type": "string",
+          "minLength": 1
+        },
+        "viewports": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[0-9]+x[0-9]+$" }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "location": { "type": "string" },
+        "worktree": { "type": "string" },
+        "branch": { "type": "string" }
+      }
+    },
+    "approval": {
+      "description": "The human approves the SEQUENCE only, not per-checkpoint details.",
+      "type": "object",
+      "required": ["sequence_approved"],
+      "additionalProperties": false,
+      "properties": {
+        "sequence_approved": { "type": "boolean" },
+        "approved_by": { "type": "string" },
+        "approved_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "convergence_budget": {
+          "description": "Max full G1->G3 loops per checkpoint before it is marked blocked.",
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        },
+        "visual_gate_url": { "type": "string" }
+      }
+    },
+    "checkpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/checkpoint" }
+    }
+  },
+  "$defs": {
+    "gateStatus": { "enum": ["pending", "pass", "fail", "invalid", "skipped"] },
+    "gate": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "$ref": "#/$defs/gateStatus" },
+        "evidence": { "description": "Repo-relative path or URL to the evidence artifact.", "type": "string" },
+        "reason": { "description": "Required when status is skipped, fail, or invalid.", "type": "string" },
+        "at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "title", "status", "gates"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^CP-[0-9]{2,3}$" },
+        "title": {
+          "description": "A few words (<= 6). Detail belongs in scope/acceptance, filled just-in-time.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^\\S+(\\s\\S+){0,5}$"
+        },
+        "status": {
+          "enum": ["planned", "in_progress", "gates_passed", "committed", "blocked"]
+        },
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CP-[0-9]{2,3}$" }
+        },
+        "has_ui": {
+          "description": "If true, G2 visual may not be skipped.",
+          "type": "boolean",
+          "default": true
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "routes": { "type": "array", "items": { "type": "string" } },
+            "components": { "type": "array", "items": { "type": "string" } },
+            "endpoints": { "type": "array", "items": { "type": "string" } },
+            "out_of_scope": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "reference_anchors": {
+          "description": "Where in the reference this checkpoint's truth lives (URL+selector, file:line, screenshot path).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "acceptance": {
+          "description": "User-perspective observable behaviors. Filled when the checkpoint starts, not at planning time.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "attempts": {
+          "description": "Completed G1->G3 loops so far.",
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "gates": {
+          "type": "object",
+          "required": ["g1_behavior", "g2_visual", "g3_review_a", "g3_review_b", "g4_human"],
+          "additionalProperties": false,
+          "properties": {
+            "g1_behavior": { "$ref": "#/$defs/gate" },
+            "g2_visual": { "$ref": "#/$defs/gate" },
+            "g3_review_a": { "$ref": "#/$defs/gate" },
+            "g3_review_b": { "$ref": "#/$defs/gate" },
+            "g4_human": { "$ref": "#/$defs/gate" }
+          }
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "blocked_reason": { "type": "string" }
+      }
+    }
+  }
+}

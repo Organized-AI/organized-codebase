@@ -8,7 +8,9 @@
     "cli": "node src/cli/hybrid-agent-cli.js",
     "benchmark": "node tests/benchmark.test.js",
     "agent:setup": "node scripts/setup-agent.js",
-    "changelog:fetch": "node scripts/fetch-changelog.js"
+    "changelog:fetch": "node scripts/fetch-changelog.js",
+    "test:helix": "node --test tests/helix.test.js",
+    "helix:check": "node scripts/helix/helix-check.js"
   },
   "bin": {
     "hybrid-agent": "./src/cli/hybrid-agent-cli.js"

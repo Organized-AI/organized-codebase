@@ -317,6 +317,7 @@ npx create-organized-codebase@latest my-project
 - **[Eval Loop Spec Template](PLANNING/spec-templates/eval-loop.md)** — Reusable scaffold for stage metrics, judges, replay, promotion gates, and rollback
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses
 - **[Boris Ablation Scorecard Template](DOCUMENTATION/BORIS-ABLATION-SCORECARD-TEMPLATE.md)** — Default results sheet for scaffold deletion experiments
+- **[Helix Cheat Sheet](DOCUMENTATION/HELIX-CHEAT-SHEET.md)** — Checkpoint + blocking-gate convergence loop for ports and rebuilds where a reference is the spec
 - **[Plugin Marketplace](https://github.com/Organized-AI/plugin-marketplace)** — More commands, agents, skills
 
 - **[Organized AI Events](https://lu.ma/organizedai-starterstacks)** — Live sessions and workshops

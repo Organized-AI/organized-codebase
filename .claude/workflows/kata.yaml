@@ -124,6 +124,28 @@ modes:
     workflow_prefix: DB
     aliases:
       - investigate
+  helix:
+    name: Helix
+    description: Reference-as-spec checkpoint loop with 4 ordered blocking gates (behavior, visual, 2x adversarial review, human)
+    issue_handling: none
+    # Custom stop conditions, evaluated by: node scripts/helix/helix-check.js stop <CP-ID>
+    #   gates_passed         - G1 behavior, G2 visual (or legit non-UI skip), G3 reviewer A and B all PASS
+    #   checkpoint_committed - checkpoint commit exists in git (recorded SHA, or `feat(helix): CP-NN` subject)
+    stop_conditions:
+      - gates_passed
+      - checkpoint_committed
+    intent_keywords:
+      - helix
+      - checkpoint loop
+      - match the reference
+      - port this
+      - rebuild from reference
+      - next checkpoint
+    template: helix.md
+    workflow_prefix: HX
+    aliases:
+      - checkpoint
+      - converge
   onboard:
     name: Onboard
     description: Configure kata for a new project
