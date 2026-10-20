@@ -1,0 +1,81 @@
+name: release
+# Merge to main → staging syncs itself (when wrangler.jsonc has env.staging), the e2e suite runs against it, then the
+# same commit is uploaded once as a production version and a pull request proposes it. Production changes only when
+# that pull request is merged (deploy.yml).
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "deploy/envs/**"
+      - "docs/**"
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || '__ACCOUNT_ID__' }}
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: staging
+      url: __STAGING_URL__
+    steps:
+      - name: Needs a Cloudflare token
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: |
+          echo "::warning::Add the CLOUDFLARE_API_TOKEN secret (docs/GITOPS.md). Until then: scripts/gitops/upload.sh, promote.sh, sync.sh by hand."
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Has a staging environment?
+        id: has
+        run: echo "staging=$(grep -qE '"staging"\s*:' wrangler.jsonc 2>/dev/null && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+      - name: Migrate staging (additive migrations only)
+        if: steps.has.outputs.staging == 'yes'
+        run: bash scripts/gitops/migrate.sh staging
+      - name: Sync staging to this commit
+        if: steps.has.outputs.staging == 'yes'
+        run: npx wrangler deploy --env staging --tag "${GITHUB_SHA::12}" --message "staging ${GITHUB_SHA::12}"
+      - name: e2e against staging
+        if: steps.has.outputs.staging == 'yes'
+        env:
+          DD_BASE: __STAGING_URL__
+          DD_RUN_ID: e2e-staging-${{ github.run_id }}
+        run: bash scripts/gitops/e2e.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: e2e-staging, path: tests/e2e/reports/*.json, if-no-files-found: ignore }
+
+  propose-production:
+    needs: staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Upload the production version once (not deployed)
+        id: up
+        run: bash scripts/gitops/upload.sh
+      - name: Open "Deploy <sha> to production"
+        env:
+          GH_TOKEN: ${{ secrets.GITOPS_TOKEN || github.token }}
+        run: |
+          git config user.name "organized-ai-gitops[bot]"
+          git config user.email "gitops@users.noreply.github.com"
+          bash scripts/gitops/promote.sh "${{ steps.up.outputs.version_id }}" production

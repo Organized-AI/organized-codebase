@@ -1,0 +1,5 @@
+# Every change, and above all what reaches production, is reviewed by its owner.
+*                         @__OWNER__
+/deploy/envs/             @__OWNER__
+/.github/workflows/       @__OWNER__
+/migrations/              @__OWNER__

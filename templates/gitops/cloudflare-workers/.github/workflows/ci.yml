@@ -1,0 +1,32 @@
+name: ci
+# Every pull request and every push to main. Nothing here needs a Cloudflare account, so it runs for forks too.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build, parse and scan (scripts/check.mjs)
+        run: node scripts/check.mjs
+      - name: Unit tests
+        run: npm test --if-present
+      - name: Shell scripts are valid
+        run: bash -n scripts/gitops/*.sh

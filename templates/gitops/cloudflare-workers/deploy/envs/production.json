@@ -1,0 +1,7 @@
+{
+  "worker": "__WORKER__",
+  "version_id": "",
+  "commit": "",
+  "uploaded_at": "",
+  "message": "set by scripts/gitops/promote.sh; merging its pull request is the deploy"
+}
