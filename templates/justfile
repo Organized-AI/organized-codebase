@@ -424,12 +424,58 @@ add-handoff:
 
     echo "✅ AGENT-HANDOFF/ scaffolding complete!"
 
+# GitOps for a Cloudflare Workers project (see templates/gitops/cloudflare-workers/README.md):
+# CI on every PR, staging synced on merge, production only by a "Deploy <sha> to production" pull request,
+# an e2e suite before and after production, logs and traces. Never overwrites a file that already exists.
+#   just add-gitops                       (worker and account from wrangler.jsonc, subdomain from $WORKERS_SUBDOMAIN)
+#   just add-gitops my-worker jordan-691 jhillbht
+add-gitops worker="" subdomain="" owner="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    CFG=$(ls wrangler.jsonc wrangler.json 2>/dev/null | head -1 || true)
+    if [ -z "$CFG" ]; then echo "⏭️  No wrangler.jsonc here: add-gitops is for Cloudflare Workers projects."; exit 0; fi
+    OC="${ORGANIZED_CODEBASE:-$HOME/organized-codebase}"
+    SRC="$OC/templates/gitops/cloudflare-workers"
+    if [ ! -d "$SRC" ]; then
+      TMP=$(mktemp -d); git clone -q --depth 1 --branch "${ORGANIZED_CODEBASE_REF:-main}" https://github.com/Organized-AI/organized-codebase "$TMP/oc"
+      SRC="$TMP/oc/templates/gitops/cloudflare-workers"
+    fi
+    if [ ! -d "$SRC" ]; then echo "❌ No templates/gitops/cloudflare-workers in Organized Codebase (${ORGANIZED_CODEBASE_REF:-main}). Set ORGANIZED_CODEBASE=<a local clone> or ORGANIZED_CODEBASE_REF=<branch>."; exit 1; fi
+    read_cfg() { node -e "const s=require('fs').readFileSync('$CFG','utf8').replace(/^\s*\/\/.*$/gm,'').replace(/,(\s*[}\]])/g,'\$1');const c=JSON.parse(s);console.log(c['$1']||'')"; }
+    WORKER="{{worker}}"; [ -n "$WORKER" ] || WORKER=$(read_cfg name)
+    ACCOUNT=$(read_cfg account_id); [ -n "$ACCOUNT" ] || ACCOUNT="${CLOUDFLARE_ACCOUNT_ID:-__ACCOUNT_ID__}"
+    SUB="{{subdomain}}"; [ -n "$SUB" ] || SUB="${WORKERS_SUBDOMAIN:-__SUBDOMAIN__}"
+    OWNER="{{owner}}"; [ -n "$OWNER" ] || OWNER=$(gh api user --jq .login 2>/dev/null || echo "__OWNER__")
+    echo "🚢 GitOps for $WORKER (account $ACCOUNT, $SUB.workers.dev, owner @$OWNER)"
+    cd "$SRC" && FILES=$(find . -type f ! -name README.md | sed 's#^\./##'); cd - >/dev/null
+    for f in $FILES; do
+      if [ -e "$f" ]; then echo "  ⏭️  $f exists, left as is"; continue; fi
+      mkdir -p "$(dirname "$f")"
+      sed -e "s#__PROD_URL__#https://$WORKER.$SUB.workers.dev#g" -e "s#__STAGING_URL__#https://$WORKER-staging.$SUB.workers.dev#g" \
+          -e "s#__WORKER__#$WORKER#g" -e "s#__ACCOUNT_ID__#$ACCOUNT#g" -e "s#__SUBDOMAIN__#$SUB#g" -e "s#__OWNER__#$OWNER#g" \
+          "$SRC/$f" > "$f"
+      echo "  ✅ $f"
+    done
+    chmod +x scripts/gitops/*.sh 2>/dev/null || true
+    touch tests/e2e/reports/.gitkeep 2>/dev/null || mkdir -p tests/e2e/reports && touch tests/e2e/reports/.gitkeep
+    grep -q "tests/e2e/reports/\*.json" .gitignore 2>/dev/null || printf '\ntests/e2e/reports/*.json\n!tests/e2e/reports/.gitkeep\n.wrangler/\nnode_modules/\n' >> .gitignore
+    if grep -q '__SUBDOMAIN__\|__OWNER__\|__ACCOUNT_ID__' -r .github scripts tests docs deploy 2>/dev/null; then
+      echo "  ⚠️  Some placeholders are left (__SUBDOMAIN__, __OWNER__ or __ACCOUNT_ID__): edit them, or delete the files and run  WORKERS_SUBDOMAIN=<sub> just add-gitops \"\" <sub> <github-owner>"
+    fi
+    echo ""
+    echo "  Next (docs/GITOPS.md → One-time setup):"
+    echo "  1. Add the CLOUDFLARE_API_TOKEN repository secret, and environments staging + production (required reviewer)"
+    echo "  2. Protect main: 'ci / check' must pass (reviewers and protection need a public repo or a paid plan; see docs/GITOPS.md)"
+    echo "  3. Optional: env.staging in wrangler.jsonc (its own Worker name and D1 database)"
+    echo "  4. Replace tests/e2e/smoke.mjs with one test per platform your users connect from (npm run e2e)"
+    echo "  5. First deploy through Git: scripts/gitops/upload.sh → promote.sh <id> → merge → sync.sh"
+
 # =============================================================================
 # MAIN RECIPE - Apply all scaffolding
 # =============================================================================
 
 # Apply complete Organized Codebase structure
-apply-organized: add-claude add-kata add-ralphy add-planning add-handoff
+apply-organized: add-claude add-kata add-ralphy add-planning add-handoff add-gitops
     #!/usr/bin/env bash
     set -euo pipefail
     echo ""

@@ -1,0 +1,45 @@
+name: deploy
+# Merging "Deploy <sha> to production" changes deploy/envs/production.json. This makes Cloudflare match it, behind
+# the `production` environment (required reviewers), then runs the e2e suite. Rolling back is reverting that PR.
+on:
+  push:
+    branches: [main]
+    paths: ["deploy/envs/production.json"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: __PROD_URL__
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || '__ACCOUNT_ID__' }}
+    steps:
+      - name: Needs a Cloudflare token
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: |
+          echo "::warning::No CLOUDFLARE_API_TOKEN secret. Run scripts/gitops/sync.sh on a machine logged in to wrangler."
+          exit 1
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Sync production to deploy/envs/production.json, then e2e
+        env:
+          DD_BASE: __PROD_URL__
+          DD_RUN_ID: e2e-prod-${{ github.run_id }}
+        run: bash scripts/gitops/sync.sh production
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: e2e-production, path: tests/e2e/reports/*.json, if-no-files-found: ignore }

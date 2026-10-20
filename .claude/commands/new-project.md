@@ -13,5 +13,9 @@ This will:
 4. Initialize git repository with initial commit
 5. Set up package.json and .gitignore
 6. Customize templates with your project name
+7. If the project deploys a Cloudflare Worker (it has a `wrangler.jsonc`), run `just add-gitops` from the new project
+   so it starts on GitOps: CI on every PR, staging on merge, production only through a "Deploy <sha> to production"
+   pull request, an e2e suite before and after production, and logs and traces on. See
+   `templates/gitops/cloudflare-workers/README.md`.
 
 The boilerplate remains unchanged - new project is created as a sibling directory.

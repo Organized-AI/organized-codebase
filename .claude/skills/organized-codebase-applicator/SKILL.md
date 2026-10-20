@@ -1,7 +1,7 @@
 ---
 name: organized-codebase-applicator
-version: "2.0"
-description: Applies Organized Codebase template structure to existing projects using Just scaffolding. Creates Claude Code Plugins, sets up verification infrastructure (Boris methodology), and manages project scaffolding via justfile recipes. Use when user wants to organize an existing project, apply the Organized Codebase template, create a plugin, scaffold .claude/ directory, set up planning docs, or mentions "organized codebase", "apply template", "just scaffolding", "add claude", "add planning", "add handoff", or "verification infrastructure".
+version: "2.1"
+description: Applies Organized Codebase template structure to existing projects using Just scaffolding. Creates Claude Code Plugins, sets up verification infrastructure (Boris methodology), sets up GitOps for Cloudflare Workers projects (CI, staging on merge, production by pull request, e2e, logs and traces), and manages project scaffolding via justfile recipes. Use when user wants to organize an existing project, apply the Organized Codebase template, create a plugin, scaffold .claude/ directory, set up planning docs, set up GitOps or deploys, or mentions "organized codebase", "apply template", "just scaffolding", "add claude", "add planning", "add handoff", "add gitops", "gitops", or "verification infrastructure".
 ---
 
 # Organized Codebase Applicator v2.0
@@ -56,6 +56,7 @@ just add-ralphy    # Just the .ralphy/ config
 | `add-ralphy` | `.ralphy/` | Ralphy workflow configuration |
 | `add-planning` | `PLANNING/` | Implementation phases, decisions, experiments |
 | `add-handoff` | `AGENT-HANDOFF/` | Context transfer documents |
+| `add-gitops` | `.github/`, `scripts/gitops/`, `deploy/envs/`, `docs/GITOPS.md` | GitOps for Cloudflare Workers projects (skipped when there is no `wrangler.jsonc`) |
 | `verify` | - | Run verification suite |
 | `project-status` | - | Show git status and structure |
 | `archive-iterations` | `.archive/` | Move iteration dirs to archive |
@@ -72,6 +73,7 @@ just add-ralphy    # Just the .ralphy/ config
 | 3. Cleanup | Archive iterations | `just archive-iterations` |
 | 4. Plugin | Create distributable plugin (optional) | Manual |
 | 5. Verification | Set up Boris methodology | `just add-claude` |
+| 6. GitOps | Git is the only way to production (Workers projects) | `just add-gitops` |
 
 ---
 
@@ -115,6 +117,41 @@ project-root/
 ├── justfile                 # Just recipes
 └── CLAUDE.md                # Project overview
 ```
+
+---
+
+## GitOps for Cloudflare Workers projects (every new coding project)
+
+Every project that deploys a Cloudflare Worker gets the same GitOps pack, modeled on
+[Organized-AI/podcast-agent](https://github.com/Organized-AI/podcast-agent/blob/main/docs/GITOPS.md):
+Worker versions stand in for image digests, and `wrangler versions deploy` stands in for an Argo CD sync.
+`apply-organized` runs `add-gitops` automatically; it does nothing in a project without `wrangler.jsonc`, and it never
+overwrites a file that exists.
+
+```bash
+WORKERS_SUBDOMAIN=jordan-691 just add-gitops       # worker + account from wrangler.jsonc, owner from gh
+just add-gitops my-worker jordan-691 jhillbht     # or say them explicitly
+```
+
+The rules it encodes (put them in the project's CLAUDE.md "DO NOT" section too):
+
+1. **Git is the only way to production.** `main` is what staging runs; `deploy/envs/production.json` (one version id,
+   written only by automation) is what production runs. Never `wrangler deploy` production by hand.
+2. **Build once, promote by id.** Merge to main uploads one production version (`wrangler versions upload --tag <sha>`)
+   and opens "Deploy <sha> to production". Merging that pull request is the deploy; reverting it rolls back.
+3. **Production sits behind a GitHub environment with a required reviewer**, and `main` is protected (PR + `ci / check`). On a private repo on the free plan, reviewers, branch protection, CodeQL and dependency review are unavailable: keep the `production` environment limited to `main`, treat merging the deploy PR as the approval, and let `security` fall back to `npm audit`. Don't make a repo public to get them without asking.
+4. **Every platform passes the e2e suite** on staging before the production pull request, and on production after it:
+   one test per way users connect, with evals on the answers, and checks that the run shows up in Workers Logs/traces.
+5. **Migrations are additive** and run before the new version takes traffic.
+6. **Logs and traces on** (`head_sampling_rate: 1`), one structured log line per request, never a secret in a log.
+7. **Commits and PRs are the user's** (for Organized-AI: Jordan Hill, no Claude co-author or trailers).
+
+After running it, walk the user through docs/GITOPS.md → One-time setup: the `CLOUDFLARE_API_TOKEN` secret (Workers
+Scripts Edit, D1 Edit, Workers Tail Read, Workers Observability Read, Account Settings Read), the `staging` and
+`production` environments, branch protection, and an optional `env.staging` in wrangler.jsonc. Until the token exists,
+the same flow runs by hand and still goes through Git: `scripts/gitops/upload.sh` → `promote.sh <id>` → merge → `sync.sh`.
+
+Worked example with a full platform suite: [Organized-AI/jev-pi-deal-desk](https://github.com/Organized-AI/jev-pi-deal-desk).
 
 ---
 

@@ -1,0 +1,35 @@
+name: e2e-nightly
+# The e2e suite against production every night and on demand. A failure opens an issue.
+on:
+  schedule:
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DD_BASE: __PROD_URL__
+      DD_RUN_ID: e2e-nightly-${{ github.run_id }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || '__ACCOUNT_ID__' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: bash scripts/gitops/e2e.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: e2e-nightly, path: tests/e2e/reports/*.json, if-no-files-found: ignore }
+      - name: Open an issue when it fails
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "e2e failed: $DD_RUN_ID" --body "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
