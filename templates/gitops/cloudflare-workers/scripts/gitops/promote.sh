@@ -12,6 +12,9 @@ SUBJECT="$(git log -1 --format=%s | cut -c1-90)"
 BRANCH="gitops/$ENV-$SHA"
 WORKER="$(node -e "const j=JSON.parse(require('fs').readFileSync('$FILE','utf8'));console.log(j.worker)")"
 
+# Come back to where we started, a branch or a detached checkout (CI, a release worktree).
+ORIG="$(git symbolic-ref -q --short HEAD || git rev-parse HEAD)"
+
 git fetch -q origin main
 git switch -q -C "$BRANCH" origin/main
 node -e "
@@ -23,4 +26,4 @@ git commit -q -m "deploy($ENV): $SHA $SUBJECT" -m "Version $VERSION_ID of $WORKE
 git push -q -u origin "$BRANCH"
 gh pr create --base main --head "$BRANCH" --title "Deploy $SHA to $ENV" \
   --body "$(printf 'Deploys Worker version `%s` (%s) to **%s**.\n\n- Built once from `%s`: %s\n- Only `%s` changes. Merging this pull request is the deploy; reverting it rolls back.\n' "$VERSION_ID" "$WORKER" "$ENV" "$SHA" "$SUBJECT" "$FILE")"
-git switch -q -
+git switch -q "$ORIG" 2>/dev/null || git switch -q --detach "$ORIG"

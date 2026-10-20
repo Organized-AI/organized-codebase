@@ -139,7 +139,7 @@ The rules it encodes (put them in the project's CLAUDE.md "DO NOT" section too):
    written only by automation) is what production runs. Never `wrangler deploy` production by hand.
 2. **Build once, promote by id.** Merge to main uploads one production version (`wrangler versions upload --tag <sha>`)
    and opens "Deploy <sha> to production". Merging that pull request is the deploy; reverting it rolls back.
-3. **Production sits behind a GitHub environment with a required reviewer**, and `main` is protected (PR + `ci / check`).
+3. **Production sits behind a GitHub environment with a required reviewer**, and `main` is protected (PR + `ci / check`). On a private repo on the free plan, reviewers, branch protection, CodeQL and dependency review are unavailable: keep the `production` environment limited to `main`, treat merging the deploy PR as the approval, and let `security` fall back to `npm audit`. Don't make a repo public to get them without asking.
 4. **Every platform passes the e2e suite** on staging before the production pull request, and on production after it:
    one test per way users connect, with evals on the answers, and checks that the run shows up in Workers Logs/traces.
 5. **Migrations are additive** and run before the new version takes traffic.

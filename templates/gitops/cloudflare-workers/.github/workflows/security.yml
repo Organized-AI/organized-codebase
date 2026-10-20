@@ -1,4 +1,6 @@
 name: security
+# CodeQL and dependency review need GitHub Advanced Security, which private repositories only get on a paid plan.
+# They run when the repository is public; npm audit of what ships runs everywhere.
 on:
   pull_request:
   push:
@@ -10,7 +12,20 @@ permissions:
   contents: read
 
 jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - name: Shipped dependencies (high and above fail)
+        run: npm audit --omit=dev --audit-level=high
+      - name: Dev toolchain (reported; Dependabot proposes the fixes)
+        run: npm audit --audit-level=high || echo "::warning::npm audit found issues in dev dependencies (wrangler toolchain). Merge the Dependabot pull request for wrangler."
+
   codeql:
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,7 +38,7 @@ jobs:
       - uses: github/codeql-action/analyze@v3
 
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name == 'pull_request' && !github.event.repository.private }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
