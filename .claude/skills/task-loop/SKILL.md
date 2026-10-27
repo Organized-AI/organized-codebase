@@ -191,8 +191,10 @@ Read `references/verify-round.md`, then:
   would, and a separate reader judges the evidence. Route on evidence, never on the driver's claim.
 - If the change has no runnable surface (docs, CI config, types, pure refactor), say so plainly
   and stop at `/verify`.
-- Write evidence to `planning/task-loop/<slug>/verify/`. These files satisfy the
-  stop-verification-evidence hook.
+- Write evidence to `planning/task-loop/<slug>/verify/`. These files follow the
+  stop-verification-evidence hook's contract (evidence over narrative). That hook ships as a spec
+  in `.claude/hooks/` and becomes an active gate only once wired into settings.json; until then
+  the evidence is a convention this loop keeps, not an enforced check.
 
 ## Step 5: Final report, then stop
 
@@ -214,7 +216,7 @@ Ask, then stop. Merging, deploying, and reverting are the user's call.
 
 | Piece | How task-loop uses it |
 |-------|------------------------|
-| boris | Verification over prompt bloat: evidence files beat claims. The stop-verification-evidence hook is satisfied by the verify evidence, not by narrative. |
+| boris | Verification over prompt bloat: evidence files beat claims. Verify evidence follows the stop-verification-evidence hook's contract; that hook ships as a spec and is enforced only when wired into settings.json. |
 | helix | Use helix instead when a running reference exists (the reference is the spec). Use task-loop when the spec must be written, not pointed at. |
 | phased-build / phased-planning | A phase plan can feed the spec; the loop then owns review and verification. |
 | impl-agent / test-agent | Dispatchable helpers for isolated pieces. They assist the builder window; they do not replace its ownership of the change. |
