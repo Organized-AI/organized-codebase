@@ -102,6 +102,12 @@ planning/task-loop/<slug>/        review rounds and verify evidence
            flow, open questions with recommended answers. Ask "Merge?" Stop.
 ```
 
+
+**Path case note:** `planning/` is lowercase on purpose. It matches `kata.yaml`'s
+`spec_path: planning/specs` and impl-agent, the two wired runtime readers, so specs land where kata
+looks for them on case-sensitive systems. The repo's human-docs directories are uppercase
+(`PLANNING/`, where helix keeps its evidence). Don't "fix" either side's case.
+
 ---
 
 ## The window budget
