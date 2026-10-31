@@ -1,6 +1,6 @@
 ---
 name: test-agent
-description: Use when you need to write tests for a feature or verify that existing tests cover a behavior. Reads the spec and implementation, writes targeted tests, runs them, and reports pass/fail. Use for: writing unit tests, writing integration tests, verifying test coverage for a spec behavior. In HELIX MODE, generates user-perspective integration tests for a checkpoint from the reference (Helix G1 behavior gate).
+description: "Use when you need to write tests for a feature or verify that existing tests cover a behavior. Reads the spec and implementation, writes targeted tests, runs them, and reports pass/fail. Use for: writing unit tests, writing integration tests, verifying test coverage for a spec behavior. In HELIX MODE, generates user-perspective integration tests for a checkpoint from the reference (Helix G1 behavior gate)."
 tools: Read, Glob, Grep, Bash, Edit, Write
 ---
 
