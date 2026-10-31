@@ -2,18 +2,18 @@
 name: task-loop
 description: |
   Ship a non-trivial repo change through one shared-context build loop with isolated review and
-  verification: spec -> build -> independent review -> fix -> verify -> final report, stopping
-  before merge. Defaults to ONE working window: spec, build, and every fix share context, and a
-  fresh window opens only where independence is the point (review, verification) or the user opts
-  into a full reviewer swarm. Use when: the user says "task loop", "one window", "minimize context
-  windows", "spec then build", "reviewed and verified PR", "elephant goldfish", "egm", or asks to
-  implement, build, or fix a non-trivial change and wants it reviewed and proven to work without
+  verification: spec -> build -> independent review -> fix -> verify -> drift check -> final report,
+  stopping before merge. Defaults to ONE working window: spec, build, and every fix share context,
+  and a fresh window opens only where independence is the point (review, verification) or the user
+  opts into a full reviewer swarm. Use when: the user says "task loop", "one window", "minimize
+  context windows", "spec then build", "reviewed and verified PR", "elephant goldfish", "egm", or asks
+  to implement, build, or fix a non-trivial change and wants it reviewed and proven to work without
   fanning out subagents. Not for read-only review (use review-agent or /review) or
   reference-rebuild work (use helix).
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   sources:
-    - google/elephant-goldfish-model (Apache-2.0) - elephant/goldfish split, artifact-first, living specs
+    - google/elephant-goldfish-model (Apache-2.0) - elephant/goldfish split, artifact-first, living specs, drift
     - ray-amjad/skills task-lifecycle (MIT) - build -> PR -> review -> fix -> verify -> report loop
     - Anthropic Applied AI, "Building agents: when to fold subagents into your main agent loop" (2026-10-22)
   sibling_of: [boris, helix]
@@ -37,6 +37,8 @@ triggers:
   - "elephant goldfish"
   - "egm"
   - "ship it end to end"
+  - "drift check"
+  - "test matrix"
 ---
 
 # Task Loop
@@ -55,9 +57,9 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 
 | Source | What task-loop takes | What it leaves behind |
 |--------|----------------------|------------------------|
-| [EGM](https://github.com/google/elephant-goldfish-model) (Google, Apache-2.0) | Elephant/goldfish split: deep-context spec drafting, zero-context review. Artifact-first rule: long output goes to files, not chat. Living specs checked into the repo. | The default 6-persona review swarm per round. Here the swarm is an explicit opt-in for big design docs. |
+| [EGM](https://github.com/google/elephant-goldfish-model) (Google, Apache-2.0) | Elephant/goldfish split: deep-context spec drafting, zero-context review. Artifact-first rule: long output goes to files, not chat. Living specs checked into the repo. Drift checks after implementation. | The default 6-persona review swarm per round. Here the swarm is an explicit opt-in for big design docs. |
 | [task-lifecycle](https://github.com/ray-amjad/skills/tree/main/skills/task-lifecycle) (Ray Amjad, MIT) | The loop shape: build -> PR -> review -> fix -> verify -> final report. One builder continued across every fix. Two-round caps. Merge is the user's call. | Orchestrator-plus-fan-out as the default shape. Here the orchestration stays in the builder's window. |
-| [Anthropic: when to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) (2026-10-22) | Fold specialists into the main loop by default. Split only by what a task must NOT share (context need), never by job title. Subagents earn their window: measurable degradation, truly parallel disposable work, or conflicting instructions. | - |
+| [Anthropic: when to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) (2026-10-22) | Fold specialists into the main loop by default. Split only by what a task must NOT share (context need), never by job title. Subagents earn their window: measurable degradation, truly parallel disposable work, or conflicting instructions. Test matrix of user journeys, reset between flows. | - |
 | Organized Codebase native | Boris verification, `/verify`, `/commit`, review-agent, test-agent, impl-agent, stop-verification-evidence hook, kata modes. | - |
 
 ---
@@ -68,7 +70,7 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 |---|-----------|-------------|
 | 1 | **One builder, one window** | Spec, build, and every fix round happen in the same window. The builder's context is what makes fixes cheap and coherent. |
 | 2 | **Fresh eyes only where independence is the point** | The reviewer and the flow verifier never saw the build conversation. They get the spec and the diff, not the reasoning trail. A builder checking its own work proves nothing. |
-| 3 | **Files are the memory** | Spec, implementation notes, review findings, and verify evidence live in the repo. Window state is reloadable, so "minimize windows" never means "lose the plot". |
+| 3 | **Files are the memory** | Spec, implementation notes, review findings, verify evidence, and drift results live in the repo. Window state is reloadable, so "minimize windows" never means "lose the plot". |
 | 4 | **Split by context, never by job title** | No persona teams, no ticket fan-out, no parallel coordinators. A second window must justify itself by what it must not know (review) or must do alone (parallel disposable work). |
 | 5 | **Two rounds, then stop** | Review and verify each cap at two fix rounds, stopping early when clean. Past the cap, report what is unresolved and stop for the human. |
 | 6 | **Merge is the user's call** | The loop ends at a final report. Never merge, never deploy, never revert on your own. |
@@ -78,9 +80,9 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 ## The loop
 
 ```
-planning/specs/<slug>.md          spec, written by the builder window
+planning/specs/<slug>.md          spec + design sections, written by the builder window
 planning/specs/<slug>.notes.md    decisions, deviations, tradeoffs, open questions
-planning/task-loop/<slug>/        review rounds and verify evidence
+planning/task-loop/<slug>/        review rounds, verify evidence per row, drift.md
 
 +--------------------------- WINDOW 1: builder (long-lived) ----------------+
 |  1. SPEC    draft the spec, artifact-first, no chat dumps                |
@@ -92,14 +94,17 @@ planning/task-loop/<slug>/        review rounds and verify evidence
 +-------- WINDOW 2: goldfish-reviewer (fresh dispatch) ---------------------+
 |  3. REVIEW  reads spec + diff, returns PASS / NEEDS-FIXES + findings     |
 +----------------------------------------------------------------------------+
-             | changed flows
+             | test matrix rows
              v
-+-------- WINDOW 3: flow verifier (fresh dispatch) -------------------------+
-|  5. VERIFY  drives each changed flow the way a user would; a separate    |
-|             reader judges the evidence. No runnable surface: /verify     |
++-------- WINDOW 3: flow verifier (fresh dispatch per row) ----------------+
+|  5. VERIFY  drives each matrix row the way a user would, reset between   |
+|             rows; a separate reader judges the evidence. No runnable     |
+|             surface: /verify only                                        |
 +----------------------------------------------------------------------------+
-6. REPORT  PR link, what review found, what was fixed, one line per verified
-           flow, open questions with recommended answers. Ask "Merge?" Stop.
+6. DRIFT    code vs spec, READMEs, skill docs; classify and resolve
+7. REPORT   PR link, what review found, what was fixed, one line per verified
+           row, drift results, open questions with recommended answers.
+           Ask "Merge?" Stop.
 ```
 
 
@@ -130,8 +135,8 @@ The decision rules for when one window is enough and when a fresh one earns its 
 | Size | Examples | Path |
 |------|----------|------|
 | Small | typo, copy change, one-function bug | Skip the loop. Fix in one window, run `/verify`, `/commit`. |
-| Typical | feature, behavior-changing bug fix | Full loop: 1 long-lived builder window + 1 review dispatch. Add a verify dispatch only when the change has a runnable surface to drive. |
-| Large or risky | new subsystem, data migration, public API change | Full loop, and consider the EGM swarm opt-in below. |
+| Typical | feature, behavior-changing bug fix | Full loop: 1 long-lived builder window + 1 review dispatch. Add the matrix and verify dispatches only when the change has a runnable surface to drive. |
+| Large or risky | new subsystem, data migration, public API change | Full loop with the design stage (Step 1), and consider the EGM swarm opt-in below. |
 
 ---
 
@@ -143,6 +148,23 @@ advantage here: the drafter should know the system's history and conventions.
 Required sections: goal, non-goals, design, acceptance checks. Every acceptance check names how it
 is verified (a test, a flow, a command). If a check cannot name its verification, it is not a check
 yet. Keep the spec in the repo; it is a living document, not chat history (EGM rule).
+
+**Critical user journeys (required when the change has a runnable surface).** List each journey a
+user takes through the change, with its entry point (route, click path, or API call). These become
+the rows of the test matrix. A journey with no entry point is not ready to build.
+
+**Design stage (large or risky changes).** Before the build, the spec also carries these sections,
+filled in and reviewed by the user before any code is written:
+
+1. **Concept brief.** The problem, why now, and what is out of scope.
+2. **Scope.** What the change will do, and what it will not do.
+3. **Critical user journeys.** As above.
+4. **Technical approach.** The chosen design, with its interfaces and the files it touches.
+5. **Alternatives considered.** Each one with its trade-off and why it lost.
+6. **Implementation plan.** Ordered steps, each one with its acceptance check.
+
+The user approves the design, then the build starts. Changes to the design after approval go back
+through the user, not through the builder alone.
 
 Never paste the spec into chat. Write the file and point at it.
 
@@ -182,28 +204,41 @@ this skill avoids by default. When the design justifies it, install EGM and run 
 claude plugin marketplace add google/elephant-goldfish-model && claude plugin install egm@egm
 ```
 
-## Step 4: Verify (fresh dispatch for runnable surfaces)
+## Step 4: Verify (fresh dispatch per matrix row)
 
-Read `references/verify-round.md`, then:
+Read `references/test-matrix.md` and `references/verify-round.md`, then:
 
 - Always run the `/verify` suite (lint, typecheck, tests, build). It is the floor, not the proof.
-- If the change has a runnable surface, a fresh agent drives each changed flow the way a user
-  would, and a separate reader judges the evidence. Route on evidence, never on the driver's claim.
+- If the change has a runnable surface, build the test matrix from the spec's critical user
+  journeys. A fresh agent drives each row the way a user would, resetting the environment between
+  rows. Rows run in parallel only when they share no state.
+- A separate reader judges each row's evidence. Route on evidence, never on the driver's claim.
 - If the change has no runnable surface (docs, CI config, types, pure refactor), say so plainly
   and stop at `/verify`.
-- Write evidence to `planning/task-loop/<slug>/verify/`. These files follow the
+- Write evidence to `planning/task-loop/<slug>/verify/`, one file per row. These files follow the
   stop-verification-evidence hook's contract (evidence over narrative). That hook ships as a spec
   in `.claude/hooks/` and becomes an active gate only once wired into settings.json; until then
   the evidence is a convention this loop keeps, not an enforced check.
 
-## Step 5: Final report, then stop
+## Step 5: Drift check (docs against code)
+
+Read `references/drift-check.md`, then run it on the change's scope after verify passes:
+
+- List the documented claims in scope, check each against the code with `file:line` evidence, and
+  classify each mismatch: code wrong (back to the builder, counts toward the cap), doc stale (fix
+  the doc in this PR), or spec gap (carry as an open question).
+- Write `planning/task-loop/<slug>/drift.md`.
+- Drift stays at the change's scope unless the user opts into a wider check.
+
+## Step 6: Final report, then stop
 
 ```
 == TASK LOOP REPORT ==
 PR: <link>  (branch: <name>, N commits)
 Built: <one paragraph>
 Review: <rounds run, what was found, what was fixed, what was carried as P2>
-Verified: <one line per flow, or "no runnable surface: /verify suite only">
+Verified: <one line per matrix row, or "no runnable surface: /verify suite only">
+Drift: <claims checked, mismatches, how each was classified and resolved>
 Open questions: <from the notes file, each with a recommended answer>
 Next: Merge PR #n?
 ```
@@ -236,6 +271,7 @@ own reviewer, and gates that hooks enforce here must live outside the agent ther
 - Give reviewers the spec and the diff, never the build transcript.
 - Write long output to files and point at the path. No chat dumps.
 - Two rounds per stage, then report and stop.
+- Reset the environment between matrix rows. No row inherits another row's state.
 - Never merge, deploy, or revert on your own.
 - Never spawn a swarm by default. One goldfish reviewer; more only on explicit opt-in.
 - Never self-review and call it independent.
