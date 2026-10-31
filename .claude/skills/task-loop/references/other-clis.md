@@ -17,11 +17,17 @@ Copy the Core principles table and the Rules list from `../SKILL.md` into the pr
 `AGENTS.md`, plus this loop summary:
 
 ```
-For any non-trivial change: write planning/specs/<slug>.md first, then build on a branch,
-committing as you go. Review is a fresh context that receives only the spec and the diff.
-Verify with the project's checks plus real flows for runnable surfaces. Stop before merge;
-merging is the human's call. Keep spec, notes, review findings, and verify evidence in the repo
-so any fresh session reloads state from files.
+For any non-trivial change: write planning/specs/<slug>.md first (goal, non-goals, design,
+critical user journeys with entry points and a reset command, acceptance checks); large or
+risky changes wait for a design approval line in the notes file. Build on a branch, committing
+as you go. Review is a fresh context that receives only the spec and the diff. Verify with the
+project's checks, then, for runnable surfaces, one fresh driver per journey row after a reset
+to baseline, judged by a separate reader. Then run a drift check: every documented claim in the
+change's scope against the code, file:line per check; stale docs are fixed in the PR, code
+mismatches go back through fix and verify. Each of review and verify gets two fix rounds at most.
+Report against the final head SHA and stop before merge; merging is the human's call. Keep spec,
+notes, review findings, verify evidence, and drift.md in the repo so any fresh session reloads
+state from files.
 ```
 
 ## Why the gate moves outside the agent

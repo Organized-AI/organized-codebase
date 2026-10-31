@@ -18,7 +18,7 @@ independent review. This file is the decision rule set, grounded in
 | Reason | What the new window gets | What it must NOT get |
 |--------|--------------------------|----------------------|
 | **Review independence** | The spec and the diff | The build transcript, your reasoning, a summary of "intent" |
-| **Verify independence** | The flow brief (end state, rows, side effects) | The driver's or builder's claims |
+| **Verify independence** | Driver: one matrix row's brief (entry point, end state, rows, side effects, reset command). Reader: the round's evidence files | The builder's claims; for the reader, the drivers' claims too |
 | **Measurable degradation** | The spec + notes files, reloaded | Nothing else; if you cannot point at degradation, do not split |
 | **Parallel disposable work** | A self-contained brief (research, exploration) | Shared mutable state |
 
@@ -33,14 +33,26 @@ independent review. This file is the decision rule set, grounded in
 
 ## What it costs
 
+With `R` review rounds (including any delta review), `V` verify rounds, and `N` matrix rows:
+
+```
+fresh dispatches = R + V x (N + 1)      one driver per row, one reader per verify round
+```
+
+A verify round after a fix re-drives only the affected rows, so its `N` is the number of rows
+re-driven, not the whole matrix.
+
 | Shape | Long-lived windows | Fresh dispatches | Independence |
 |-------|--------------------|------------------|--------------|
 | Small fix, no loop | 1 | 0 | self-checked (`/verify`) |
-| Typical task-loop run | 1 | 2 (reviewer + verifier) | review and verify independent |
+| Typical run, no runnable surface | 1 | `R` (1 when the first review passes) | review independent; verify is the `/verify` suite |
+| Typical run, `N` matrix rows | 1 | `R + V x (N + 1)` (3 rows, clean first time: 1 + 4 = 5) | review and every row independent |
+| Large or risky, drift as a dispatch | 1 | the line above, + 1 | adds independent drift |
 | EGM default review round | 1 | 6+ personas + synthesizer | maximal, at swarm cost |
 
-The typical row is the design point: two cheap, stateless dispatches buy the independence that
-matters, and everything else shares one context.
+The typical rows are the design point: cheap, stateless dispatches buy the independence that
+matters, and everything else shares one context. If `N` gets large, cut journeys the change cannot
+reach before adding windows; the matrix should test this change, not the whole app.
 
 ## Escalation
 

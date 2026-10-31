@@ -12,6 +12,8 @@ To avoid surprising the user, write `planning/specs/<slug>.notes.md` as you buil
 - **Deviations:** where the build departed from the spec on purpose, and why.
 - **Tradeoffs:** alternatives considered, and why this one won.
 - **Open questions:** anything the user should confirm, phrased as a question.
+- **Design approval (large or risky changes):** the one line SKILL.md Step 1 defines,
+  `Design approved: <who>, <date>, spec at <commit sha>`. No line, no build.
 
 The notes go in the PR body and are refreshed after each fix round.
 

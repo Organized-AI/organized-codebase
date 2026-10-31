@@ -69,10 +69,10 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 | # | Principle | In practice |
 |---|-----------|-------------|
 | 1 | **One builder, one window** | Spec, build, and every fix round happen in the same window. The builder's context is what makes fixes cheap and coherent. |
-| 2 | **Fresh eyes only where independence is the point** | The reviewer and the flow verifier never saw the build conversation. They get the spec and the diff, not the reasoning trail. A builder checking its own work proves nothing. |
+| 2 | **Fresh eyes only where independence is the point** | The reviewer and the flow verifier never saw the build conversation. The reviewer gets the spec and the diff; each flow driver gets its row's brief. Neither gets the reasoning trail. A builder checking its own work proves nothing. |
 | 3 | **Files are the memory** | Spec, implementation notes, review findings, verify evidence, and drift results live in the repo. Window state is reloadable, so "minimize windows" never means "lose the plot". |
 | 4 | **Split by context, never by job title** | No persona teams, no ticket fan-out, no parallel coordinators. A second window must justify itself by what it must not know (review) or must do alone (parallel disposable work). |
-| 5 | **Two rounds, then stop** | Review and verify each cap at two fix rounds, stopping early when clean. Past the cap, report what is unresolved and stop for the human. |
+| 5 | **Two rounds, then stop** | Two caps, and only two: review gets at most two fix rounds, and verify gets at most two. A drift "code wrong" fix re-enters verify, so it spends a verify round. A "doc stale" fix spends nothing. Stop early when clean. Past a cap, report what is unresolved and stop for the human. |
 | 6 | **Merge is the user's call** | The loop ends at a final report. Never merge, never deploy, never revert on your own. |
 
 ---
@@ -80,31 +80,40 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 ## The loop
 
 ```
-planning/specs/<slug>.md          spec + design sections, written by the builder window
-planning/specs/<slug>.notes.md    decisions, deviations, tradeoffs, open questions
+planning/specs/<slug>.md          spec (+ design sections when large or risky)
+planning/specs/<slug>.notes.md    decisions, deviations, design approval, open questions
 planning/task-loop/<slug>/        review rounds, verify evidence per row, drift.md
 
-+--------------------------- WINDOW 1: builder (long-lived) ----------------+
-|  1. SPEC    draft the spec, artifact-first, no chat dumps                |
-|  2. BUILD   branch, implement, commit as you go, write notes             |
-|  4. FIX     apply confirmed findings, commit, push  (max 2 rounds)       |
-+----------------------------------------------------------------------------+
-             | spec + diff only                    ^ confirmed findings
-             v                                    |
-+-------- WINDOW 2: goldfish-reviewer (fresh dispatch) ---------------------+
-|  3. REVIEW  reads spec + diff, returns PASS / NEEDS-FIXES + findings     |
-+----------------------------------------------------------------------------+
-             | test matrix rows
-             v
-+-------- WINDOW 3: flow verifier (fresh dispatch per row) ----------------+
-|  5. VERIFY  drives each matrix row the way a user would, reset between   |
-|             rows; a separate reader judges the evidence. No runnable     |
-|             surface: /verify only                                        |
-+----------------------------------------------------------------------------+
-6. DRIFT    code vs spec, READMEs, skill docs; classify and resolve
-7. REPORT   PR link, what review found, what was fixed, one line per verified
-           row, drift results, open questions with recommended answers.
-           Ask "Merge?" Stop.
+Numbers match the Step headings below. FIX is not a step; it is where every
+confirmed finding lands, always in the builder window.
+
++-------------------- WINDOW 1: builder (long-lived) ---------------------+
+|  1. SPEC    goal, non-goals, design, journeys, acceptance checks        |
+|     GATE    large or risky: user approves the design, line in notes     |
+|  2. BUILD   branch, implement, commit as you go, write notes            |
+|     FIX     findings from 3, 4 or 5; commit, push                       |
+|  5. DRIFT   docs vs code, file:line per claim, classify each mismatch   |
++-------------------------------------------------------------------------+
+     | spec + diff only            ^ P1 findings (review cap)
+     v                             |
++------------ WINDOW 2: goldfish-reviewer (fresh dispatch) ---------------+
+|  3. REVIEW  reads spec + diff, returns PASS / NEEDS-FIXES + findings    |
++-------------------------------------------------------------------------+
+     | PASS -> one matrix row per critical user journey
+     v
++------ WINDOWS 3..N+3: one driver per row + one reader (fresh) ----------+
+|  4. VERIFY  /verify suite; reset, then drive each row; reader judges    |
+|             the evidence. Ran wrong -> FIX, re-drive (verify cap)       |
+|             No runnable surface: /verify suite only, no matrix          |
++-------------------------------------------------------------------------+
+     | verify settled (Step 5 entry gate)
+     v
+  5. DRIFT    in the builder window. Code wrong -> FIX -> back to 4 for
+              the affected rows. Doc stale -> fix the doc. Spec gap ->
+              open question.
+     |
+     v
+  6. REPORT   at the final head SHA. Ask "Merge?" Stop.
 ```
 
 
@@ -125,8 +134,10 @@ The decision rules for when one window is enough and when a fresh one earns its 
   truly parallel disposable work.
 - Never: persona teams, ticket fan-out, parallel coordinators, or "reviewing" inside the builder
   window.
-- A typical run costs 1 long-lived window plus 2 stateless dispatches. The EGM swarm is the
-  deliberate escalation, not the default.
+- A typical run costs 1 long-lived window, 1 review dispatch per review round, and, when there is a
+  runnable surface, N + 1 dispatches per verify round (one driver per matrix row, one reader). The
+  formula is in `references/window-budget.md`. The EGM swarm is the deliberate escalation, not the
+  default.
 
 ---
 
@@ -151,20 +162,32 @@ yet. Keep the spec in the repo; it is a living document, not chat history (EGM r
 
 **Critical user journeys (required when the change has a runnable surface).** List each journey a
 user takes through the change, with its entry point (route, click path, or API call). These become
-the rows of the test matrix. A journey with no entry point is not ready to build.
+the rows of the test matrix. Also name the command that resets the non-production environment to a
+known baseline (a seed script, a fixture load); verify runs it before every row. A journey with no
+entry point, or a runnable surface with no reset command, is not ready to build. The goldfish
+reviewer checks both.
 
-**Design stage (large or risky changes).** Before the build, the spec also carries these sections,
-filled in and reviewed by the user before any code is written:
+**Design stage (large or risky changes).** No new sections: the same required sections go deeper,
+written before any code.
 
-1. **Concept brief.** The problem, why now, and what is out of scope.
-2. **Scope.** What the change will do, and what it will not do.
-3. **Critical user journeys.** As above.
-4. **Technical approach.** The chosen design, with its interfaces and the files it touches.
-5. **Alternatives considered.** Each one with its trade-off and why it lost.
-6. **Implementation plan.** Ordered steps, each one with its acceptance check.
+| Section | For a large or risky change it also carries |
+|---------|---------------------------------------------|
+| Goal | A concept brief: the problem and why now. |
+| Non-goals | Everything explicitly out of scope. This is the scope boundary; there is no separate scope section. |
+| Design | The technical approach (interfaces, files touched) and **alternatives considered**, each with its trade-off and why it lost. |
+| Critical user journeys | As above. |
+| Acceptance checks | An ordered **implementation plan**: each step names the acceptance checks it satisfies. A `phased-planning` plan can fill this section; link it rather than copying it. |
 
-The user approves the design, then the build starts. Changes to the design after approval go back
-through the user, not through the builder alone.
+**Design approval gate.** After committing the spec, stop and ask the user to approve the design.
+Record the answer as one line in `planning/specs/<slug>.notes.md`:
+
+```
+Design approved: <who>, <date>, spec at <commit sha>
+```
+
+The build starts only when that line exists. A resumed or compacted window that finds no approval
+line asks again; it never builds on an unapproved design. A design change after approval updates the
+spec and needs a new approval line. Changes go back through the user, not through the builder alone.
 
 Never paste the spec into chat. Write the file and point at it.
 
@@ -185,7 +208,10 @@ Read `references/review-round.md`, then:
    branch. Do not summarize the build for it. Do not paste your reasoning into its brief.
 3. Send confirmed (P1) findings back to the builder window and fix them there. Carry maybes (P2)
    to the final report.
-4. Max two rounds. Stop early when the reviewer returns PASS.
+4. Review cap (principle 5). Stop early when the reviewer returns PASS.
+5. **Delta review.** If verify or drift later changes behavior (not docs alone), dispatch one more
+   goldfish review of the diff since the last reviewed SHA before the report. It spends a review
+   round. Docs-only fixes after review are listed in the report instead.
 
 One dispatch is the design, not a starting bid: behavior changes earn exactly one independent
 review because independence is what it buys. If a change is small enough that an honest self-check
@@ -210,11 +236,15 @@ Read `references/test-matrix.md` and `references/verify-round.md`, then:
 
 - Always run the `/verify` suite (lint, typecheck, tests, build). It is the floor, not the proof.
 - If the change has a runnable surface, build the test matrix from the spec's critical user
-  journeys. A fresh agent drives each row the way a user would, resetting the environment between
-  rows. Rows run in parallel only when they share no state.
-- A separate reader judges each row's evidence. Route on evidence, never on the driver's claim.
-- If the change has no runnable surface (docs, CI config, types, pure refactor), say so plainly
-  and stop at `/verify`.
+  journeys. One fresh driver per row resets the environment to baseline, then drives the row the
+  way a user would. Rows run in parallel only when they share no state, as `references/test-matrix.md`
+  defines it.
+- One fresh reader per verify round judges every row's evidence file. It did not drive any row.
+  Route on its verdict, never on a driver's claim.
+- A row that ran wrong goes to FIX in the builder window, then that row is re-driven after a reset.
+  That spends a verify round (principle 5).
+- If the change has no runnable surface (docs, CI config, types, pure refactor), say so plainly.
+  There is no matrix; the `/verify` suite is the whole of verify, and drift runs next.
 - Write evidence to `planning/task-loop/<slug>/verify/`, one file per row. These files follow the
   stop-verification-evidence hook's contract (evidence over narrative). That hook ships as a spec
   in `.claude/hooks/` and becomes an active gate only once wired into settings.json; until then
@@ -222,13 +252,28 @@ Read `references/test-matrix.md` and `references/verify-round.md`, then:
 
 ## Step 5: Drift check (docs against code)
 
-Read `references/drift-check.md`, then run it on the change's scope after verify passes:
+**Entry gate.** This is the one definition; `references/verify-round.md` and
+`references/drift-check.md` point here. Drift starts when verify is settled:
+
+1. The `/verify` suite passes, and
+2. no matrix row is left at "ran wrong" with verify rounds still unspent.
+
+Rows reported as couldn't boot or unreachable do not block drift; they reach the report as
+unverified. A change with no runnable surface still runs drift, because docs-only changes are the
+ones most likely to drift. If the verify cap is spent with a row still wrong, skip drift and report.
+
+Read `references/drift-check.md`, then run it in the builder window on the change's scope:
 
 - List the documented claims in scope, check each against the code with `file:line` evidence, and
-  classify each mismatch: code wrong (back to the builder, counts toward the cap), doc stale (fix
-  the doc in this PR), or spec gap (carry as an open question).
+  classify each mismatch:
+  - **Code wrong:** go to FIX, then back to Step 4 for the affected rows (reset, re-drive, re-judge)
+    and the `/verify` suite. That spends a verify round. Then re-run drift on what the fix touched.
+  - **Doc stale:** fix the doc in this PR and re-run the `/verify` suite. No verify round is spent.
+  - **Spec gap:** carry it to the report as an open question.
 - Write `planning/task-loop/<slug>/drift.md`.
-- Drift stays at the change's scope unless the user opts into a wider check.
+- Drift stays at the change's scope unless the user opts into a wider check. On a large or risky
+  change, run it as a fresh dispatch (spec, diff, and in-scope docs) instead of in the builder
+  window.
 
 ## Step 6: Final report, then stop
 
@@ -236,8 +281,11 @@ Read `references/drift-check.md`, then run it on the change's scope after verify
 == TASK LOOP REPORT ==
 PR: <link>  (branch: <name>, N commits)
 Built: <one paragraph>
-Review: <rounds run, what was found, what was fixed, what was carried as P2>
-Verified: <one line per matrix row, or "no runnable surface: /verify suite only">
+Head: <final head SHA; every line below describes this SHA>
+Review: <rounds run, last reviewed SHA, what was found, fixed, carried as P2; commits after the
+        last reviewed SHA and whether each was delta-reviewed or docs-only>
+Verified: <one line per matrix row with its verdict at the head SHA, or "no runnable surface:
+          /verify suite only">
 Drift: <claims checked, mismatches, how each was classified and resolved>
 Open questions: <from the notes file, each with a recommended answer>
 Next: Merge PR #n?
@@ -270,8 +318,10 @@ own reviewer, and gates that hooks enforce here must live outside the agent ther
 - Keep the builder window alive across fix rounds. Fixes are cheap because the builder remembers.
 - Give reviewers the spec and the diff, never the build transcript.
 - Write long output to files and point at the path. No chat dumps.
-- Two rounds per stage, then report and stop.
-- Reset the environment between matrix rows. No row inherits another row's state.
+- Fix-round caps are principle 5's. Past a cap, report and stop.
+- Reset the environment before every matrix row: reseed for sequential rows, a separate sandbox
+  per row when rows run in parallel. No row inherits another row's state.
+- The report describes the final head SHA. Evidence from an earlier SHA is not verification.
 - Never merge, deploy, or revert on your own.
 - Never spawn a swarm by default. One goldfish reviewer; more only on explicit opt-in.
 - Never self-review and call it independent.
