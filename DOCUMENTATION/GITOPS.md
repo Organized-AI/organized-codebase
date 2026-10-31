@@ -27,8 +27,8 @@ pull request gate, security scanning and tag-driven releases, and has no image o
   checkouts do not persist credentials, and each job asks only for the permissions it uses. zizmor enforces this.
 - **No secrets in Git.** gitleaks scans the full history on every pull request.
 - **Exceptions are code-reviewed and explain themselves.** A history finding goes in `.gitleaksignore` only after the
-  secret is revoked. An accepted dependency advisory goes in `allow-ghsas` in `security.yml` with its reason and the
-  change that will let it be removed. Both arrive by pull request like everything else.
+  secret is revoked. An accepted dependency advisory goes in `allow-ghsas` in `.github/dependency-review-config.yml`
+  with its reason and the change that will let it be removed. Both arrive by pull request like everything else.
 
 ## Layout
 
@@ -40,6 +40,8 @@ pull request gate, security scanning and tag-driven releases, and has no image o
 | `.github/workflows/release.yml` | Tag `vX.Y.Z` → checks → GitHub Release |
 | `.github/workflows/sync-claude-changelog.yml` | Upstream Claude Code changelog → pull request on `bot/claude-code-changelog` |
 | `.github/dependabot.yml` | Weekly npm and GitHub Actions updates, grouped, with a 7-day cooldown |
+| `.github/dependency-review-config.yml` | Dependency review severity, denied licenses and reviewed exceptions |
+| `.gitleaksignore` | History findings for secrets that have been revoked |
 | `.github/CODEOWNERS`, `.github/PULL_REQUEST_TEMPLATE.md` | Review routing and the Purpose / Test plan / Test result template |
 | `scripts/ci/check.mjs` | Offline structure check: JSON, YAML, skill/agent/command frontmatter, `bash -n`, the Helix plan |
 | `scripts/ci/check-version.mjs` | Version and changelog agreement; prints release notes with `--notes` |

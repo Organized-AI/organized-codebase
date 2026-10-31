@@ -87,13 +87,7 @@ jobs:
     steps:
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294  # v5.0.0
         with:
-          fail-on-severity: high
-          deny-licenses: GPL-3.0-only, AGPL-3.0-only
-          # Accepted, reviewed exceptions. Each needs a reason and a way out; remove it when the way out lands.
-          # GHSA-c475-qrg2-pj4r, basic-ftp 5.x (CPU DoS in FTP directory listing): reached only through
-          # apify-client -> proxy-agent -> get-uri when a proxy is configured with an ftp:// URL, which
-          # scripts/fetch-changelog.js never does. The fix is basic-ftp 6.x, outside get-uri's ^5 range.
-          # Way out: get-uri allowing basic-ftp 6, or Dependabot proposing it.
-          allow-ghsas: GHSA-c475-qrg2-pj4r
+          # Severity, licenses and the reviewed exceptions live in this file, not here (see its header).
+          config-file: ./.github/dependency-review-config.yml
           base-ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || '' }}
           head-ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || '' }}

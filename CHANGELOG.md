@@ -41,9 +41,11 @@ see [DOCUMENTATION/GITOPS.md](DOCUMENTATION/GITOPS.md).
   a commit SHA, no checkout keeps credentials (the production pull request pushes with `gh auth setup-git` instead),
   `release.yml` grants write permissions only to the job that opens the pull request, the version id reaches the shell
   through `env`, and Dependabot waits 7 days. Every new Workers project inherits these defaults
-- Dependency review accepts one advisory, GHSA-c475-qrg2-pj4r in `basic-ftp` 5.x, with its reason and way out in
-  `security.yml`: it is reachable only through `apify-client`'s proxy agent with an `ftp://` proxy, and the fix is a
-  major version outside `get-uri`'s range
+- Dependency review accepts two advisories brought in by the corrected lockfile, each with its reason and way out in
+  `.github/dependency-review-config.yml`: GHSA-c475-qrg2-pj4r (`basic-ftp` 5.x, reachable only through
+  `apify-client`'s proxy agent with an `ftp://` proxy) and GHSA-mrhx-c7xc-m3w5 (`zod` < 4.6.6, pulled in by the
+  `kata` dev tool; no code here imports `zod`). Both fixes are major versions outside their parents' ranges. Keeping
+  the settings in that file means a future exception is a plain reviewed change, not a workflow edit
 
 ### Fixed
 
