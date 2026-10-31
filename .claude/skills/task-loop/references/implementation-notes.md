@@ -9,7 +9,9 @@ the spec and the codebase.
 To avoid surprising the user, write `planning/specs/<slug>.notes.md` as you build:
 
 - **Design decisions:** where the spec was ambiguous, and the reading picked.
-- **Deviations:** where the build departed from the spec on purpose, and why.
+- **Deviations:** where the build departed from the spec on purpose, and why. A departure that
+  alters a critical user journey, an interface named in the design section, or a non-goal is a
+  design change instead, and needs re-approval (SKILL.md Step 1).
 - **Tradeoffs:** alternatives considered, and why this one won.
 - **Open questions:** anything the user should confirm, phrased as a question.
 - **Design approval (large or risky changes):** the one line SKILL.md Step 1 defines,

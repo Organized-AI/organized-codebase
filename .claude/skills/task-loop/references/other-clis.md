@@ -21,13 +21,15 @@ For any non-trivial change: write planning/specs/<slug>.md first (goal, non-goal
 critical user journeys with entry points and a reset command, acceptance checks); large or
 risky changes wait for a design approval line in the notes file. Build on a branch, committing
 as you go. Review is a fresh context that receives only the spec and the diff. Verify with the
-project's checks, then, for runnable surfaces, one fresh driver per journey row after a reset
-to baseline, judged by a separate reader. Then run a drift check: every documented claim in the
-change's scope against the code, file:line per check; stale docs are fixed in the PR, code
-mismatches go back through fix and verify. Each of review and verify gets two fix rounds at most.
-Report against the final head SHA and stop before merge; merging is the human's call. Keep spec,
-notes, review findings, verify evidence, and drift.md in the repo so any fresh session reloads
-state from files.
+project's checks, then, for runnable surfaces, a fresh driver drives every journey row in
+matrix.md, resetting a confirmed non-production environment before each, and a separate reader
+judges the raw output. Then run a drift check: every documented claim in the change's scope
+against the code, file:line per check; stale docs are fixed in the PR, code mismatches go back
+through fix and verify. Commits after the last review get a delta review if a round remains.
+Review and verify each run at most two rounds, the first included; past that, report and stop.
+Report each row's evidence SHA and stop before merge; merging is the human's call. Keep spec,
+notes, review findings, matrix.md, verify evidence, and drift.md in the repo so any fresh
+session reloads state from files.
 ```
 
 ## Why the gate moves outside the agent

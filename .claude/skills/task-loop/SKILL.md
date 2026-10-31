@@ -37,8 +37,8 @@ triggers:
   - "elephant goldfish"
   - "egm"
   - "ship it end to end"
-  - "drift check"
-  - "test matrix"
+  - "docs drift check"
+  - "user journey test matrix"
 ---
 
 # Task Loop
@@ -59,8 +59,8 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 |--------|----------------------|------------------------|
 | [EGM](https://github.com/google/elephant-goldfish-model) (Google, Apache-2.0) | Elephant/goldfish split: deep-context spec drafting, zero-context review. Artifact-first rule: long output goes to files, not chat. Living specs checked into the repo. Drift checks after implementation. | The default 6-persona review swarm per round. Here the swarm is an explicit opt-in for big design docs. |
 | [task-lifecycle](https://github.com/ray-amjad/skills/tree/main/skills/task-lifecycle) (Ray Amjad, MIT) | The loop shape: build -> PR -> review -> fix -> verify -> final report. One builder continued across every fix. Two-round caps. Merge is the user's call. | Orchestrator-plus-fan-out as the default shape. Here the orchestration stays in the builder's window. |
-| [Anthropic: when to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) (2026-10-22) | Fold specialists into the main loop by default. Split only by what a task must NOT share (context need), never by job title. Subagents earn their window: measurable degradation, truly parallel disposable work, or conflicting instructions. Test matrix of user journeys, reset between flows. | - |
-| Organized Codebase native | Boris verification, `/verify`, `/commit`, review-agent, test-agent, impl-agent, stop-verification-evidence hook, kata modes. | - |
+| [Anthropic: when to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) (2026-10-22) | Fold specialists into the main loop by default. Split only by what a task must NOT share (context need), never by job title. Subagents earn their window: measurable degradation, truly parallel disposable work, or conflicting instructions. | - |
+| Organized Codebase native | Boris verification, `/verify`, `/commit`, review-agent, test-agent, impl-agent, stop-verification-evidence hook, kata modes. The user-journey test matrix with a reset before each row (added in 1.1.0 from the OC Runtime audit). | - |
 
 ---
 
@@ -69,10 +69,10 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 | # | Principle | In practice |
 |---|-----------|-------------|
 | 1 | **One builder, one window** | Spec, build, and every fix round happen in the same window. The builder's context is what makes fixes cheap and coherent. |
-| 2 | **Fresh eyes only where independence is the point** | The reviewer and the flow verifier never saw the build conversation. The reviewer gets the spec and the diff; each flow driver gets its row's brief. Neither gets the reasoning trail. A builder checking its own work proves nothing. |
+| 2 | **Fresh eyes only where independence is the point** | The reviewer and the flow verifier never saw the build conversation. The reviewer gets the spec and the diff; the flow driver gets the test matrix; the reader gets only the evidence files. None of them gets the reasoning trail. A builder checking its own work proves nothing. |
 | 3 | **Files are the memory** | Spec, implementation notes, review findings, verify evidence, and drift results live in the repo. Window state is reloadable, so "minimize windows" never means "lose the plot". |
 | 4 | **Split by context, never by job title** | No persona teams, no ticket fan-out, no parallel coordinators. A second window must justify itself by what it must not know (review) or must do alone (parallel disposable work). |
-| 5 | **Two rounds, then stop** | Two caps, and only two: review gets at most two fix rounds, and verify gets at most two. A drift "code wrong" fix re-enters verify, so it spends a verify round. A "doc stale" fix spends nothing. Stop early when clean. Past a cap, report what is unresolved and stop for the human. |
+| 5 | **Two rounds per stage, then stop** | A **round** is one run of a stage. A review round is one goldfish dispatch, a delta review included. A verify round is one `/verify` suite run plus one drive-and-judge pass over the rows being driven. Review and verify each get at most two rounds, and the first run counts. Fixes happen between rounds, in the builder window. A drift "code wrong" fix needs a verify round; a "doc stale" fix needs none. When a stage's rounds are spent with a P1, a failing row, or a failing suite still open, do not move on: write the report and stop for the human. Because rounds are finite, the loop always ends. |
 | 6 | **Merge is the user's call** | The loop ends at a final report. Never merge, never deploy, never revert on your own. |
 
 ---
@@ -82,10 +82,13 @@ repo files, so a compacted or new window reloads state in seconds instead of sta
 ```
 planning/specs/<slug>.md          spec (+ design sections when large or risky)
 planning/specs/<slug>.notes.md    decisions, deviations, design approval, open questions
-planning/task-loop/<slug>/        review rounds, verify evidence per row, drift.md
+planning/task-loop/<slug>/        review rounds, matrix.md, verify/ evidence per row,
+                                  drift.md
 
 Numbers match the Step headings below. FIX is not a step; it is where every
-confirmed finding lands, always in the builder window.
+confirmed finding lands, always in the builder window. Every arrow back to an
+earlier step needs a round left on that stage (principle 5); with none left,
+the arrow goes to 6.
 
 +-------------------- WINDOW 1: builder (long-lived) ---------------------+
 |  1. SPEC    goal, non-goals, design, journeys, acceptance checks        |
@@ -94,26 +97,27 @@ confirmed finding lands, always in the builder window.
 |     FIX     findings from 3, 4 or 5; commit, push                       |
 |  5. DRIFT   docs vs code, file:line per claim, classify each mismatch   |
 +-------------------------------------------------------------------------+
-     | spec + diff only            ^ P1 findings (review cap)
+     | spec + diff only            ^ P1 findings -> FIX -> 3 (round 2)
      v                             |
 +------------ WINDOW 2: goldfish-reviewer (fresh dispatch) ---------------+
 |  3. REVIEW  reads spec + diff, returns PASS / NEEDS-FIXES + findings    |
 +-------------------------------------------------------------------------+
-     | PASS -> one matrix row per critical user journey
+     | PASS -> matrix.md, one row per critical user journey
      v
-+------ WINDOWS 3..N+3: one driver per row + one reader (fresh) ----------+
-|  4. VERIFY  /verify suite; reset, then drive each row; reader judges    |
-|             the evidence. Ran wrong -> FIX, re-drive (verify cap)       |
++------- WINDOWS 3-4: one driver + one reader per verify round -----------+
+|  4. VERIFY  /verify suite; driver resets, drives each row, captures     |
+|             raw output; reader judges it. Fail -> FIX -> 4 (round 2)    |
 |             No runnable surface: /verify suite only, no matrix          |
 +-------------------------------------------------------------------------+
      | verify settled (Step 5 entry gate)
      v
-  5. DRIFT    in the builder window. Code wrong -> FIX -> back to 4 for
-              the affected rows. Doc stale -> fix the doc. Spec gap ->
-              open question.
+  5. DRIFT    builder window. Code wrong -> FIX -> 4 for affected rows.
+              Doc stale -> fix the doc. Spec gap -> open question.
+              Then: commits since the last reviewed SHA (other than
+              doc-stale fixes) -> 3 as a delta review.
      |
      v
-  6. REPORT   at the final head SHA. Ask "Merge?" Stop.
+  6. REPORT   head SHA, evidence SHA per row. Ask "Merge?" Stop.
 ```
 
 
@@ -135,8 +139,8 @@ The decision rules for when one window is enough and when a fresh one earns its 
 - Never: persona teams, ticket fan-out, parallel coordinators, or "reviewing" inside the builder
   window.
 - A typical run costs 1 long-lived window, 1 review dispatch per review round, and, when there is a
-  runnable surface, N + 1 dispatches per verify round (one driver per matrix row, one reader). The
-  formula is in `references/window-budget.md`. The EGM swarm is the deliberate escalation, not the
+  runnable surface, 2 dispatches per verify round (one driver, one reader), plus one driver per
+  extra sandbox when rows run in parallel. The formula is in `references/window-budget.md`. The EGM swarm is the deliberate escalation, not the
   default.
 
 ---
@@ -148,6 +152,11 @@ The decision rules for when one window is enough and when a fresh one earns its 
 | Small | typo, copy change, one-function bug | Skip the loop. Fix in one window, run `/verify`, `/commit`. |
 | Typical | feature, behavior-changing bug fix | Full loop: 1 long-lived builder window + 1 review dispatch. Add the matrix and verify dispatches only when the change has a runnable surface to drive. |
 | Large or risky | new subsystem, data migration, public API change | Full loop with the design stage (Step 1), and consider the EGM swarm opt-in below. |
+
+**Runnable surface.** Anything a user or caller can exercise: a route, a screen, a CLI command, an
+API, a job or webhook trigger. A skill, command, or agent definition counts when the repo's rules
+say to test it by invoking it (this repo's `CLAUDE.md` does). Prose docs, types, CI config, and pure
+refactors have none. The spec states which case applies; the goldfish reviewer can dispute it.
 
 ---
 
@@ -162,13 +171,19 @@ yet. Keep the spec in the repo; it is a living document, not chat history (EGM r
 
 **Critical user journeys (required when the change has a runnable surface).** List each journey a
 user takes through the change, with its entry point (route, click path, or API call). These become
-the rows of the test matrix. Also name the command that resets the non-production environment to a
-known baseline (a seed script, a fixture load); verify runs it before every row. A journey with no
-entry point, or a runnable surface with no reset command, is not ready to build. The goldfish
-reviewer checks both.
+the rows of the test matrix. Also name:
 
-**Design stage (large or risky changes).** No new sections: the same required sections go deeper,
-written before any code.
+- the **reset command** that returns the non-production environment to a known baseline (a seed
+  script, a fixture load), and the environment name or URL that marks a target as non-production;
+- the **sandbox command** that creates an isolated copy of that environment, when rows are meant
+  to run in parallel.
+
+A journey with no entry point, or a runnable surface with no reset command, is not ready to build.
+The goldfish reviewer checks both as a backstop after the build; catching it there costs a review
+round.
+
+**Design stage (large or risky changes).** No sections beyond the ones already required above: they
+go deeper, written before any code.
 
 | Section | For a large or risky change it also carries |
 |---------|---------------------------------------------|
@@ -186,8 +201,12 @@ Design approved: <who>, <date>, spec at <commit sha>
 ```
 
 The build starts only when that line exists. A resumed or compacted window that finds no approval
-line asks again; it never builds on an unapproved design. A design change after approval updates the
-spec and needs a new approval line. Changes go back through the user, not through the builder alone.
+line asks again; it never builds on an unapproved design.
+
+A **design change** is any departure that alters a critical user journey, an interface named in the
+design section, or a non-goal. It updates the spec and needs a new approval line; it goes back
+through the user, not through the builder alone. Anything smaller is a **deviation**: record it in
+the notes file and keep building.
 
 Never paste the spec into chat. Write the file and point at it.
 
@@ -208,10 +227,13 @@ Read `references/review-round.md`, then:
    branch. Do not summarize the build for it. Do not paste your reasoning into its brief.
 3. Send confirmed (P1) findings back to the builder window and fix them there. Carry maybes (P2)
    to the final report.
-4. Review cap (principle 5). Stop early when the reviewer returns PASS.
-5. **Delta review.** If verify or drift later changes behavior (not docs alone), dispatch one more
-   goldfish review of the diff since the last reviewed SHA before the report. It spends a review
-   round. Docs-only fixes after review are listed in the report instead.
+4. Review gets two rounds (principle 5). Stop early when the reviewer returns PASS. If the second
+   round still returns P1s, skip verify and drift and go to the report.
+5. **Delta review.** Runs at the end of Step 5, never earlier. If commits landed after the last
+   reviewed SHA (other than doc-stale drift fixes) and a review round remains, dispatch the
+   goldfish reviewer on the diff since that SHA. Its P1s go to FIX, then back to Step 4 for the
+   affected rows and Step 5 for what the fix touched. With no review round left, the report lists
+   those commits as unreviewed.
 
 One dispatch is the design, not a starting bid: behavior changes earn exactly one independent
 review because independence is what it buys. If a change is small enough that an honest self-check
@@ -230,21 +252,24 @@ this skill avoids by default. When the design justifies it, install EGM and run 
 claude plugin marketplace add google/elephant-goldfish-model && claude plugin install egm@egm
 ```
 
-## Step 4: Verify (fresh dispatch per matrix row)
+## Step 4: Verify (one driver and one reader per round)
 
 Read `references/test-matrix.md` and `references/verify-round.md`, then:
 
-- Always run the `/verify` suite (lint, typecheck, tests, build). It is the floor, not the proof.
-- If the change has a runnable surface, build the test matrix from the spec's critical user
-  journeys. One fresh driver per row resets the environment to baseline, then drives the row the
-  way a user would. Rows run in parallel only when they share no state, as `references/test-matrix.md`
-  defines it.
-- One fresh reader per verify round judges every row's evidence file. It did not drive any row.
-  Route on its verdict, never on a driver's claim.
-- A row that ran wrong goes to FIX in the builder window, then that row is re-driven after a reset.
-  That spends a verify round (principle 5).
-- If the change has no runnable surface (docs, CI config, types, pure refactor), say so plainly.
-  There is no matrix; the `/verify` suite is the whole of verify, and drift runs next.
+- Every verify round runs the `/verify` suite (lint, typecheck, tests, build). It is the floor, not
+  the proof. A failing suite fails the round, like a failing row.
+- If the change has a runnable surface, write the test matrix to
+  `planning/task-loop/<slug>/matrix.md` from the spec's critical user journeys.
+- One fresh **driver** per round drives the rows: before each row it confirms the target is
+  non-production, runs the reset command, drives the row the way a user would, and captures the raw
+  output into the row's evidence file before the next reset. Rows that share no state may run in
+  parallel, one driver per sandbox.
+- One fresh **reader** per round judges every evidence file. It drove no row and reads only raw
+  output (commands, queries, and their full results; screenshots); a driver's summary is a claim and
+  the reader ignores it. Route on the reader's verdict.
+- A failed round goes to FIX in the builder window, then a second round re-drives the affected rows.
+- If the change has no runnable surface, say so plainly. There is no matrix; the `/verify` suite is
+  the whole of verify, and drift runs next.
 - Write evidence to `planning/task-loop/<slug>/verify/`, one file per row. These files follow the
   stop-verification-evidence hook's contract (evidence over narrative). That hook ships as a spec
   in `.claude/hooks/` and becomes an active gate only once wired into settings.json; until then
@@ -255,22 +280,31 @@ Read `references/test-matrix.md` and `references/verify-round.md`, then:
 **Entry gate.** This is the one definition; `references/verify-round.md` and
 `references/drift-check.md` point here. Drift starts when verify is settled:
 
-1. The `/verify` suite passes, and
-2. no matrix row is left at "ran wrong" with verify rounds still unspent.
+1. the last verify round's `/verify` suite passed, and
+2. no matrix row is at "ran wrong".
 
 Rows reported as couldn't boot or unreachable do not block drift; they reach the report as
 unverified. A change with no runnable surface still runs drift, because docs-only changes are the
-ones most likely to drift. If the verify cap is spent with a row still wrong, skip drift and report.
+ones most likely to drift. If verify's rounds are spent with the suite failing or a row still wrong,
+skip drift and go to the report.
 
 Read `references/drift-check.md`, then run it in the builder window on the change's scope:
 
 - List the documented claims in scope, check each against the code with `file:line` evidence, and
   classify each mismatch:
-  - **Code wrong:** go to FIX, then back to Step 4 for the affected rows (reset, re-drive, re-judge)
-    and the `/verify` suite. That spends a verify round. Then re-run drift on what the fix touched.
-  - **Doc stale:** fix the doc in this PR and re-run the `/verify` suite. No verify round is spent.
+  - **Code wrong:** if a verify round remains, go to FIX, then back to Step 4 for the affected rows,
+    then re-run drift on what the fix touched. With no verify round left, the report carries it as
+    unresolved.
+  - **Doc stale:** fix the doc in this PR and re-run the `/verify` suite. No round is used. Row
+    verdicts carry over under the rule below.
   - **Spec gap:** carry it to the report as an open question.
 - Write `planning/task-loop/<slug>/drift.md`.
+- Then check for a delta review (Step 3, item 5).
+
+**When a verdict still counts.** A row's verdict carries to a later commit only when
+`git diff --name-only <evidence SHA>..HEAD` shares no path with the row's "Paths exercised" in
+`matrix.md`. Otherwise the row must be re-driven before its verdict counts. The check is mechanical,
+so the builder can run it without judging its own work.
 - Drift stays at the change's scope unless the user opts into a wider check. On a large or risky
   change, run it as a fresh dispatch (spec, diff, and in-scope docs) instead of in the builder
   window.
@@ -281,11 +315,11 @@ Read `references/drift-check.md`, then run it in the builder window on the chang
 == TASK LOOP REPORT ==
 PR: <link>  (branch: <name>, N commits)
 Built: <one paragraph>
-Head: <final head SHA; every line below describes this SHA>
-Review: <rounds run, last reviewed SHA, what was found, fixed, carried as P2; commits after the
-        last reviewed SHA and whether each was delta-reviewed or docs-only>
-Verified: <one line per matrix row with its verdict at the head SHA, or "no runnable surface:
-          /verify suite only">
+Head: <final head SHA>
+Review: <rounds run (of 2), last reviewed SHA, what was found, fixed, carried as P2; commits
+        after the last reviewed SHA, each marked doc-stale fix or unreviewed>
+Verified: <rounds run (of 2); one line per matrix row: verdict, evidence SHA, "carried" when
+          the evidence SHA is not the head; or "no runnable surface: /verify suite only">
 Drift: <claims checked, mismatches, how each was classified and resolved>
 Open questions: <from the notes file, each with a recommended answer>
 Next: Merge PR #n?
@@ -318,10 +352,10 @@ own reviewer, and gates that hooks enforce here must live outside the agent ther
 - Keep the builder window alive across fix rounds. Fixes are cheap because the builder remembers.
 - Give reviewers the spec and the diff, never the build transcript.
 - Write long output to files and point at the path. No chat dumps.
-- Fix-round caps are principle 5's. Past a cap, report and stop.
-- Reset the environment before every matrix row: reseed for sequential rows, a separate sandbox
-  per row when rows run in parallel. No row inherits another row's state.
-- The report describes the final head SHA. Evidence from an earlier SHA is not verification.
+- Rounds are principle 5's: two per stage, the first included. Past them, report and stop.
+- Reset the environment before every matrix row, and only after confirming the target is
+  non-production. Parallel rows each get their own sandbox. No row inherits another row's state.
+- A verdict counts for the head SHA only under the carry rule in Step 5.
 - Never merge, deploy, or revert on your own.
 - Never spawn a swarm by default. One goldfish reviewer; more only on explicit opt-in.
 - Never self-review and call it independent.

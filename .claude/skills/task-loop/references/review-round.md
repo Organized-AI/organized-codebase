@@ -25,5 +25,6 @@ one silently.
 The builder commits and pushes after each group of fixes. Post the findings to the PR so a resumed
 run can see them, and keep a copy at `planning/task-loop/<slug>/review-round-N.md`.
 
-The review cap is principle 5 in `../SKILL.md` (two fix rounds, a delta review included); stop
-early when every reviewer comes back clean.
+Review gets two rounds, the first review and any delta review included (principle 5 in
+`../SKILL.md`). Stop early when every reviewer comes back clean. The delta review runs only at the
+end of Step 5 (`../SKILL.md` Step 3, item 5).

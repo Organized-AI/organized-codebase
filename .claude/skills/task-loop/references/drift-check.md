@@ -26,11 +26,13 @@ the same as the EGM swarm.
    the names of agents, skills, and hooks.
 2. Check each claim against the code. Record `file:line` for each check, not a yes or no.
 3. Classify each mismatch:
-   - **Code wrong.** The code contradicts the approved spec. Send it to FIX in the builder window,
-     then back to verify for the affected rows and the `/verify` suite. That spends a verify round
-     (principle 5 in `../SKILL.md`). Re-run drift on what the fix touched.
+   - **Code wrong.** The code contradicts the approved spec. If a verify round remains, send it to
+     FIX in the builder window, then back to verify for the affected rows; that uses the round
+     (principle 5 in `../SKILL.md`). Re-run drift on what the fix touched. With no verify round
+     left, carry it to the report as unresolved.
    - **Doc stale.** The code is right and the document says otherwise. Fix the document in the same
-     PR and re-run the `/verify` suite. No round is spent.
+     PR and re-run the `/verify` suite. No round is used; row verdicts carry over under the carry
+     rule in `../SKILL.md` Step 5.
    - **Spec gap.** The spec never decided the question. Record it in the notes file and carry it to
      the final report as an open question with a recommended answer.
 4. Write `planning/task-loop/<slug>/drift.md`: the head SHA checked, claims checked, mismatches,
