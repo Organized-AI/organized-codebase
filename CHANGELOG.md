@@ -31,6 +31,20 @@ see [DOCUMENTATION/GITOPS.md](DOCUMENTATION/GITOPS.md).
 - The Claude Code changelog sync opens or updates a pull request (`bot/claude-code-changelog`) instead of pushing to
   `main`, so every change to `main`, including bot changes, passes the PR Gate
 
+### Security
+
+- `.env.example` held what look like a real OpenRouter key and a real GLM key, committed in `ff46fe2` (2025-12-02).
+  The values are now empty like every other key in the file. Both keys must be revoked at their providers: the
+  repository is public, so they stay readable in its history. Their two history findings are recorded in
+  `.gitleaksignore` so the full-history scan fails only on new leaks
+- The Cloudflare Workers GitOps template (`templates/gitops/cloudflare-workers`) passes zizmor: every action pinned to
+  a commit SHA, no checkout keeps credentials (the production pull request pushes with `gh auth setup-git` instead),
+  `release.yml` grants write permissions only to the job that opens the pull request, the version id reaches the shell
+  through `env`, and Dependabot waits 7 days. Every new Workers project inherits these defaults
+- Dependency review accepts one advisory, GHSA-c475-qrg2-pj4r in `basic-ftp` 5.x, with its reason and way out in
+  `security.yml`: it is reachable only through `apify-client`'s proxy agent with an `ftp://` proxy, and the fix is a
+  major version outside `get-uri`'s range
+
 ### Fixed
 
 - `package-lock.json` was out of sync with `package.json` (missing `@codevibesmatter/kata`), so `npm ci` failed on

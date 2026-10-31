@@ -30,9 +30,9 @@ jobs:
         run: |
           echo "::warning::No CLOUDFLARE_API_TOKEN secret. Run scripts/gitops/sync.sh on a machine logged in to wrangler."
           exit 1
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with: { fetch-depth: 0, persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - name: Sync production to deploy/envs/production.json, then e2e
@@ -40,6 +40,6 @@ jobs:
           DD_BASE: __PROD_URL__
           DD_RUN_ID: e2e-prod-${{ github.run_id }}
         run: bash scripts/gitops/sync.sh production
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         if: always()
         with: { name: e2e-production, path: tests/e2e/reports/*.json, if-no-files-found: ignore }

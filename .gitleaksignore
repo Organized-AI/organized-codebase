@@ -1,0 +1,8 @@
+# Findings gitleaks may ignore. Each line is a fingerprint (commit:file:rule:line) from `gitleaks git`.
+# Only add a finding here after the secret has been revoked at its provider; the entry stops the
+# full-history scan from failing on a leak that can no longer be used. New leaks still fail the scan.
+#
+# .env.example, commit ff46fe2 (2025-12-02): an OpenRouter key and a GLM key were committed as example
+# values and stayed on main until PR #19 emptied them. Both must be revoked before PR #19 merges.
+ff46fe2f5f2b1322ed0d528f1746ae6b1c81c3fd:.env.example:generic-api-key:14
+ff46fe2f5f2b1322ed0d528f1746ae6b1c81c3fd:.env.example:generic-api-key:18

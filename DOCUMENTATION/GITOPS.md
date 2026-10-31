@@ -26,6 +26,9 @@ pull request gate, security scanning and tag-driven releases, and has no image o
 - **Pinned and least-privilege workflows.** Every action is pinned to a commit SHA with its tag in a comment,
   checkouts do not persist credentials, and each job asks only for the permissions it uses. zizmor enforces this.
 - **No secrets in Git.** gitleaks scans the full history on every pull request.
+- **Exceptions are code-reviewed and explain themselves.** A history finding goes in `.gitleaksignore` only after the
+  secret is revoked. An accepted dependency advisory goes in `allow-ghsas` in `security.yml` with its reason and the
+  change that will let it be removed. Both arrive by pull request like everything else.
 
 ## Layout
 
