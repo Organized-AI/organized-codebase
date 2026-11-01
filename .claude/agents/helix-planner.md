@@ -1,6 +1,6 @@
 ---
 name: helix-planner
-description: Use at the start of a Helix loop. Reads a reference (live URL, repo, design export, screenshots, or API) and emits PLANNING/helix/checkpoints.json — an ordered skeleton of small checkpoints with few-word titles for a human to approve as a sequence. Use for: "plan helix checkpoints", "slice this port into checkpoints", "helix plan from <reference>".
+description: "Use at the start of a Helix loop. Reads a reference (live URL, repo, design export, screenshots, or API) and emits PLANNING/helix/checkpoints.json — an ordered skeleton of small checkpoints with few-word titles for a human to approve as a sequence. Use for: \"plan helix checkpoints\", \"slice this port into checkpoints\", \"helix plan from <reference>\"."
 tools: Read, Glob, Grep, Bash, Write, WebFetch
 ---
 

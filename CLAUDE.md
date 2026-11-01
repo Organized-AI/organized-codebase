@@ -49,11 +49,12 @@ This repo uses [@codevibesmatter/kata](https://github.com/codevibesmatter/kata) 
 - Never hardcode paths - use relative paths or environment variables
 - Never create files without reading existing patterns first
 - Never edit `.claude/workflows/kata.yaml` manually when `kata config` commands exist
+- Never push to `main` directly, from a laptop or a workflow: every change lands by pull request through the PR Gate (`DOCUMENTATION/GITOPS.md`)
 
 ## Verification Requirements
 Before completing ANY task:
 1. Describe your verification approach first
-2. Run linting/type checks if applicable
+2. Run `npm run check` and `npm test` (the same checks as the PR Gate), plus linting/type checks if applicable
 3. For skills/commands: test by invoking them
 4. For UI changes: provide screenshot or description
 5. Update CLAUDE.md "DO NOT" section if you discover new anti-patterns
