@@ -18,7 +18,7 @@ independent review. This file is the decision rule set, grounded in
 | Reason | What the new window gets | What it must NOT get |
 |--------|--------------------------|----------------------|
 | **Review independence** | The spec and the diff | The build transcript, your reasoning, a summary of "intent" |
-| **Verify independence** | The flow brief (end state, rows, side effects) | The driver's or builder's claims |
+| **Verify independence** | Driver: `matrix.md` and the reset command. Reader: the round's evidence files (raw output only) | The builder's claims; for the reader, the driver's summaries too |
 | **Measurable degradation** | The spec + notes files, reloaded | Nothing else; if you cannot point at degradation, do not split |
 | **Parallel disposable work** | A self-contained brief (research, exploration) | Shared mutable state |
 
@@ -33,14 +33,28 @@ independent review. This file is the decision rule set, grounded in
 
 ## What it costs
 
+`R` is the number of review rounds (a delta review included, at most 2). Each verify round `v` (at
+most 2) uses `D_v` drivers: 1 when its rows run in order, one per sandbox when they run in parallel.
+
+```
+fresh dispatches = R + sum over verify rounds of (D_v + 1)      the +1 is the reader
+```
+
+Matrix size does not add windows: one driver resets and drives every row in order, which already
+isolates their state. Parallel sandboxes are the only thing that adds drivers.
+
 | Shape | Long-lived windows | Fresh dispatches | Independence |
 |-------|--------------------|------------------|--------------|
 | Small fix, no loop | 1 | 0 | self-checked (`/verify`) |
-| Typical task-loop run | 1 | 2 (reviewer + verifier) | review and verify independent |
+| Typical run, no runnable surface | 1 | `R` (1 when the first review passes) | review independent; verify is the `/verify` suite |
+| Typical run, rows in order | 1 | `R + 2` per verify round (clean first time: 1 + 2 = 3) | review, driving, and judging independent |
+| Typical run, rows in `k` parallel sandboxes | 1 | `R + (k + 1)` per verify round | the same, faster, at `k - 1` extra windows |
+| Large or risky, drift as a dispatch | 1 | the line above, + 1 | adds independent drift |
 | EGM default review round | 1 | 6+ personas + synthesizer | maximal, at swarm cost |
 
-The typical row is the design point: two cheap, stateless dispatches buy the independence that
-matters, and everything else shares one context.
+The typical rows are the design point: cheap, stateless dispatches buy the independence that
+matters, and everything else shares one context. Run rows in parallel only when the wait matters
+more than the windows.
 
 ## Escalation
 
