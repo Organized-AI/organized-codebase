@@ -1,0 +1,5 @@
+# Default owner for everything; see CLAUDE.md for the repo map.
+*                       @jhillbht
+/.github/               @jhillbht
+/.claude/               @jhillbht
+/scripts/ci/            @jhillbht

@@ -1,6 +1,6 @@
 ---
 name: review-agent
-description: Use when you need a second opinion on code changes or a spec. Reviews diffs, specs, and implementations for correctness, completeness, edge cases, and quality. Use for: code review before PR, spec review before implementation, reviewing a fix for correctness.
+description: "Use when you need a second opinion on code changes or a spec. Reviews diffs, specs, and implementations for correctness, completeness, edge cases, and quality. Use for: code review before PR, spec review before implementation, reviewing a fix for correctness."
 tools: Read, Glob, Grep, Bash
 ---
 

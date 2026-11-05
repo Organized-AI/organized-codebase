@@ -1,6 +1,6 @@
 ---
 name: impl-agent
-description: Use when you need to implement a specific phase or task from a spec. Reads the spec, implements the required changes, runs verification, and reports back. Use for: executing spec phases in parallel, implementing isolated changes, verifying a phase is complete.
+description: "Use when you need to implement a specific phase or task from a spec. Reads the spec, implements the required changes, runs verification, and reports back. Use for: executing spec phases in parallel, implementing isolated changes, verifying a phase is complete."
 tools: Read, Glob, Grep, Bash, Edit, Write
 ---
 

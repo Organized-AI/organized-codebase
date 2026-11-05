@@ -1,0 +1,51 @@
+# The PR Gate: every pull request and every push to main runs these jobs; branch protection
+# requires only the final "PR Gate" job, which fails if any job it depends on did not succeed.
+# Modeled on Organized-AI/podcast-agent. Nothing here needs a secret, so it runs for forks too.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Structure, tests, version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install from the lockfile (no install scripts)
+        run: npm ci --ignore-scripts
+      - name: Structure (JSON, YAML, skill/agent/command frontmatter, shell syntax, Helix plan)
+        run: npm run check
+      - name: Tests (hermetic)
+        run: npm test
+      - name: Version and CHANGELOG.md agree
+        run: npm run version:check
+
+  gate:
+    name: PR Gate
+    if: always()
+    needs: [quality]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every required job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "job results: $RESULTS"
+          for r in $RESULTS; do [ "$r" = "success" ] || exit 1; done
