@@ -171,6 +171,8 @@ Build → One feature at a time
 
 The commands enforce the discipline. You can't forget to verify because the workflow includes it.
 
+For larger multi-session systems, treat Organized Codebase as the human-supervised scaffold around the loop. `PLANNING/`, agents, skills, and verification define how work moves; if the project outgrows chat history and loose files, add a durable registry or issue substrate underneath that loop instead of falling back to ad hoc prompting. See [Give Your AI a Build Registry](DOCUMENTATION/GIVE-YOUR-AI-A-BUILD-REGISTRY.md).
+
 ### Permissions
 
 The `.claude/settings.json` uses three tiers:
@@ -313,6 +315,7 @@ npx create-organized-codebase@latest my-project
 - **[Delete Your `CLAUDE.md`? — Boris Cherny’s 7 Takeaways for Organized Codebase](DOCUMENTATION/BORIS-DELETE-YOUR-CLAUDE-MD-GUIDE.md)** — July 2026 YC / Hyperautomation Labs synthesis with actionable repo takeaways
 - **[Boris Context Placement Ladder](DOCUMENTATION/BORIS-CONTEXT-PLACEMENT-LADDER.md)** — Operator rules for prompt vs `CLAUDE.md` vs skill vs MCP, plus routines vs dynamic workflows
 - **[Graph Engineering in Organized Codebase](DOCUMENTATION/GRAPH-ENGINEERING-ORGANIZED-CODEBASE-FIT.md)** — Practical use cases, anti-use-cases, and a narrow rollout recommendation for OC
+- **[Give Your AI a Build Registry](DOCUMENTATION/GIVE-YOUR-AI-A-BUILD-REGISTRY.md)** — Jockey-grounded comparison of Angus’s “full system” reel with OC’s existing loop, verification, and human-in-the-loop model
 - **[Closed-Loop Evals for Multimodal Agents](DOCUMENTATION/CLOSED-LOOP-EVALS-MULTIMODAL-AGENTS.md)** — TwelveLabs + transcript-grounded takeaways from Uber’s multimodal eval talk, translated into OC operator rules
 - **[Eval Loop Spec Template](PLANNING/spec-templates/eval-loop.md)** — Reusable scaffold for stage metrics, judges, replay, promotion gates, and rollback
 - **[Boris Ablation Eval Matrix](DOCUMENTATION/BORIS-ABLATION-EVAL-MATRIX.md)** — How to decide what to prune using tests + evals across models and harnesses
