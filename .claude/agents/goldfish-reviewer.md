@@ -45,6 +45,12 @@ minimize context windows.
    What breaks first, and who finds out?
 4. **Implementation readiness.** Does the diff implement the spec, all of it, nothing beyond it?
    Is each acceptance check real and runnable? Do tests cover behavior, including error paths?
+   Does the spec say whether the change has a runnable surface (task-loop SKILL.md Step 0), and
+   do you agree? If it has one, does the spec list its critical user journeys, each with an entry
+   point (route, click path, or API call), name a reset command, and name what marks an
+   environment as non-production? A missing journey list, a journey with no entry point, no reset
+   command, or no non-production marker is a P1: verify cannot build its test matrix safely
+   without them.
 
 ## Finding rules
 
