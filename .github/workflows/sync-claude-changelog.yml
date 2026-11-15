@@ -1,63 +1,90 @@
+# Every 6 hours: fetch the upstream Claude Code changelog and, if it changed, open or update ONE pull
+# request on branch bot/claude-code-changelog. Nothing is pushed to main; the PR Gate runs on the pull
+# request like any other change. Same pattern as podcast-agent's deployment pull requests.
 name: Sync Claude Code Changelog
 
 on:
   schedule:
-    # Run every 6 hours
-    - cron: '0 */6 * * *'
+    - cron: "0 */6 * * *"
   workflow_dispatch:
-    inputs:
-      force_update:
-        description: 'Force update even if no changes'
-        required: false
-        default: 'false'
+
+permissions: {}
+
+concurrency:
+  group: sync-claude-changelog
+  cancel-in-progress: false
 
 jobs:
   sync-changelog:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
-    
+      pull-requests: write
+      actions: write   # dispatch the checks when the pull request is opened with GITHUB_TOKEN
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Fetch Claude Code Changelog
+      - name: Fetch the Claude Code changelog
         run: |
           mkdir -p DOCUMENTATION
-          curl -sSL https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md \
+          curl -sSfL https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md \
             -o DOCUMENTATION/claude-code-changelog.md
 
-      - name: Check for changes
-        id: changes
-        run: |
-          if git diff --quiet DOCUMENTATION/claude-code-changelog.md; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Extract latest version
+      - name: Latest version
         id: version
-        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
         run: |
-          VERSION=$(grep -m 1 '^## \[' DOCUMENTATION/claude-code-changelog.md | sed 's/## \[\([^]]*\)\].*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          version=$(grep -m 1 '^## ' DOCUMENTATION/claude-code-changelog.md | sed -E 's/^## \[?([^] ]+)\]?.*/\1/')
+          case "$version" in
+            *[!0-9A-Za-z.+-]*|"") echo "::error::unexpected version heading: $version"; exit 1 ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push changes
-        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+      # Pull requests are opened as the organized-ai-gitops GitHub App when it is configured, so their
+      # checks run like any other pull request. Without it (vars.DEPLOY_APP_ID unset) the workflow token
+      # is used, whose pull requests trigger no workflows, so the checks are dispatched below.
+      - id: app
+        if: vars.DEPLOY_APP_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          app-id: ${{ vars.DEPLOY_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - id: pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
+        with:
+          token: ${{ steps.app.outputs.token || github.token }}
+          base: main
+          branch: bot/claude-code-changelog
+          delete-branch: true
+          add-paths: DOCUMENTATION/claude-code-changelog.md
+          commit-message: "docs: update Claude Code changelog to v${{ steps.version.outputs.version }}"
+          title: "docs: update Claude Code changelog to v${{ steps.version.outputs.version }}"
+          labels: documentation
+          body: |
+            Upstream `anthropics/claude-code` CHANGELOG.md, latest entry v${{ steps.version.outputs.version }}.
+            Opened by `.github/workflows/sync-claude-changelog.yml`; merge when the PR Gate passes.
+
+      - name: Run the required checks on the pull request branch
+        if: steps.app.outputs.token == '' && (steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated')
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add DOCUMENTATION/claude-code-changelog.md
-          git commit -m "docs: Update Claude Code changelog to v${{ steps.version.outputs.version }}"
-          git push
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref bot/claude-code-changelog
+          gh workflow run security.yml --repo "$GITHUB_REPOSITORY" --ref bot/claude-code-changelog
 
       - name: Summary
+        env:
+          OPERATION: ${{ steps.pr.outputs.pull-request-operation }}
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if [ "${{ steps.changes.outputs.changed }}" == "true" ]; then
-            echo "✅ Changelog updated to v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$OPERATION" ] && [ "$OPERATION" != "none" ]; then
+            echo "Pull request $OPERATION for v$VERSION: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "ℹ️ No changelog updates detected" >> $GITHUB_STEP_SUMMARY
+            echo "No changelog changes (latest v$VERSION)" >> "$GITHUB_STEP_SUMMARY"
           fi

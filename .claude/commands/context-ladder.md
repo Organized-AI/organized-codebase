@@ -1,5 +1,5 @@
 ---
-description: Route a recurring agent failure to the right layer: prompt, CLAUDE.md, skill, MCP/tool, or verification surface
+description: "Route a recurring agent failure to the right layer: prompt, CLAUDE.md, skill, MCP/tool, or verification surface"
 ---
 
 # /context-ladder

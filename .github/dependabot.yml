@@ -1,0 +1,31 @@
+# Weekly dependency updates. A cooldown lets a new release age a week before it is proposed,
+# which keeps freshly published (and possibly compromised) versions out of the lock file.
+# Modeled on Organized-AI/podcast-agent. No labels are set, so Dependabot applies and creates its
+# defaults (dependencies, plus the ecosystem).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci

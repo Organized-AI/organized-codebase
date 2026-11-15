@@ -1,0 +1,21 @@
+# Dependency review settings for security.yml. Kept out of the workflow so an exception is an ordinary
+# reviewed file change: no edit to .github/workflows/, which needs elevated permissions to push.
+#
+# A pull request fails when it ADDS a dependency with a high or critical advisory, or a denied license.
+fail-on-severity: high
+deny-licenses:
+  - GPL-3.0-only
+  - AGPL-3.0-only
+
+# Accepted, reviewed exceptions. Each needs a reason and a way out; remove it when the way out lands.
+allow-ghsas:
+  # basic-ftp 5.x, CPU DoS in the FTP directory-listing parser. Reached only through
+  # apify-client -> proxy-agent -> get-uri when a proxy is configured with an ftp:// URL, which
+  # scripts/fetch-changelog.js never does. The fix is basic-ftp 6.x, outside get-uri's ^5 range.
+  # Way out: get-uri allowing basic-ftp 6, or Dependabot proposing it.
+  - GHSA-c475-qrg2-pj4r
+  # zod < 4.6.6, memory exhaustion validating oversized constrained collections. Pulled in by
+  # @codevibesmatter/kata (devDependency, ^3.25.76; it validates local kata config) and as an optional
+  # peer of openai; no code in this repository imports zod. No 3.x release is fixed.
+  # Way out: kata moving to zod >= 4.6.6.
+  - GHSA-mrhx-c7xc-m3w5

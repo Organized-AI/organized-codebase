@@ -1,10 +1,13 @@
+# Weekly updates; a 7-day cooldown keeps freshly published (possibly compromised) releases out.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
     groups:
       wrangler: { patterns: ["wrangler"] }
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
